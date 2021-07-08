@@ -1,0 +1,292 @@
+/*
+ *   Automated Car-Parking
+ *   EXECUTABLE MODEL COMPLIANT WITH THE PROBLEM ANALYSIS
+ *   by Giacomo Fantazzini and Claudia Badalamenti
+ *
+ * */
+
+System carparking
+
+Dispatch goto : goto(PLACE)
+Dispatch movementDone : movementDone(N)
+Dispatch fanStart : fanStart(N)
+Dispatch fanStop : fanStop(N)
+Dispatch endmove : endmove(N)
+Dispatch notice : notice(NOTICE)
+Dispatch slotnum : slotnum(SLOTNUM)
+Dispatch tokenid : tokenid(TOKENID)
+
+Event temperature : temperature(VALUE)
+Event outdoorCleared : outdoorCleared(N)
+Event outdoorOccupied : outdoorOccupied(N)
+Event indoorCleared : indoorCleared(N)
+Event indoorOccupied : indoorOccupied(N)
+Event outdoorAlarm : outdoorAlarm(N)
+Event outdoorAlarmRevoked : outdoorAlarmRevoked(N)
+Event temperatureAlarm : temperatureAlarm(N)
+Event temperatureAlarmRevoked : temperatureAlarmRevoked(N)
+
+Context ctxcarparking ip[host="localhost" port=60000]
+
+QActor parkmanagerserviceactor context ctxcarparking {
+
+    [# var slotnum = 1 #]
+
+    State moveToHome_enter initial {
+    	delay 1000
+        forward trolleyactor -m goto : goto(home)
+    } Transition t whenEvent indoorOccupied -> acceptIN // enter request
+	
+    State moveToHome_exit {
+    	delay 1000
+        forward trolleyactor -m goto : goto(home)
+    } Transition t whenTime 5000 -> acceptOUT // exit request with TOKENID
+                  
+    State acceptIN {
+        forward parkserviceguiactor -m notice : notice(enter_request_accepted)
+    } Goto informIN // if INDOOR-area free else moveToHome
+
+    State informIN {
+        if [# slotnum > 0 #] {
+        	forward parkserviceguiactor -m slotnum : slotnum(1)
+        	// slotnum--
+        }
+    } Goto moveToIn if [# slotnum > 0 #] else moveToHome_enter
+
+    State moveToIn {
+        forward trolleyactor -m goto : goto(indoor)
+    } Transition t whenMsg movementDone -> receipt            
+
+    State receipt {
+    	delay 1000
+        forward parkserviceguiactor -m tokenid : tokenid(1)
+    } Goto moveToSlotIn
+
+    State moveToSlotIn {
+        forward trolleyactor -m goto : goto(parking)
+    } Transition t whenMsg movementDone -> moveToHome_exit
+
+    State acceptOUT {
+        forward parkserviceguiactor -m notice : notice(exit_request_accepted)
+    } Goto findSlot
+
+	State findSlot {
+		forward parkserviceguiactor -m notice : notice(carslotnum_1)
+		// slotnum++
+    } Goto moveToSlotOut
+
+    State moveToSlotOut {
+        forward trolleyactor -m goto : goto(parking)
+    } Transition t whenMsg movementDone -> moveToOut
+
+    State moveToOut {
+    	delay 1000
+        forward trolleyactor -m goto : goto(outdoor)
+    } Transition t whenMsg movementDone -> moveToHome_enter
+
+}
+
+QActor trolleyactor context ctxcarparking {
+
+	[#
+		val planner = carparking.DirectionalPlanner("parkingMap")
+		val proxy = carparking.RobotProxy(this, "localhost")
+		val home = arrayOf("0", "0", "S")
+		val parking = arrayOf("1", "1", "E")
+		val indoor = arrayOf("6", "0", "N")
+		val outdoor = arrayOf("6", "4", "S")
+		var goingHome = false
+	#]
+
+	State nop initial { } Transition t whenMsg goto -> idle
+
+	State idle {
+		onMsg (goto : goto(home)) {
+			run planner.planFor(home)
+			[# goingHome = true #]
+		}
+		onMsg (goto : goto(parking)) {
+			run planner.planFor(parking)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(outdoor)) {
+			run planner.planFor(outdoor)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(indoor)) {
+			run planner.planFor(indoor)
+			[# goingHome = false #]
+		}
+	} Goto working
+	
+	State working {
+		[# val move = planner.getNextPlannedMove() #]
+		if [# move.isNotEmpty() #] {
+			run proxy.doMove(move)
+			run planner.updateMap(move)
+		} else {
+			if [# !goingHome #] {
+				forward parkmanagerserviceactor -m movementDone : movementDone(0)
+			}
+		}
+	} Transition t
+		whenMsg endmove -> working
+		whenMsg goto -> idle
+	
+}
+
+QActor parkserviceguiactor context ctxcarparking {
+    State receive initial {
+        onMsg (slotnum : slotnum(SLOTNUM)) { println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}") }
+        onMsg (tokenid : tokenid(TOKENID)) { println("Client's GUI -> The TOKENID is: ${payloadArg(0)}") }
+        onMsg (notice : notice(MESSAGE)) { println("Client's GUI -> Notice received: ${payloadArg(0)}") }
+    } Transition t
+    	whenMsg slotnum -> receive
+    	whenMsg tokenid -> receive
+    	whenMsg notice -> receive
+}
+
+QActor parkservicestatusguiactor context ctxcarparking {
+	State receive initial {
+		onMsg (outdoorAlarm : outdoorAlarm(N)) { println("Manager's GUI -> OUTDOOR alarm!") }
+		onMsg (outdoorAlarmRevoked : outdoorAlarmRevoked(N)) { println("Manager's GUI -> OUTDOOR alarm REVOKED!") }
+		onMsg (temperatureAlarm : temperatureAlarm(N)) {
+			println("Manager's GUI -> Temperature alarm!")
+			forward fanactor -m fanStart : fanStart(0)
+		}
+		onMsg (temperatureAlarmRevoked : temperatureAlarmRevoked(N)) {
+			println("Manager's GUI -> Temperature alarm REVOKED!")
+			forward fanactor -m fanStop : fanStop(0)
+		}
+	} Transition t
+		whenEvent outdoorAlarm -> receive
+		whenEvent outdoorAlarmRevoked -> receive
+		whenEvent temperatureAlarm -> receive
+		whenEvent temperatureAlarmRevoked -> receive
+}
+
+CodedQActor weightactor context ctxcarparking className "carparking.WeightActor"
+/*
+ *  class WeightActor(name: String) : ActorBasic(name), Observer {
+ *  
+ *      private val button = ButtonMock("Weight", "Toggle weight", 30, 30);
+ *      private var present = false;
+ *  
+ *      init { button.addObserver(this) }
+ *  
+ *      override suspend fun actorBody(msg: ApplMessage) { }
+ *  
+ *      override fun update(o: Observable?, arg: Any?) {
+ *          runBlocking {			
+ *  			if (present) {
+ *  				present = false;
+ *  				emit("indoorCleared", "indoorCleared(0)")
+ *  			} else {
+ *  				present = true;
+ *  				emit("indoorOccupied", "indoorOccupied(0)")
+ *  			}
+ *          }
+ *      }
+ *  
+ *  }
+ */
+
+CodedQActor sonaractor context ctxcarparking className "carparking.SonarActor"
+/*
+ *  class SonarActor(name: String) : ActorBasic(name), Observer {
+ *  
+ *      private val button = ButtonMock("Sonar", "Toggle sonar", 30, 250);
+ *      private var present = false;
+ *  
+ *      init { button.addObserver(this) }
+ *  
+ *      override suspend fun actorBody(msg: ApplMessage) { }
+ *  
+ *      override fun update(o: Observable?, arg: Any?) {
+ *          runBlocking {			
+ *  			if (present) {
+ *  				present = false;
+ *  				emit("outdoorCleared", "outdoorCleared(0)")
+ *  			} else {
+ *  				present = true;
+ *  				emit("outdoorOccupied", "outdoorOccupied(0)")
+ *  			}
+ *          }
+ *      }
+ *  
+ *  }
+ */
+
+CodedQActor thermometeractor context ctxcarparking className "carparking.ThermometerActor"
+/*
+ *  class ThermometerActor(name: String) : ActorBasic(name), Observer {
+ *  
+ *      private val button = ButtonMock("Thermometer", "New temperature", 350, 30);
+ *      private var temperature = 30;
+ *  
+ *      init { button.addObserver(this) }
+ *  
+ *      override suspend fun actorBody(msg: ApplMessage) { }
+ *  
+ *      override fun update(o: Observable?, arg: Any?) {
+ *          runBlocking {
+ *              temperature = if (temperature > 35) 30 else 40
+ *              emit("temperature", "temperature($temperature)")
+ *          }
+ *      }
+ *  
+ *  }
+ */
+
+QActor fanactor context ctxcarparking {
+	
+	[# val mock = carparking.LedMock("Fan", 350, 250) #]
+	
+	State stop initial {
+		run mock.turnOff()
+	} Transition t whenMsg fanStart -> start
+	
+	State start {
+		run mock.turnOn()
+	} Transition t whenMsg fanStop -> stop
+	
+}
+
+QActor outdoorsentinelactor context ctxcarparking {
+
+	State watching initial { }
+	Transition t whenEvent outdoorOccupied -> timer
+
+	State timer { }
+	Transition t
+		whenTime 5000 -> alarm // DTFREE
+		whenEvent outdoorCleared -> watching
+
+	State alarm {
+		emit outdoorAlarm : outdoorAlarm(0)
+	} Transition t whenEvent outdoorCleared -> revoke
+	
+	State revoke {
+		emit outdoorAlarmRevoked : outdoorAlarmRevoked(0)
+	} Goto watching
+
+}
+
+QActor temperaturesentinelactor context ctxcarparking {
+	[#
+		val tmax = 35
+		var alarmed = false
+	#]
+	State watching initial {
+		onMsg (temperature : temperature(VALUE)) {
+			if [# payloadArg(0).toInt() > tmax && !alarmed #] {
+				emit temperatureAlarm : temperatureAlarm(0)
+				[# alarmed = true #]
+			}
+			if [# payloadArg(0).toInt() <= tmax && alarmed #] {
+				emit temperatureAlarmRevoked : temperatureAlarmRevoked(0)
+				[# alarmed = false #]
+			}
+		}
+	} Transition t whenEvent temperature -> watching
+}
