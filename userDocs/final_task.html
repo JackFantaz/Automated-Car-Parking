@@ -556,11 +556,21 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 <h3>Executable model</h3>
 
-<p>A QAK executable model of the logical architecture can be retrieved from the following link: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em></p>
+<p>A QAK executable model of the logical architecture can be retrieved from the following link: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em>. Every actor introduced in the main logical architecture and in the alarms sub-system has been implemented.</p>
 
-<p>This model leverages a first implementation of the <kc>RobotProxy</kc> and of the <kc>DirectionalPlanner</kc>, which have already been discussed, and a very basic implementation of the mock-objects through the Java Swing components <kc>ButtonMock</kc> and <kc>LedMock</kc> previously developed for another project.</p>
+<p>The QActor <k>parkmanagerserviceactor</k> implements the business logic automaton described in the main section of the problem analysis.</p>
+
+<p>The QActor <k>trolleyactor</k> models the status of the trolley (idle or working) and, upon the reception of <ks>goto(PLACE)</ks> messages, drives the actual trolley to the specified location using a first implementation of the <kc>RobotProxy</kc> and of the <kc>DirectionalPlanner</kc>, which have already been discussed.</p>
+
+<p>The QActors <k>parkserviceguiactor</k> and <k>parkservicestatusguiactor</k> are, for now, merely reactive components that print on the standard output a user-friendly version of the messages they receive. The <k>parkservicestatusguiactor</k> also sets the status of the fan upon receiving a temperature-related alarm.</p>
+
+<p>The CodedQActors <k>weightactor</k>, <k>sonaractor</k> and <k>thermometeractor</k> are observable mock-objects that leverage the Java Swing components <kc>ButtonMock</kc> and <kc>LedMock</kc> (previously developed for another project) to receive user inputs and emit events based upon them. The QActor <k>fanactor</k> is based on the same concepts, but it is much simpler, because it does not need to handle user inputs. The implied taxonomy we discussed about the presence sensors is omitted at the moment.</p>
+
+<p>The QActors <k>outdoorsentinelactor</k> and <k>temperaturesentinelactor</k> emit their respective alarms as expected by the given requirements. The <kc>TimerActor</kc> is implicitly provided by the QAK meta-model with the <ks>whenTime</ks> keyword.</p>
 
 <p>Instead of converting the format of the map to obtain a binary file, as previously discussed, we found easier to program a new rudimentary tool, called <kc>MapUtils</kc>, which draws a new map (with the same features as the original) and saves it in the correct format.</p>
+
+<h4>Testing</h4>
 
 <p>The executable model is compliant with the following <k>test plan</k>:</p>
 
