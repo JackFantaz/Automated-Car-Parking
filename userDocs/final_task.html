@@ -613,7 +613,50 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 </div>
 
+<h2>Project</h2>
+<div class="remark">
+
+<h3>Sprint 1</h3>
+
+<h4>The business logic</h4>
+
+<p>...</p>
+
+<h4>The trolley</h4>
+
+<p>The customer provided a new piece of software, called <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.qak21.basicrobot/userDocs/basicrobot2021.html">BasicRobot</a>, which is compatible with the <kc>WEnv</kc> and with real DDR robots and requested it to be used as the implementation of the trolley.</p>
+
+<p>Our <k>trolleyactor</k> does not need the presence of the <kc>RobotProxy</kc> component anymore and may directly send messages to the <kc>BasicRobot</kc> instead, which is identified as an <ks>ExternalQActor</ks> on a different context. Its fundamental behavior is however unchanged.</p>
+
+<center><img src="./img/sprint_1_trolley.png" width="400px"></center>
+
+<p>The coordinates of the points of interest of the parking-area, previously hard-coded inside the <k>trolleyactor</k>, are now externally stored as a <ks>Prolog knowledge-base</ks>.</p>
+
+<pre>
+home(0, 0, s).
+parking(1, 1, e).
+indoor(6, 0, n).
+outdoor(6, 4, s).
+</pre>
+
+<h4>The clients' GUI</h4>
+
+<p>...</p>
+
+<h4>Testing</h4>
+
+<p>...</p>
+
+</div>
+
 <!--
+
+<h4>The weight sensor <span style="color:crimson;font-weight:bold;"><br>anticiparlo per il funzionamento della BL??</span></h4>
+
+<p>The behavior of the <k>weightactor</k> is unchanged. We however refactored the code to reflect the <kc>PresenceSensor</kc> taxonomy presented during the requirements analysis.</p>
+
+<p>While the clients' and the manager's GUIs should have proper Web interfaces, we believe that for the mock-objects, such as the weight sensor, simpler <ks>Java Swing</ks> GUIs are adequate.</p>
+
 <h2>Test plans</h2>
 <div class="remark">
 <ol>
