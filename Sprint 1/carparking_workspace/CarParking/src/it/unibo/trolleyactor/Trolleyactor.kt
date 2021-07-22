@@ -17,7 +17,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
-				var planner = carparking.DirectionalPlanner("parkingMap")
+				// var planner = carparking.DirectionalPlanner("parkingMap")
 				var home = arrayOf("-", "-", "-")
 				var parking = arrayOf("-", "-", "-")
 				var indoor = arrayOf("-", "-", "-")
@@ -42,22 +42,22 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(home)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								planner.planFor( home  )
+								carparking.directionalPlanner.planFor( home  )
 								 goingHome = true  
 						}
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								planner.planFor( parking  )
+								carparking.directionalPlanner.planFor( parking  )
 								 goingHome = false  
 						}
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(outdoor)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								planner.planFor( outdoor  )
+								carparking.directionalPlanner.planFor( outdoor  )
 								 goingHome = false  
 						}
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(indoor)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								planner.planFor( indoor  )
+								carparking.directionalPlanner.planFor( indoor  )
 								 goingHome = false  
 						}
 					}
@@ -65,7 +65,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("working") { //this:State
 					action { //it:State
-						 val move = planner.getNextPlannedMove()  
+						 val move = carparking.directionalPlanner.getNextPlannedMove()  
 						if(  move.isNotEmpty()  
 						 ){if(  move == "w"  
 						 ){request("step", "step(350)" ,"basicrobot" )  
@@ -76,7 +76,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						if(  move == "r"  
 						 ){forward("cmd", "cmd(r)" ,"basicrobot" ) 
 						}
-						planner.updateMap( move  )
+						carparking.directionalPlanner.updateMap( move  )
 						}
 						else
 						 {delay(1000) 

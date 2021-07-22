@@ -38,7 +38,7 @@ import org.eclipse.californium.core.CoapObserveRelation
 
 class Tester {
 
-	val planner = carparking.DirectionalPlanner("parkingMap")
+	//val planner = carparking.DirectionalPlanner("parkingMap")
 	val home = arrayOf("0", "0", "S")
 	val parking = arrayOf("1", "1", "E")
 	val indoor = arrayOf("6", "0", "N")
@@ -47,7 +47,7 @@ class Tester {
 	companion object {
 
 		var myactor: ActorBasic? = null
-		var planner = carparking.DirectionalPlanner("parkingMap")
+		//var planner = carparking.DirectionalPlanner("parkingMap")
 		var channelSyncStart = Channel<String>()
 		var testingObserver: CoapObserverForTesting? = CoapObserverForTesting()
 		var channelForObserver = Channel<String>()

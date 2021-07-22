@@ -87,7 +87,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 QActor trolleyactor context ctxcarparking {
 
 	[#
-		var planner = carparking.DirectionalPlanner("parkingMap")
+		// var planner = carparking.DirectionalPlanner("parkingMap")
 		var home = arrayOf("-", "-", "-")
 		var parking = arrayOf("-", "-", "-")
 		var indoor = arrayOf("-", "-", "-")
@@ -109,30 +109,30 @@ QActor trolleyactor context ctxcarparking {
 
 	State idle {
 		onMsg (goto : goto(home)) {
-			run planner.planFor(home)
+			run carparking.directionalPlanner.planFor(home)
 			[# goingHome = true #]
 		}
 		onMsg (goto : goto(parking)) {
-			run planner.planFor(parking)
+			run carparking.directionalPlanner.planFor(parking)
 			[# goingHome = false #]
 		}
 		onMsg (goto : goto(outdoor)) {
-			run planner.planFor(outdoor)
+			run carparking.directionalPlanner.planFor(outdoor)
 			[# goingHome = false #]
 		}
 		onMsg (goto : goto(indoor)) {
-			run planner.planFor(indoor)
+			run carparking.directionalPlanner.planFor(indoor)
 			[# goingHome = false #]
 		}
 	} Goto working
 	
 	State working {
-		[# val move = planner.getNextPlannedMove() #]
+		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
 		if [# move.isNotEmpty() #] {
 			if [# move == "w" #] { request basicrobot -m step : step(350) }
 			if [# move == "l" #] { forward basicrobot -m cmd : cmd(l) }
 			if [# move == "r" #] { forward basicrobot -m cmd : cmd(r) }
-			run planner.updateMap(move)
+			run carparking.directionalPlanner.updateMap(move)
 		} else {
 			delay 1000
 			if [# !goingHome #] {

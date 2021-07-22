@@ -21,7 +21,7 @@ fun main() {
 class Mapper : ActorBasicKotlin("trolley") {
 
     val robot = BasicStepRobotActor("robot", this, scope, "localhost")
-    val planner = DirectionalPlanner("")
+    // val planner = DirectionalPlanner("")
 
     val sequence = arrayOf(
         arrayOf("1", "1", "E"),
@@ -53,8 +53,8 @@ class Mapper : ActorBasicKotlin("trolley") {
                 times++
             }
         } else {
-            planner.planForGoal(sequence[step][0], sequence[step][1], sequence[step][2])
-            val move = planner.getNextPlannedMove()
+            directionalPlanner.planForGoal(sequence[step][0], sequence[step][1], sequence[step][2])
+            val move = directionalPlanner.getNextPlannedMove()
             if (move.isNotEmpty()) {
                 doMove(move)
             } else {
@@ -62,8 +62,8 @@ class Mapper : ActorBasicKotlin("trolley") {
                 plannerUtil.showMap()
                 step++
                 if (step < sequence.size) {
-                    planner.planForGoal(sequence[step][0], sequence[step][1], sequence[step][2])
-                    doMove(planner.getNextPlannedMove())
+                    directionalPlanner.planForGoal(sequence[step][0], sequence[step][1], sequence[step][2])
+                    doMove(directionalPlanner.getNextPlannedMove())
                 } else {
                     plannerUtil.saveRoomMap("parkingMap")
                 }
