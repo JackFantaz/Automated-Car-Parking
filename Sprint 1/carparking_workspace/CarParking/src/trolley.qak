@@ -14,6 +14,9 @@ Dispatch slotnum : slotnum(SLOTNUM)
 Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
 
+Dispatch enterRequest : enterRequest(N)
+Dispatch exitRequest : exitRequest(TOKENID)
+
 Event outdoorCleared : outdoorCleared(N)
 Event outdoorOccupied : outdoorOccupied(N)
 Event indoorCleared : indoorCleared(N)
@@ -29,49 +32,46 @@ ExternalQActor basicrobot context ctxbasicrobot
 
 QActor parkmanagerserviceactor context ctxcarparking {
 
-    [# var slotnum = 1 #]
+    [# 
+    	var Slotnum = 1
+    	var Tokenid = 1
+    #]
 
-    State moveToHome_enter initial {
-    	delay 1000
+    State moveToHome initial {
         forward trolleyactor -m goto : goto(home)
-    } Transition t whenEvent indoorOccupied -> acceptIN // enter request
-	
-    State moveToHome_exit {
-    	delay 1000
-        forward trolleyactor -m goto : goto(home)
-    } Transition t whenTime 5000 -> acceptOUT // exit request with TOKENID
+    } Transition t
+    	whenMsg enterRequest -> acceptIN
+    	whenMsg exitRequest -> acceptOUT
                   
     State acceptIN {
-        forward parkserviceguiactor -m notice : notice(enter_request_accepted)
+        forward parkserviceguiactor -m notice : notice(enterRequest(received))
     } Goto informIN // if INDOOR-area free else moveToHome
 
     State informIN {
-        if [# slotnum > 0 #] {
-        	forward parkserviceguiactor -m slotnum : slotnum(1)
-        	// slotnum--
-        }
-    } Goto moveToIn if [# slotnum > 0 #] else moveToHome_enter
+    	forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
+    } Goto moveToIn if [# Slotnum > 0 #] else moveToHome
 
     State moveToIn {
         forward trolleyactor -m goto : goto(indoor)
     } Transition t whenMsg movementDone -> receipt            
 
     State receipt {
-    	delay 1000
-        forward parkserviceguiactor -m tokenid : tokenid(1)
+        forward parkserviceguiactor -m tokenid : tokenid($Slotnum)
     } Goto moveToSlotIn
 
     State moveToSlotIn {
+    	[# Slotnum = 0 #]
         forward trolleyactor -m goto : goto(parking)
-    } Transition t whenMsg movementDone -> moveToHome_exit
+    } Transition t whenMsg movementDone -> moveToHome
 
     State acceptOUT {
-        forward parkserviceguiactor -m notice : notice(exit_request_accepted)
-    } Goto findSlot
+    	onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0).toInt() #] }
+        forward parkserviceguiactor -m notice : notice(exitRequest(received))
+    } Goto findSlot // if OUTDOOR-area free else moveToHome
 
 	State findSlot {
-		forward parkserviceguiactor -m notice : notice(carslotnum_1)
-		// slotnum++
+		[# Slotnum = 1 #]
+		forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
     } Goto moveToSlotOut
 
     State moveToSlotOut {
@@ -79,9 +79,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
     } Transition t whenMsg movementDone -> moveToOut
 
     State moveToOut {
-    	delay 1000
         forward trolleyactor -m goto : goto(outdoor)
-    } Transition t whenMsg movementDone -> moveToHome_enter
+    } Transition t whenMsg movementDone -> moveToHome
 
 }
 
@@ -135,6 +134,7 @@ QActor trolleyactor context ctxcarparking {
 			if [# move == "r" #] { forward basicrobot -m cmd : cmd(r) }
 			run planner.updateMap(move)
 		} else {
+			delay 1000
 			if [# !goingHome #] {
 				forward parkmanagerserviceactor -m movementDone : movementDone(0)
 			}
@@ -157,4 +157,4 @@ QActor parkserviceguiactor context ctxcarparking {
     	whenMsg notice -> receive
 }
 
-CodedQActor weightactor context ctxcarparking className "carparking.WeightActor"
+//CodedQActor weightactor context ctxcarparking className "carparking.WeightActor"

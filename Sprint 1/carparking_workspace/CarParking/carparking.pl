@@ -7,4 +7,3 @@ context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
   qactor( parkmanagerserviceactor, ctxcarparking, "it.unibo.parkmanagerserviceactor.Parkmanagerserviceactor").
   qactor( trolleyactor, ctxcarparking, "it.unibo.trolleyactor.Trolleyactor").
   qactor( parkserviceguiactor, ctxcarparking, "it.unibo.parkserviceguiactor.Parkserviceguiactor").
-  qactor( weightactor, ctxcarparking, "carparking.WeightActor").

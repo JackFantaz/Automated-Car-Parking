@@ -79,7 +79,8 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						planner.updateMap( move  )
 						}
 						else
-						 {if(  !goingHome  
+						 {delay(1000) 
+						 if(  !goingHome  
 						  ){forward("movementDone", "movementDone(0)" ,"parkmanagerserviceactor" ) 
 						 }
 						 }
