@@ -468,7 +468,7 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 <h4>The business logic</h4>
 
-<p>The core business logic can be conveniently described as a finite-state machine to be enclosed into a proper actor. Such actor controls the main state of the application and presents a purely <k>reactive</k> behavior, since it just reacts to external stimuli.</p>
+<p id="fsm_diagram">The core business logic can be conveniently described as a finite-state machine to be enclosed into a proper actor. Such actor controls the main state of the application and presents a purely <k>reactive</k> behavior, since it just reacts to external stimuli.</p>
 
 <center><img src="./img/business_logic.png" width="600px"></center>
 
@@ -620,13 +620,13 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 <h4>The business logic</h4>
 
-<p>...</p>
+<p>The business logic encoded in the <k>parkmanagerserviceactor</k> follows precisely the <a href="#fsm_diagram">finite-state machine diagram</a> presented during the problem analysis, but with some simplifications given by the presence of just one parking-slot. All the states of the automaton are already present and the ability to take in and deliver meaningful <ks>SLOTNUM</ks> and <ks>TOKENID</ks> values has been arranged.</p>
 
 <h4>The trolley</h4>
 
 <p>The customer provided a new piece of software, called <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.qak21.basicrobot/userDocs/basicrobot2021.html">BasicRobot</a>, which is compatible with the <kc>WEnv</kc> and with real DDR robots and requested it to be used as the implementation of the trolley.</p>
 
-<p>Our <k>trolleyactor</k> does not need the presence of the <kc>RobotProxy</kc> component anymore and may directly send messages to the <kc>BasicRobot</kc> instead, which is identified as an <ks>ExternalQActor</ks> on a different context. Its fundamental behavior is however unchanged.</p>
+<p>Our <k>trolleyactor</k> does not need the presence of the <kc>RobotProxy</kc> component anymore and may directly send messages to the <kc>BasicRobot</kc> instead, which is identified as an <ks>ExternalQActor</ks> on a different context. The fundamental behavior of the <k>trolleyactor</k> is however unchanged.</p>
 
 <center><img src="./img/sprint_1_trolley.png" width="400px"></center>
 
