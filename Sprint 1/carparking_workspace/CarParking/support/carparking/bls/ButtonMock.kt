@@ -1,4 +1,4 @@
-package carparking
+package carparking.bls
 
 import java.awt.Font
 import java.awt.event.ActionEvent
