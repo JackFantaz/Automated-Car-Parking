@@ -647,7 +647,7 @@ outdoor(6, 4, s).
 
 <p>We just need to check wether the trolley manages to reach the correct points of interest in the correct order and in a sensible amount of time. Moreover, the trolley must be unaffected by enter requests while the parking-slot is full. The <ks>JUnit</ks> module will send messages to the business logic pretending to be <k>parkserviceguiactor</k> and will try to check the reactions of the trolley.</p>
 
-<p>The class <kc>DirectionalPlanner</kc>, previously discussed and developed for the problem analysis executable model, has been refactored into a <ks>Kotlin object</ks> to closely resemble its wrapped component (<kc>PlannerUtil</kc>) and to simplify the testing.</p>
+<p>The class <kc>DirectionalPlanner</kc>, previously discussed and developed for the problem analysis executable model, has been refactored into a <ks>Kotlin object</ks> to closely resemble its wrapped component (<kc>PlannerUtil</kc>) and to simplify the testing. This component will be used to check the position and the orientation of the trolley.</p>
 
 <p>The full test plan for this sprint can be retrieved from the following link: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Sprint%201/carparking_workspace/CarParking/support/carparking/test/Sprint1Test.kt">Sprint1Test.kt</a></em>. We report hereunder the most significant fragments:</p>
 
@@ -677,7 +677,7 @@ fun checkPath() {
 
 <!--
 
-<h4>The weight sensor <span style="color:crimson;font-weight:bold;"><br>anticiparlo per il funzionamento della BL??</span></h4>
+<h4>The weight sensor</h4>
 
 <p>The behavior of the <k>weightactor</k> is unchanged. We however refactored the code to reflect the <kc>PresenceSensor</kc> taxonomy presented during the requirements analysis.</p>
 
