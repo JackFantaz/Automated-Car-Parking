@@ -16,9 +16,9 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
-		 
-		    	var Slotnum = 1
-		    	var Tokenid = 1
+		
+				var Slotnum = 1
+				var Tokenid = 1
 		return { //this:ActionBasciFsm
 				state("moveToHome") { //this:State
 					action { //it:State

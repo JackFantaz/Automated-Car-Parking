@@ -2,6 +2,6 @@ package carparking.presence
 
 interface WeightSensor {
 
-    fun getWeight(): Int
+	fun getWeight(): Int
 
 }

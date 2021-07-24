@@ -2,6 +2,6 @@ package carparking.presence
 
 interface PresenceSensor {
 
-    fun isPresent(): Boolean
+	fun isPresent(): Boolean
 
 }

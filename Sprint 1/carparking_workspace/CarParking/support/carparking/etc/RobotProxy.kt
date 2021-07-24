@@ -13,7 +13,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class RobotProxy(private val master: ActorBasicFsm, wenvAddr: String) : ActorBasicKotlin("robotproxy") {
 
-    private val robot = BasicStepRobotActor("basicsteprobotactor", this, this.scope, wenvAddr)
+	private val robot = BasicStepRobotActor("basicsteprobotactor", this, this.scope, wenvAddr)
 
 	fun doMove(move: String) {
 		when (move) {
@@ -22,22 +22,22 @@ class RobotProxy(private val master: ActorBasicFsm, wenvAddr: String) : ActorBas
 			"r" -> rotateRight()
 		}
 	}
-	
-    fun moveForward() {
-        robot.send(ApplMsgs.stepRobot_w(master.name))
-    }
 
-    fun rotateLeft() {
-        robot.send(ApplMsgs.stepRobot_l(master.name))
-    }
+	fun moveForward() {
+		robot.send(ApplMsgs.stepRobot_w(master.name))
+	}
 
-    fun rotateRight() {
-        robot.send(ApplMsgs.stepRobot_r(master.name))
-    }
+	fun rotateLeft() {
+		robot.send(ApplMsgs.stepRobot_l(master.name))
+	}
 
-    override suspend fun handleInput(msg: ApplMessage) {
-        val message = MsgUtil.buildDispatch(name, msg.msgId, msg.msgContent, master.name)
-        MsgUtil.sendMsg(message, master)
-    }
+	fun rotateRight() {
+		robot.send(ApplMsgs.stepRobot_r(master.name))
+	}
+
+	override suspend fun handleInput(msg: ApplMessage) {
+		val message = MsgUtil.buildDispatch(name, msg.msgId, msg.msgContent, master.name)
+		MsgUtil.sendMsg(message, master)
+	}
 
 }

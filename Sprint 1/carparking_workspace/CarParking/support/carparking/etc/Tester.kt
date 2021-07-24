@@ -47,6 +47,7 @@ class Tester {
 	companion object {
 
 		var myactor: ActorBasic? = null
+
 		//var planner = carparking.DirectionalPlanner("parkingMap")
 		var channelSyncStart = Channel<String>()
 		var testingObserver: CoapObserverForTesting? = CoapObserverForTesting()
