@@ -69,7 +69,10 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						}
 						forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
 					}
-					 transition( edgeName="goto",targetState="findSlot", cond=doswitch() )
+					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ Slotnum == 0  
+					}) )
+					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( Slotnum == 0  
+					) }) )
 				}	 
 				state("findSlot") { //this:State
 					action { //it:State

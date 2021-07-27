@@ -61,11 +61,16 @@ class Sprint1Test {
 		runBlocking {
 
 			assertNotMovingInTime(5000)
+			println("checkPath -> forward exitRequest(1)")
+			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
+			assertNotMovingInTime(5000)
+			
 			println("checkPath -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 20000)
 			assertLocationInTime("1", "1", "E", 10000)
 			assertLocationInTime("0", "0", "S", 10000)
+			assertNotMovingInTime(5000)
 
 			println("checkPath -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
@@ -76,6 +81,10 @@ class Sprint1Test {
 			assertLocationInTime("1", "1", "E", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 20000)
+			assertNotMovingInTime(5000)
+			
+			println("checkPath -> forward exitRequest(1)")
+			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
 			assertNotMovingInTime(5000)
 
 		}

@@ -62,7 +62,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	State acceptOUT {
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0).toInt() #] }
 		forward parkserviceguiactor -m notice : notice(exitRequest(received))
-	} Goto findSlot // if OUTDOOR-area free else moveToHome
+	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
 
 	State findSlot {
 		[# Slotnum = 1 #]
