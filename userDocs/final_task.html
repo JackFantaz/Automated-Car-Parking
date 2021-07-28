@@ -645,12 +645,11 @@ outdoor(6, 4, s).
 
 <center><img src="./img/client_gui.png" width="450px"></center>
 
-<p>The GUI sends messages to the business logic as an <ks>"alien" QActor</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.
-<br>
-<br>
-The messages sent by <kc>"enter_request"</kc> and <kc>"car_enter"</kc> (i.e. slotnum e tokenid) are of <ks>dispatch</ks> type instead of request-reply, because in this way the testing phase is easier. Moreover, the reply type is not received because the actor at issue is external and we see the CoAP status that changes 
+<p>The GUI sends messages to the business logic as an <ks>"alien QActor"</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.</p>
 
-</p>
+<center><img src="./img/proj_conn.png" width="600px"></center>
+
+<p>The messages <k>enterRequest</k> and <k>carEnter</k> and their responses (i.e. SLOTNUM and TOKENID) are <ks>dispatches</ks> instead of requests-replies to simplify the testing (the component making the requests and the one receiving the replies may differ) and because the external <kc>ClientGUI</kc> service receives status changes via CoAP.</p>
 
 <h4>Testing</h4>
 
