@@ -639,13 +639,18 @@ indoor(6, 0, n).
 outdoor(6, 4, s).
 </pre>
 
-<h4>The clients' GUI</h4>
+<h4>The client GUI</h4>
 
 <p>The <kc>ParkServiceGUI</kc> for clients has been developed in <ks>Spring Boot</ks> as an external application and is accessible via any Web browser on port 8100.</p>
 
 <center><img src="./img/client_gui.png" width="450px"></center>
 
-<p>The GUI sends messages to the business logic as an <ks>"alien" QActor</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.</p>
+<p>The GUI sends messages to the business logic as an <ks>"alien" QActor</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.
+<br>
+<br>
+The messages sent by <kc>"enter_request"</kc> and <kc>"car_enter"</kc> (i.e. slotnum e tokenid) are of <ks>dispatch</ks> type instead of request-reply, because in this way the testing phase is easier. Moreover, the reply type is not received because the actor at issue is external and we see the CoAP status that changes 
+
+</p>
 
 <h4>Testing</h4>
 
