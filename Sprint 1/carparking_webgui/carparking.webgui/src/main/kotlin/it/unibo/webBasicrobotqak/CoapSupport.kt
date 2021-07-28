@@ -15,7 +15,6 @@ class CoapSupport(address: String, path: String) {
     private lateinit var relation: CoapObserveRelation
      init { //"coap://localhost:5683/" + path
         val url = "$address/$path"
-         //println("CoapSupport | STARTSSSSS  url=$url  ")
         client  = CoapClient(url)
         println("CoapSupport | STARTS url=$url client=$client")
         client.setTimeout(1000L)
@@ -39,6 +38,7 @@ class CoapSupport(address: String, path: String) {
         relation = client.observe(handler)
     }
 
+
     fun updateResource(msg: String): Boolean {
         println("CoapSupport | updateResource $msg")
         val resp: CoapResponse = client.put(msg, MediaTypeRegistry.TEXT_PLAIN)
@@ -48,35 +48,14 @@ class CoapSupport(address: String, path: String) {
         return resp != null
     }
 
-    fun updateResourceWithValue(data: String): Boolean {
+
+    /*fun updateResourceWithValue(data: String): Boolean {
         val m = ApplMessage(
             "sonarrobot", ApplMessageType.event.toString(),
             "support", "none", "sonar($data)", "1"
         )
         return updateResource(m.toString())
     }
-
-    fun test() {
-        var v = readResource()
-        println("CoapSupport | PRE v=$v")
-        updateResourceWithValue("55")
-        try {
-            Thread.sleep(1000)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
-        v = readResource()
-        println("CoapSupport | POST v=$v")
-    }
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            //CoapSupport cs = new CoapSupport("coap://localhost:5683","robot/sonar");
-            val cs = CoapSupport("coap://localhost:8028", "ctxsonarresource/sonarresource")
-            cs.test()
-        }
-    }
-
+    */
 
 }

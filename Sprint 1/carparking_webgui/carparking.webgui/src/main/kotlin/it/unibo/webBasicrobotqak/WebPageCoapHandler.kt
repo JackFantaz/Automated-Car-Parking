@@ -1,6 +1,6 @@
 package it.unibo.webBasicrobotqak
 
-import carparking.webgui.BaseController
+import carparking.webgui.HIController
 import com.andreapivetta.kolor.Color
 import it.unibo.actor0.sysUtil
 import kotlinx.coroutines.channels.Channel
@@ -14,7 +14,7 @@ import java.lang.Exception
 /*
 An object of this class is registered as observer of the resource
  */
-    class WebPageCoapHandler(val controller: BaseController, var channel: Channel<String>? = null ) : CoapHandler {
+    class WebPageCoapHandler(val controller: HIController, var channel: Channel<String>? = null ) : CoapHandler {
     var counter = 0
     override fun onLoad(response: CoapResponse) {
         println("~~~ onLoad")
