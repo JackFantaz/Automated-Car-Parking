@@ -641,7 +641,9 @@ outdoor(6, 4, s).
 
 <h4>The clients' GUI</h4>
 
-<p>...</p>
+<p>The <kc>ParkServiceGUI</kc> for clients has been developed in <ks>Spring Boot</ks> as an external application and is accessible via any Web browser on port 8100.</p>
+
+<p>The GUI sends messages to the business logic as an <ks>"alien" QActor</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.</p>
 
 <h4>Testing</h4>
 
