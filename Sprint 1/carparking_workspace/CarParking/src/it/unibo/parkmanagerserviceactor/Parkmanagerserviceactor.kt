@@ -71,7 +71,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Tokenid = payloadArg(0).toInt()  
 						}
-						forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ Slotnum == 0  
 					}) )
@@ -81,7 +80,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("findSlot") { //this:State
 					action { //it:State
 						 Slotnum = 1  
-						forward("notice", "notice(carslotnum($Slotnum))" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotOut", cond=doswitch() )
 				}	 

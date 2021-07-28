@@ -65,12 +65,12 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State acceptOUT {
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0).toInt() #] }
-		forward parkserviceguiactor -m notice : notice(exitRequest(received))
+		// forward parkserviceguiactor -m notice : notice(exitRequest(received))
 	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
 
 	State findSlot {
 		[# Slotnum = 1 #]
-		forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
+		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
 	} Goto moveToSlotOut
 
 	State moveToSlotOut {
@@ -146,21 +146,31 @@ QActor trolleyactor context ctxcarparking {
 }
 
 QActor parkserviceguiactor context ctxcarparking {
-	State receive initial {
+	State setup initial {
+		//updateResource [# "${currentMsg.msgContent()}" #]
+		//[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
+		forward parkserviceguiactor -m notice : notice(system(started))
+	} Goto receive
+
+	State receive {
 		onMsg (slotnum : slotnum(SLOTNUM)) {
 			println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}")
-			updateResource [# "${payloadArg(0)}" #]
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (tokenid : tokenid(TOKENID)) {
 			println("Client's GUI -> The TOKENID is: ${payloadArg(0)}")
-			updateResource [# "${payloadArg(0)}" #]
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (notice : notice(MESSAGE)) {
 			println("Client's GUI -> Notice received: ${payloadArg(0)}")
-			updateResource [# "${payloadArg(0)}" #]
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 	} Transition t
 		whenMsg slotnum -> receive
 		whenMsg tokenid -> receive
 		whenMsg notice -> receive
+
 }

@@ -171,7 +171,7 @@ class UpdateHandler(
 		val content = response.responseText
 		//println("	%%%%%% $name | content=$content  expected=$expected RESP-CODE=${response.code} ")
 		if (response.code == CoAP.ResponseCode.NOT_FOUND) return
-		if (content.contains("START") || content.contains("created")) return
+		//if (content.contains("START") || content.contains("created")) return
 		if (expected != null && content.contains(expected))
 			runBlocking { channel.send(content) }
 	}
