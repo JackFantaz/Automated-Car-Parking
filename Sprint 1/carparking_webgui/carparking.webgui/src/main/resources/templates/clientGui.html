@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Park Service GUI</title>
+</head>
+<body>
+
+<form action="carparking" method="get">
+    <button name="dispatch" value="enter_request">Enter Request</button>
+    <button name="dispatch" value="car_enter">Car Enter</button>
+    <button name="dispatch" value="exit_request">Exit Request</button>
+    <textarea readonly th:text="${received}"></textarea>
+</form>
+<p><span th:text="${received}">arg</span></p>
+</body>
+</html>

@@ -36,7 +36,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						solve("outdoor(X,Y,D)","") //set resVar	
 						 outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase())  
 					}
-					 transition(edgeName="t6",targetState="idle",cond=whenDispatch("goto"))
+					 transition(edgeName="t7",targetState="idle",cond=whenDispatch("goto"))
 				}	 
 				state("idle") { //this:State
 					action { //it:State
@@ -87,9 +87,9 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						stateTimer = TimerActor("timer_working", 
 							scope, context!!, "local_tout_trolleyactor_working", 450.toLong() )
 					}
-					 transition(edgeName="t7",targetState="working",cond=whenTimeout("local_tout_trolleyactor_working"))   
-					transition(edgeName="t8",targetState="working",cond=whenReply("stepdone"))
-					transition(edgeName="t9",targetState="idle",cond=whenDispatch("goto"))
+					 transition(edgeName="t8",targetState="working",cond=whenTimeout("local_tout_trolleyactor_working"))   
+					transition(edgeName="t9",targetState="working",cond=whenReply("stepdone"))
+					transition(edgeName="t10",targetState="idle",cond=whenDispatch("goto"))
 				}	 
 			}
 		}

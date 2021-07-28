@@ -57,35 +57,73 @@ class Sprint1Test {
 	}
 
 	@Test
-	fun checkPath() {
+	fun checkCleanSequence() {
 		runBlocking {
 
-			assertNotMovingInTime(5000)
-			println("checkPath -> forward exitRequest(1)")
-			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-			assertNotMovingInTime(5000)
-			
-			println("checkPath -> forward enterRequest(0)")
+			println("checkCleanSequence -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertLocationInTime("6", "0", "N", 20000)
+			assertNotMovingInTime(3000)
+
+			println("checkCleanSequence -> forward carEnter(1)")
+			actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+			assertLocationInTime("6", "0", "N", 10000)
 			assertLocationInTime("1", "1", "E", 10000)
 			assertLocationInTime("0", "0", "S", 10000)
-			assertNotMovingInTime(5000)
+			assertNotMovingInTime(3000)
 
-			println("checkPath -> forward enterRequest(0)")
-			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(5000)
-
-			println("checkPath -> forward exitRequest(1)")
+			println("checkCleanSequence -> forward exitRequest(1)")
 			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
 			assertLocationInTime("1", "1", "E", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
-			assertLocationInTime("0", "0", "S", 20000)
-			assertNotMovingInTime(5000)
-			
-			println("checkPath -> forward exitRequest(1)")
-			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-			assertNotMovingInTime(5000)
+			assertLocationInTime("0", "0", "S", 30000)
+			assertNotMovingInTime(3000)
+
+		}
+	}
+
+	@Test
+	fun checkRobustSequence() {
+		runBlocking {
+
+			assertNotMovingInTime(3000)
+
+			for (i in 1..2) {
+
+				println("checkRobustSequence -> forward exitRequest(1)")
+				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
+				assertNotMovingInTime(3000)
+
+				/*println("checkRobustSequence -> forward carEnter(1)")
+				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+				assertNotMovingInTime(3000)*/
+
+				println("checkRobustSequence -> forward enterRequest(0)")
+				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+				assertNotMovingInTime(3000)
+
+				println("checkRobustSequence -> forward carEnter(1)")
+				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+				assertLocationInTime("6", "0", "N", 10000)
+				assertLocationInTime("1", "1", "E", 10000)
+				assertLocationInTime("0", "0", "S", 10000)
+				assertNotMovingInTime(3000)
+
+				/*println("checkRobustSequence -> forward enterRequest(0)")
+				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+				assertNotMovingInTime(3000)*/
+
+				/*println("checkRobustSequence -> forward carEnter(1)")
+				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+				assertNotMovingInTime(3000)*/
+
+				println("checkRobustSequence -> forward exitRequest(1)")
+				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
+				assertLocationInTime("1", "1", "E", 10000)
+				assertLocationInTime("6", "4", "S", 10000)
+				assertLocationInTime("0", "0", "S", 30000)
+				assertNotMovingInTime(3000)
+
+			}
 
 		}
 	}

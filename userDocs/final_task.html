@@ -653,29 +653,22 @@ outdoor(6, 4, s).
 
 <pre>
 @Test
-fun checkPath() {
-
-  assertNotMovingInTime(5000)
-  actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-  assertNotMovingInTime(5000)
+fun checkCleanSequence() {
 
   actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-  assertLocationInTime("6", "0", "N", 20000)
+  assertNotMovingInTime(3000)
+
+  actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+  assertLocationInTime("6", "0", "N", 10000)
   assertLocationInTime("1", "1", "E", 10000)
   assertLocationInTime("0", "0", "S", 10000)
-  assertNotMovingInTime(5000)
-
-  actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-  assertNotMovingInTime(5000)
+  assertNotMovingInTime(3000)
 
   actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
   assertLocationInTime("1", "1", "E", 10000)
   assertLocationInTime("6", "4", "S", 10000)
   assertLocationInTime("0", "0", "S", 20000)
-  assertNotMovingInTime(5000)
-
-  actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-  assertNotMovingInTime(5000)
+  assertNotMovingInTime(3000)
 
 }
 </pre>

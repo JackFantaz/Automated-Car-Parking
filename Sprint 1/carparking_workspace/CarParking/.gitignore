@@ -23,9 +23,11 @@ gradlew.bat
 
 
 /ReadMe.html
-.lck/ 
+.lck/
 docker/
 /.metadata/
 /src-gen/
 
 .idea
+
+.settings

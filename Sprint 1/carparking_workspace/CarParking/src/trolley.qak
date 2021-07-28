@@ -15,6 +15,7 @@ Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
 
 Dispatch enterRequest : enterRequest(N)
+Dispatch carEnter : carEnter(SLOTNUM)
 Dispatch exitRequest : exitRequest(TOKENID)
 
 Request step : step(TIME)
@@ -39,12 +40,13 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		whenMsg exitRequest -> acceptOUT
 
 	State acceptIN {
-		forward parkserviceguiactor -m notice : notice(enterRequest(received))
+		// forward parkserviceguiactor -m notice : notice(enterRequest(received))
 	} Goto informIN // if INDOOR-area free else moveToHome
 
 	State informIN {
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
-	} Goto moveToIn if [# Slotnum > 0 #] else moveToHome
+	} // Goto moveToIn if [# Slotnum > 0 #] else moveToHome
+	Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn
 
 	State moveToIn {
 		forward trolleyactor -m goto : goto(indoor)
@@ -143,9 +145,18 @@ QActor trolleyactor context ctxcarparking {
 
 QActor parkserviceguiactor context ctxcarparking {
 	State receive initial {
-		onMsg (slotnum : slotnum(SLOTNUM)) { println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}") }
-		onMsg (tokenid : tokenid(TOKENID)) { println("Client's GUI -> The TOKENID is: ${payloadArg(0)}") }
-		onMsg (notice : notice(MESSAGE)) { println("Client's GUI -> Notice received: ${payloadArg(0)}") }
+		onMsg (slotnum : slotnum(SLOTNUM)) {
+			println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}")
+			updateResource [# "${payloadArg(0)}" #]
+		}
+		onMsg (tokenid : tokenid(TOKENID)) {
+			println("Client's GUI -> The TOKENID is: ${payloadArg(0)}")
+			updateResource [# "${payloadArg(0)}" #]
+		}
+		onMsg (notice : notice(MESSAGE)) {
+			println("Client's GUI -> Notice received: ${payloadArg(0)}")
+			updateResource [# "${payloadArg(0)}" #]
+		}
 	} Transition t
 		whenMsg slotnum -> receive
 		whenMsg tokenid -> receive

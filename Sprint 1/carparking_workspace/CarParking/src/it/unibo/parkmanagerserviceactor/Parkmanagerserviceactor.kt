@@ -29,7 +29,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("acceptIN") { //this:State
 					action { //it:State
-						forward("notice", "notice(enterRequest(received))" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="informIN", cond=doswitch() )
 				}	 
@@ -37,16 +36,14 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					action { //it:State
 						forward("slotnum", "slotnum($Slotnum)" ,"parkserviceguiactor" ) 
 					}
-					 transition( edgeName="goto",targetState="moveToIn", cond=doswitchGuarded({ Slotnum > 0  
-					}) )
-					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( Slotnum > 0  
-					) }) )
+					 transition(edgeName="t2",targetState="moveToIn",cond=whenDispatchGuarded("carEnter",{ Slotnum > 0  
+					}))
 				}	 
 				state("moveToIn") { //this:State
 					action { //it:State
 						forward("goto", "goto(indoor)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t2",targetState="receipt",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t3",targetState="receipt",cond=whenDispatch("movementDone"))
 				}	 
 				state("receipt") { //this:State
 					action { //it:State
@@ -59,7 +56,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						 Slotnum = 0  
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t3",targetState="moveToHome",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t4",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 
 				state("acceptOUT") { //this:State
 					action { //it:State
@@ -85,13 +82,13 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					action { //it:State
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t4",targetState="moveToOut",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t5",targetState="moveToOut",cond=whenDispatch("movementDone"))
 				}	 
 				state("moveToOut") { //this:State
 					action { //it:State
 						forward("goto", "goto(outdoor)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t5",targetState="moveToHome",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t6",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 
 			}
 		}

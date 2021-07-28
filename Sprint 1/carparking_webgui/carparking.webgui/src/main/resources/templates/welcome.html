@@ -2,7 +2,8 @@
 <head><title>Carparking WebGUI n.°1</title></head>
 <body>
 
-<p>Last issued command: <b><span th:text="${arg}">Our Arg</span></b>.</p>
+<p>Last issued command: <b><span th:text="${arg1}">Our Arg</span></b>.</p>
+<p>Last received response: <b><span th:text="${arg2}">Our Arg</span></b>.</p>
 
 <!--<form action="robotmove" method="get">
     <button name="move" value="w">Move Forward</button>
@@ -12,7 +13,12 @@
 
 <form action="carparking" method="get">
     <button name="move" value="enter">Enter Request</button>
+    <button name="move" value="car">Car Enter</button>
     <button name="move" value="exit">Exit Request</button>
+</form>
+<br><br>
+<form action="/" method="get">
+    <button>HOME</button>
 </form>
 
 </body>
