@@ -48,6 +48,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("moveToIn") { //this:State
 					action { //it:State
+						forward("notice", "notice(carEnter(received))" ,"parkserviceguiactor" ) 
 						forward("goto", "goto(indoor)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t3",targetState="receipt",cond=whenDispatch("movementDone"))
@@ -71,6 +72,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Tokenid = payloadArg(0).toInt()  
 						}
+						forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ Slotnum == 0  
 					}) )

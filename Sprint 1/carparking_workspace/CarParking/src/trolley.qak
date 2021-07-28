@@ -51,6 +51,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
 
 	State moveToIn {
+		forward parkserviceguiactor -m notice : notice(carEnter(received))
 		forward trolleyactor -m goto : goto(indoor)
 	} Transition t whenMsg movementDone -> receipt
 
@@ -65,7 +66,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State acceptOUT {
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0).toInt() #] }
-		// forward parkserviceguiactor -m notice : notice(exitRequest(received))
+		forward parkserviceguiactor -m notice : notice(exitRequest(received))
 	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
 
 	State findSlot {
