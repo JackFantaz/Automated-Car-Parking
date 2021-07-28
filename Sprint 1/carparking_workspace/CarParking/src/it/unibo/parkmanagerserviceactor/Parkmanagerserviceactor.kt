@@ -18,7 +18,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
 				var Slotnum = 1
-				var Tokenid = 1
+				var Tokenid = "1"
 		return { //this:ActionBasciFsm
 				state("moveToHome") { //this:State
 					action { //it:State
@@ -69,7 +69,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("exitRequest(TOKENID)"), Term.createTerm("exitRequest(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 Tokenid = payloadArg(0).toInt()  
+								 Tokenid = payloadArg(0)  
 						}
 						forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
 					}

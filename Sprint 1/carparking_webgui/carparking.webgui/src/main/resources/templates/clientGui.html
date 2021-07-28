@@ -70,7 +70,7 @@
 
 <div class="remark">
     <br>
-    <form action="carparking" method="get">
+    <form action="carparking" method="post">
         <table>
             <tr>
                 <td>To find out if and which parking slot is free</td>
@@ -95,7 +95,7 @@
                     Insert the TOKENID here
                 </td>
                 <td>
-                    <input type="text" style="width: 150px; height: 20px; background-color: #e0ffff;">
+                    <input name="token" type="text" style="width: 150px; height: 20px; background-color: #e0ffff;">
                     
                 </td>
             </tr>
@@ -110,10 +110,11 @@
             </tr>
             
         </table>
-        <textarea readonly th:text="${received}"></textarea>
+        <!--<textarea readonly th:text="${received}"></textarea>-->
+        <input type="text" th:value="${received}" style="font-weight:bold;color:red; width: 300px; height: 20px; background-color: white;" readonly>
         
     </form>
-    <p><span th:text="${received}">arg</span></p>
+    <!--<p><span th:text="${received}">arg</span></p>-->
 </div>
 </body>
 </html>

@@ -30,7 +30,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	[#
 		var Slotnum = 1
-		var Tokenid = 1
+		var Tokenid = "1"
 	#]
 
 	State moveToHome initial {
@@ -65,7 +65,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Transition t whenMsg movementDone -> moveToHome
 
 	State acceptOUT {
-		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0).toInt() #] }
+		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
 		forward parkserviceguiactor -m notice : notice(exitRequest(received))
 	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
 

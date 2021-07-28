@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
@@ -47,46 +48,51 @@ class HIController {
     fun homePage(model: Model): String {
         println("/ $model")
         // model.addAttribute("arg", appName)
-        model.addAttribute("arg1", "<none_out>")
-        model.addAttribute("arg2", "<none_in>")
-        return "welcome"
+        model.addAttribute("received", "")
+        return "clientGui"
     }
 
 
-    @GetMapping("/carparking")
+    @PostMapping("/carparking")
     fun carparking(
         viewmodel: Model,
-        @RequestParam(name = "move", required = false, defaultValue = "") button: String
+        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String,
+        @RequestParam(name = "token", required = false, defaultValue = "") token: String
     ): String {
-        println("/robotmove $viewmodel $button")
+        println("/carparking viewmodel=$viewmodel button=$button token=$token")
         val message = when (button) {
-            "enter" -> MsgUtil.buildDispatch("clientsgui", "enterRequest", "enterRequest(0)", connQak.qakdestination)
-            "car" -> MsgUtil.buildDispatch("clientsgui", "carEnter", "carEnter(0)", connQak.qakdestination)
-            "exit" -> MsgUtil.buildDispatch("clientsgui", "exitRequest", "exitRequest(1)", connQak.qakdestination)
+            "enter_request" -> MsgUtil.buildDispatch("clientsgui", "enterRequest", "enterRequest(0)", connQak.qakdestination)
+            "car_enter" -> MsgUtil.buildDispatch("clientsgui", "carEnter", "carEnter(0)", connQak.qakdestination)
+            "exit_request" -> MsgUtil.buildDispatch("clientsgui", "exitRequest", "exitRequest(${token.lowercase()})", connQak.qakdestination)
             else -> null
         }
         if (message != null) {
 
-
-            var answer = "<none_in>"
-
+            var answer = ""
 
             coapObserver.channel = answerChannel
             carparkingConnection.forward(message)
             runBlocking {
                 answer = answerChannel.receive()
-                //NO //answer = coapsupport.readResource()
                 coapObserver.channel = null
             }
-            println("~~~ $answer")
-            viewmodel.addAttribute("arg1", message.msgContent())
-            viewmodel.addAttribute("arg2", answer)
+            println("/carparking answer=$answer")
+
+            if (answer.contains("slotnum")) answer = "The SLOTNUM is ${parseArg(answer)}"
+            else if (answer.contains("tokenid")) answer = "The TOKENID is ${parseArg(answer)}"
+            else answer = ""
+
+            //viewmodel.addAttribute("arg1", message.msgContent())
+            viewmodel.addAttribute("received", answer)
 
         } else {
-            viewmodel.addAttribute("arg1", "<none_out>")
-            viewmodel.addAttribute("arg2", "<none_in>")
+            viewmodel.addAttribute("received", "")
         }
-        return "welcome"
+        return "clientGui"
+    }
+
+    private fun parseArg(message: String): String {
+        return message.split("(", ")")[1]
     }
 
     @ExceptionHandler
