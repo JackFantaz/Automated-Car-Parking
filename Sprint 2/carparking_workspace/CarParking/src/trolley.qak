@@ -1,0 +1,175 @@
+/*
+ *    Automated Car-Parking
+ *    EXECUTABLE MODEL AS A RESULT OF SPRINT 1
+ *    by Giacomo Fantazzini and Claudia Badalamenti
+ *
+ * */
+
+System carparking
+
+Dispatch goto : goto(PLACE)
+Dispatch movementDone : movementDone(N)
+Dispatch notice : notice(NOTICE)
+Dispatch slotnum : slotnum(SLOTNUM)
+Dispatch tokenid : tokenid(TOKENID)
+Dispatch cmd : cmd(MOVE)
+
+Dispatch enterRequest : enterRequest(N)
+Dispatch carEnter : carEnter(N)
+Dispatch exitRequest : exitRequest(TOKENID)
+
+Request step : step(TIME)
+Reply stepdone : stepdone(V)
+
+Context ctxcarparking ip[host="localhost" port=60000]
+Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
+
+ExternalQActor basicrobot context ctxbasicrobot
+
+QActor parkmanagerserviceactor context ctxcarparking {
+
+	[#
+		var Slotnum = 1
+		var Tokenid = "1"
+	#]
+
+	State moveToHome initial {
+		forward trolleyactor -m goto : goto(home)
+	} Transition t
+		whenMsg enterRequest -> acceptIN
+		whenMsg exitRequest -> acceptOUT
+
+	State acceptIN {
+		// forward parkserviceguiactor -m notice : notice(enterRequest(received))
+	} Goto informIN // if INDOOR-area free else moveToHome
+
+	State informIN {
+		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
+	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
+		State do_informIN { } Transition t whenMsg carEnter -> moveToIn
+	// Goto moveToIn if [# Slotnum > 0 #] else moveToHome
+	// Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn else Goto moveToHome
+
+	State moveToIn {
+		// forward parkserviceguiactor -m notice : notice(carEnter(received))
+		forward trolleyactor -m goto : goto(indoor)
+	} Transition t whenMsg movementDone -> receipt
+
+	State receipt {
+		forward parkserviceguiactor -m tokenid : tokenid($Slotnum)
+	} Goto moveToSlotIn
+
+	State moveToSlotIn {
+		[# Slotnum = 0 #]
+		forward trolleyactor -m goto : goto(parking)
+	} Transition t whenMsg movementDone -> moveToHome
+
+	State acceptOUT {
+		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
+		forward parkserviceguiactor -m notice : notice(exitRequest(received))
+	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
+
+	State findSlot {
+		[# Slotnum = 1 #]
+		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
+	} Goto moveToSlotOut
+
+	State moveToSlotOut {
+		forward trolleyactor -m goto : goto(parking)
+	} Transition t whenMsg movementDone -> moveToOut
+
+	State moveToOut {
+		forward trolleyactor -m goto : goto(outdoor)
+	} Transition t whenMsg movementDone -> moveToHome
+
+}
+
+QActor trolleyactor context ctxcarparking {
+
+	[#
+		var home = arrayOf("-", "-", "-")
+		var parking = arrayOf("-", "-", "-")
+		var indoor = arrayOf("-", "-", "-")
+		var outdoor = arrayOf("-", "-", "-")
+		var goingHome = false
+	#]
+
+	State setup initial {
+		solve( consult("locationsKb.pl") )
+		solve( home(X, Y, D) )
+		[# home = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
+		solve( parking(X, Y, D) )
+		[# parking = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
+		solve( indoor(X, Y, D) )
+		[# indoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
+		solve( outdoor(X, Y, D) )
+		[# outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
+	} Transition t whenMsg goto -> idle
+
+	State idle {
+		onMsg (goto : goto(home)) {
+			run carparking.directionalPlanner.planFor(home)
+			[# goingHome = true #]
+		}
+		onMsg (goto : goto(parking)) {
+			run carparking.directionalPlanner.planFor(parking)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(outdoor)) {
+			run carparking.directionalPlanner.planFor(outdoor)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(indoor)) {
+			run carparking.directionalPlanner.planFor(indoor)
+			[# goingHome = false #]
+		}
+	} Goto working
+
+	State working {
+		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
+		if [# move.isNotEmpty() #] {
+			if [# move == "w" #] { request basicrobot -m step : step(340) }
+			if [# move == "l" #] { forward basicrobot -m cmd : cmd(l) }
+			if [# move == "r" #] { forward basicrobot -m cmd : cmd(r) }
+			run carparking.directionalPlanner.updateMap(move)
+		} else {
+			delay 1000
+			if [# !goingHome #] {
+				forward parkmanagerserviceactor -m movementDone : movementDone(0)
+			}
+		}
+	} Transition t
+		whenTime 450 -> working
+		whenReply stepdone -> working
+		whenMsg goto -> idle
+
+}
+
+QActor parkserviceguiactor context ctxcarparking {
+	
+	State setup initial {
+		forward parkserviceguiactor -m notice : notice(system(started))
+	} Goto receive
+
+	State receive {
+		onMsg (slotnum : slotnum(SLOTNUM)) {
+			println("Client's GUI feedback -> The SLOTNUM is ${payloadArg(0)}")
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
+		}
+		onMsg (tokenid : tokenid(TOKENID)) {
+			println("Client's GUI feedback -> The TOKENID is ${payloadArg(0)}")
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
+		}
+		onMsg (notice : notice(MESSAGE)) {
+			println("Client's GUI feedback -> Notice received: ${payloadArg(0)}")
+			updateResource [# "${currentMsg.msgContent()}" #]
+			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
+		}
+	} Transition t
+		whenMsg slotnum -> receive
+		whenMsg tokenid -> receive
+		whenMsg notice -> receive
+
+}
