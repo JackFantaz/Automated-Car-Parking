@@ -17,7 +17,6 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
-				// var planner = carparking.DirectionalPlanner("parkingMap")
 				var home = arrayOf("-", "-", "-")
 				var parking = arrayOf("-", "-", "-")
 				var indoor = arrayOf("-", "-", "-")
@@ -68,7 +67,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						 val move = carparking.directionalPlanner.getNextPlannedMove()  
 						if(  move.isNotEmpty()  
 						 ){if(  move == "w"  
-						 ){request("step", "step(350)" ,"basicrobot" )  
+						 ){request("step", "step(340)" ,"basicrobot" )  
 						}
 						if(  move == "l"  
 						 ){forward("cmd", "cmd(l)" ,"basicrobot" ) 

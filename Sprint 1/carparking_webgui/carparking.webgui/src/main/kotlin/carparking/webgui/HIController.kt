@@ -26,32 +26,27 @@ class HIController {
     @Value("\${spring.application.name}")
     var appName: String? = null
 
-    @Autowired
-    var simpMessagingTemplate: SimpMessagingTemplate? = null
-
     val carparkingAddress = "127.0.0.1"
-    lateinit var carparkingConnection: connQakBase
-
-    var answerChannel = Channel<String>()
-    lateinit var coapsupport: CoapSupport
     val coapObserver = WebPageCoapHandler(this, null)
+    var answerChannel = Channel<String>()
+    lateinit var carparkingConnection: connQakBase
+    lateinit var coapsupport: CoapSupport
 
     init {
         connQak.robothostAddr = carparkingAddress
         carparkingConnection = connQakBase.create(ConnectionType.TCP)
         carparkingConnection.createConnection()
-        coapsupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "ctxcarparking/parkserviceguiactor")
+        coapsupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "ctxcarparking/parkserviceguiactor")
         coapsupport.observeResource(coapObserver)
     }
 
     @GetMapping("/")
     fun homePage(model: Model): String {
         println("/ $model")
-        // model.addAttribute("arg", appName)
         model.addAttribute("received", "")
         return "clientGui"
     }
-
 
     @PostMapping("/carparking")
     fun carparking(
@@ -59,35 +54,45 @@ class HIController {
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String,
         @RequestParam(name = "token", required = false, defaultValue = "") token: String
     ): String {
-        println("/carparking viewmodel=$viewmodel button=$button token=$token")
+        println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
+
         val message = when (button) {
-            "enter_request" -> MsgUtil.buildDispatch("clientsgui", "enterRequest", "enterRequest(0)", connQak.qakdestination)
+            "enter_request" -> MsgUtil.buildDispatch(
+                "clientsgui",
+                "enterRequest",
+                "enterRequest(0)",
+                connQak.qakdestination
+            )
             "car_enter" -> MsgUtil.buildDispatch("clientsgui", "carEnter", "carEnter(0)", connQak.qakdestination)
-            "exit_request" -> MsgUtil.buildDispatch("clientsgui", "exitRequest", "exitRequest(${token.lowercase()})", connQak.qakdestination)
+            "exit_request" -> MsgUtil.buildDispatch(
+                "clientsgui",
+                "exitRequest",
+                "exitRequest(${token.lowercase()})",
+                connQak.qakdestination
+            )
             else -> null
         }
+
         if (message != null) {
 
             var answer = ""
-
             coapObserver.channel = answerChannel
             carparkingConnection.forward(message)
             runBlocking {
                 answer = answerChannel.receive()
                 coapObserver.channel = null
             }
-            println("/carparking answer=$answer")
+            println("... answer=$answer")
 
             if (answer.contains("slotnum")) answer = "The SLOTNUM is ${parseArg(answer)}"
             else if (answer.contains("tokenid")) answer = "The TOKENID is ${parseArg(answer)}"
             else answer = ""
-
-            //viewmodel.addAttribute("arg1", message.msgContent())
             viewmodel.addAttribute("received", answer)
 
         } else {
             viewmodel.addAttribute("received", "")
         }
+
         return "clientGui"
     }
 

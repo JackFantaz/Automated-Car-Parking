@@ -27,21 +27,21 @@ class Parkserviceguiactor ( name: String, scope: CoroutineScope  ) : ActorBasicF
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("slotnum(SLOTNUM)"), Term.createTerm("slotnum(SLOTNUM)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}")
+								println("Client's GUI feedback -> The SLOTNUM is ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
 								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  
 						}
 						if( checkMsgContent( Term.createTerm("tokenid(TOKENID)"), Term.createTerm("tokenid(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Client's GUI -> The TOKENID is: ${payloadArg(0)}")
+								println("Client's GUI feedback -> The TOKENID is ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
 								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  
 						}
 						if( checkMsgContent( Term.createTerm("notice(NOTICE)"), Term.createTerm("notice(MESSAGE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Client's GUI -> Notice received: ${payloadArg(0)}")
+								println("Client's GUI feedback -> Notice received: ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
 								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  

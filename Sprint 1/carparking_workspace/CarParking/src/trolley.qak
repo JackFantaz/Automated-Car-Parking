@@ -15,7 +15,7 @@ Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
 
 Dispatch enterRequest : enterRequest(N)
-Dispatch carEnter : carEnter(SLOTNUM)
+Dispatch carEnter : carEnter(N)
 Dispatch exitRequest : exitRequest(TOKENID)
 
 Request step : step(TIME)
@@ -45,10 +45,10 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State informIN {
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
-	} // Goto moveToIn if [# Slotnum > 0 #] else moveToHome
-	//Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn // else Goto moveToHome
-	Goto do_informIN if [# Slotnum > 0 #] else moveToHome
-	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
+	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
+		State do_informIN { } Transition t whenMsg carEnter -> moveToIn
+	// Goto moveToIn if [# Slotnum > 0 #] else moveToHome
+	// Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn else Goto moveToHome
 
 	State moveToIn {
 		// forward parkserviceguiactor -m notice : notice(carEnter(received))
@@ -87,7 +87,6 @@ QActor parkmanagerserviceactor context ctxcarparking {
 QActor trolleyactor context ctxcarparking {
 
 	[#
-		// var planner = carparking.DirectionalPlanner("parkingMap")
 		var home = arrayOf("-", "-", "-")
 		var parking = arrayOf("-", "-", "-")
 		var indoor = arrayOf("-", "-", "-")
@@ -129,7 +128,7 @@ QActor trolleyactor context ctxcarparking {
 	State working {
 		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
 		if [# move.isNotEmpty() #] {
-			if [# move == "w" #] { request basicrobot -m step : step(350) }
+			if [# move == "w" #] { request basicrobot -m step : step(340) }
 			if [# move == "l" #] { forward basicrobot -m cmd : cmd(l) }
 			if [# move == "r" #] { forward basicrobot -m cmd : cmd(r) }
 			run carparking.directionalPlanner.updateMap(move)
@@ -147,25 +146,24 @@ QActor trolleyactor context ctxcarparking {
 }
 
 QActor parkserviceguiactor context ctxcarparking {
+	
 	State setup initial {
-		//updateResource [# "${currentMsg.msgContent()}" #]
-		//[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		forward parkserviceguiactor -m notice : notice(system(started))
 	} Goto receive
 
 	State receive {
 		onMsg (slotnum : slotnum(SLOTNUM)) {
-			println("Client's GUI -> The SLOTNUM is: ${payloadArg(0)}")
+			println("Client's GUI feedback -> The SLOTNUM is ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
 			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (tokenid : tokenid(TOKENID)) {
-			println("Client's GUI -> The TOKENID is: ${payloadArg(0)}")
+			println("Client's GUI feedback -> The TOKENID is ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
 			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (notice : notice(MESSAGE)) {
-			println("Client's GUI -> Notice received: ${payloadArg(0)}")
+			println("Client's GUI feedback -> Notice received: ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
 			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}

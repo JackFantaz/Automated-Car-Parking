@@ -56,6 +56,7 @@
     }
 
 
+
 </style>
 
 <head>
@@ -65,7 +66,7 @@
 
 <body>
 <div style="background-color: #48d1cc; border: 2px solid ">
-    <center><h2>ParkServiceGUI </h2></center>
+    <center><h2>ParkServiceGUI</h2></center>
 </div>
 
 <div class="remark">
@@ -96,7 +97,7 @@
                 </td>
                 <td>
                     <input name="token" type="text" style="width: 150px; height: 20px; background-color: #e0ffff;">
-                    
+
                 </td>
             </tr>
             <tr>
@@ -108,13 +109,12 @@
                     <br>
                 </td>
             </tr>
-            
+
         </table>
-        <!--<textarea readonly th:text="${received}"></textarea>-->
-        <input type="text" th:value="${received}" style="font-weight:bold;color:red; width: 300px; height: 20px; background-color: white;" readonly>
-        
+        <input type="text" th:value="${received}"
+               style="font-weight:bold;color:red; width: 300px; height: 20px; background-color: white;" readonly>
+
     </form>
-    <!--<p><span th:text="${received}">arg</span></p>-->
 </div>
 </body>
 </html>
