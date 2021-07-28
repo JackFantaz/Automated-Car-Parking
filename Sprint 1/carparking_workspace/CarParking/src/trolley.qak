@@ -46,7 +46,9 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	State informIN {
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
 	} // Goto moveToIn if [# Slotnum > 0 #] else moveToHome
-	Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn
+	//Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn // else Goto moveToHome
+	Goto do_informIN if [# Slotnum > 0 #] else moveToHome
+	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
 
 	State moveToIn {
 		forward trolleyactor -m goto : goto(indoor)

@@ -36,8 +36,15 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					action { //it:State
 						forward("slotnum", "slotnum($Slotnum)" ,"parkserviceguiactor" ) 
 					}
-					 transition(edgeName="t2",targetState="moveToIn",cond=whenDispatchGuarded("carEnter",{ Slotnum > 0  
-					}))
+					 transition( edgeName="goto",targetState="do_informIN", cond=doswitchGuarded({ Slotnum > 0  
+					}) )
+					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( Slotnum > 0  
+					) }) )
+				}	 
+				state("do_informIN") { //this:State
+					action { //it:State
+					}
+					 transition(edgeName="t2",targetState="moveToIn",cond=whenDispatch("carEnter"))
 				}	 
 				state("moveToIn") { //this:State
 					action { //it:State

@@ -667,7 +667,7 @@ fun checkCleanSequence() {
   actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
   assertLocationInTime("1", "1", "E", 10000)
   assertLocationInTime("6", "4", "S", 10000)
-  assertLocationInTime("0", "0", "S", 20000)
+  assertLocationInTime("0", "0", "S", 50000)
   assertNotMovingInTime(3000)
 
 }

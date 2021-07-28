@@ -14,6 +14,7 @@ import org.junit.AfterClass
 import kotlin.jvm.JvmStatic
 import itunibo.planner.plannerUtil
 import carparking.directionalPlanner
+import org.junit.After
 
 class Sprint1Test {
 
@@ -41,7 +42,7 @@ class Sprint1Test {
 		@JvmStatic
 		@AfterClass
 		fun afterAll() {
-			//runBlocking { delay(60000) }
+			runBlocking { delay(10000) }
 		}
 
 	}
@@ -54,6 +55,11 @@ class Sprint1Test {
 				started = true
 			}
 		}
+	}
+
+	@After
+	fun afterEach() {
+		runBlocking { delay(5000) }
 	}
 
 	@Test
@@ -75,7 +81,7 @@ class Sprint1Test {
 			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
 			assertLocationInTime("1", "1", "E", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
-			assertLocationInTime("0", "0", "S", 30000)
+			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
 
 		}
@@ -93,10 +99,6 @@ class Sprint1Test {
 				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
 				assertNotMovingInTime(3000)
 
-				/*println("checkRobustSequence -> forward carEnter(1)")
-				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
-				assertNotMovingInTime(3000)*/
-
 				println("checkRobustSequence -> forward enterRequest(0)")
 				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 				assertNotMovingInTime(3000)
@@ -108,19 +110,15 @@ class Sprint1Test {
 				assertLocationInTime("0", "0", "S", 10000)
 				assertNotMovingInTime(3000)
 
-				/*println("checkRobustSequence -> forward enterRequest(0)")
+				println("checkRobustSequence -> forward enterRequest(0)")
 				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-				assertNotMovingInTime(3000)*/
-
-				/*println("checkRobustSequence -> forward carEnter(1)")
-				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
-				assertNotMovingInTime(3000)*/
+				assertNotMovingInTime(3000)
 
 				println("checkRobustSequence -> forward exitRequest(1)")
 				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
 				assertLocationInTime("1", "1", "E", 10000)
 				assertLocationInTime("6", "4", "S", 10000)
-				assertLocationInTime("0", "0", "S", 30000)
+				assertLocationInTime("0", "0", "S", 50000)
 				assertNotMovingInTime(3000)
 
 			}
