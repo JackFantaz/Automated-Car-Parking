@@ -48,7 +48,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("moveToIn") { //this:State
 					action { //it:State
-						forward("notice", "notice(carEnter(received))" ,"parkserviceguiactor" ) 
 						forward("goto", "goto(indoor)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t3",targetState="receipt",cond=whenDispatch("movementDone"))

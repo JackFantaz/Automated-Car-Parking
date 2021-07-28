@@ -51,7 +51,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
 
 	State moveToIn {
-		forward parkserviceguiactor -m notice : notice(carEnter(received))
+		// forward parkserviceguiactor -m notice : notice(carEnter(received))
 		forward trolleyactor -m goto : goto(indoor)
 	} Transition t whenMsg movementDone -> receipt
 
