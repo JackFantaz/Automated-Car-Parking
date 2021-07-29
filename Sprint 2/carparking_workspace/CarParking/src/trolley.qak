@@ -195,8 +195,14 @@ QActor weightactor context ctxcarparking {
 	
 	State polling initial {
 		[# present = mock.isPresent() #]
-		if [# present && previous!=present #] { emit indoorOccupied : indoorOccupied(0) }
-		if [# !present && previous!=present #] { emit indoorCleared : indoorCleared(0) }
+		if [# present && previous!=present #] {
+			emit indoorOccupied : indoorOccupied(0)
+			updateResource [# "indoorOccupied(0)" #]
+		}
+		if [# !present && previous!=present #] {
+			emit indoorCleared : indoorCleared(0)
+			updateResource [# "indoorCleared(0)" #]
+		}
 		[# previous = present #]
 		delay 500
 	} Goto polling
@@ -213,8 +219,14 @@ QActor sonaractor context ctxcarparking {
 	
 	State polling initial {
 		[# present = mock.isPresent() #]
-		if [# present && previous!=present #] { emit outdoorOccupied : outdoorOccupied(0) }
-		if [# !present && previous!=present #] { emit outdoorCleared : outdoorCleared(0) }
+		if [# present && previous!=present #] {
+			emit outdoorOccupied : outdoorOccupied(0)
+			updateResource [# "outdoorOccupied(0)" #]
+		}
+		if [# !present && previous!=present #] {
+			emit outdoorCleared : outdoorCleared(0)
+			updateResource [# "outdoorCleared(0)" #]
+		}
 		[# previous = present #]
 		delay 500
 	} Goto polling
@@ -231,7 +243,10 @@ QActor thermometeractor context ctxcarparking {
 	
 	State polling initial {
 		[# Temperature = Mock.getTemperature() #]
-		if [# Temperature != Previous #] { emit temperature : temperature($Temperature) }
+		if [# Temperature != Previous #] {
+			emit temperature : temperature($Temperature)
+			updateResource [# "temperature($Temperature)" #]
+		}
 		[# Previous = Temperature #]
 		delay 500
 	} Goto polling
@@ -252,7 +267,7 @@ QActor fanactor context ctxcarparking {
 	
 }
 
-QActor testactor context ctxcarparking {
+/*QActor testactor context ctxcarparking {
 	
 	[# var fanStatus = false #]
 	
@@ -272,7 +287,7 @@ QActor testactor context ctxcarparking {
 		[# fanStatus = !fanStatus #]
 	} Goto testing
 	
-}
+}*/
 
 // outdoorsentinelactor
 

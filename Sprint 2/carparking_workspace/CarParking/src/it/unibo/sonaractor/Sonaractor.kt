@@ -26,9 +26,13 @@ class Sonaractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 						 present = mock.isPresent()  
 						if(  present && previous!=present  
 						 ){emit("outdoorOccupied", "outdoorOccupied(0)" ) 
+						updateResourceRep( "outdoorOccupied(0)"  
+						)
 						}
 						if(  !present && previous!=present  
 						 ){emit("outdoorCleared", "outdoorCleared(0)" ) 
+						updateResourceRep( "outdoorCleared(0)"  
+						)
 						}
 						 previous = present  
 						delay(500) 

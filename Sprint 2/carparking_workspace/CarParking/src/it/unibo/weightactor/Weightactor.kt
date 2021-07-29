@@ -26,9 +26,13 @@ class Weightactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name
 						 present = mock.isPresent()  
 						if(  present && previous!=present  
 						 ){emit("indoorOccupied", "indoorOccupied(0)" ) 
+						updateResourceRep( "indoorOccupied(0)"  
+						)
 						}
 						if(  !present && previous!=present  
 						 ){emit("indoorCleared", "indoorCleared(0)" ) 
+						updateResourceRep( "indoorCleared(0)"  
+						)
 						}
 						 previous = present  
 						delay(500) 

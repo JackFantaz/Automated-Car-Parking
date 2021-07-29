@@ -26,6 +26,8 @@ class Thermometeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm(
 						 Temperature = Mock.getTemperature()  
 						if(  Temperature != Previous  
 						 ){emit("temperature", "temperature($Temperature)" ) 
+						updateResourceRep( "temperature($Temperature)"  
+						)
 						}
 						 Previous = Temperature  
 						delay(500) 
