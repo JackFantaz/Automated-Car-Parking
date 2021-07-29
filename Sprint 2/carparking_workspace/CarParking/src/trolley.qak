@@ -1,6 +1,6 @@
 /*
  *    Automated Car-Parking
- *    EXECUTABLE MODEL AS A RESULT OF SPRINT 1
+ *    EXECUTABLE MODEL AS A RESULT OF SPRINT 2
  *    by Giacomo Fantazzini and Claudia Badalamenti
  *
  * */
@@ -17,6 +17,15 @@ Dispatch cmd : cmd(MOVE)
 Dispatch enterRequest : enterRequest(N)
 Dispatch carEnter : carEnter(N)
 Dispatch exitRequest : exitRequest(TOKENID)
+
+Dispatch fanStart : fanStart(N)
+Dispatch fanStop : fanStop(N)
+
+Event indoorCleared : indoorCleared(N)
+Event indoorOccupied : indoorOccupied(N)
+Event outdoorCleared : outdoorCleared(N)
+Event outdoorOccupied : outdoorOccupied(N)
+Event temperature : temperature(VALUE)
 
 Request step : step(TIME)
 Reply stepdone : stepdone(V)
@@ -173,3 +182,98 @@ QActor parkserviceguiactor context ctxcarparking {
 		whenMsg notice -> receive
 
 }
+
+// parkservicestatusguiactor
+
+QActor weightactor context ctxcarparking {
+	
+	[#
+		val mock = carparking.presence.PresenceWeight(carparking.presence.MockWeightSensor())
+		var previous = mock.isPresent()
+		var present = previous
+	#]
+	
+	State polling initial {
+		[# present = mock.isPresent() #]
+		if [# present && previous!=present #] { emit indoorOccupied : indoorOccupied(0) }
+		if [# !present && previous!=present #] { emit indoorCleared : indoorCleared(0) }
+		[# previous = present #]
+		delay 500
+	} Goto polling
+
+}
+
+QActor sonaractor context ctxcarparking {
+	
+	[#
+		val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+		var previous = mock.isPresent()
+		var present = previous
+	#]
+	
+	State polling initial {
+		[# present = mock.isPresent() #]
+		if [# present && previous!=present #] { emit outdoorOccupied : outdoorOccupied(0) }
+		if [# !present && previous!=present #] { emit outdoorCleared : outdoorCleared(0) }
+		[# previous = present #]
+		delay 500
+	} Goto polling
+
+}
+
+QActor thermometeractor context ctxcarparking {
+	
+	[#
+		val Mock = carparking.temperature.MockThermometer()
+		var Previous = Mock.getTemperature()
+		var Temperature = Previous
+	#]
+	
+	State polling initial {
+		[# Temperature = Mock.getTemperature() #]
+		if [# Temperature != Previous #] { emit temperature : temperature($Temperature) }
+		[# Previous = Temperature #]
+		delay 500
+	} Goto polling
+
+}
+
+QActor fanactor context ctxcarparking {
+	
+	[# val mock = carparking.temperature.MockFan() #]
+	
+	State stop initial {
+		run mock.turnOff()
+	} Transition t whenMsg fanStart -> start
+	
+	State start {
+		run mock.turnOn()
+	} Transition t whenMsg fanStop -> stop
+	
+}
+
+QActor testactor context ctxcarparking {
+	
+	[# var fanStatus = false #]
+	
+	State testing initial {
+		printCurrentMessage
+	} Transition t
+		whenTime 3000 -> toggle
+		whenEvent indoorOccupied -> testing
+		whenEvent indoorCleared -> testing
+		whenEvent outdoorOccupied -> testing
+		whenEvent outdoorCleared -> testing
+		whenEvent temperature -> testing
+		
+	State toggle {
+		if [# !fanStatus #] { forward fanactor -m fanStart : fanStart(0) }
+		else { forward fanactor -m fanStop : fanStop(0) }
+		[# fanStatus = !fanStatus #]
+	} Goto testing
+	
+}
+
+// outdoorsentinelactor
+
+// temperaturesentinelactor
