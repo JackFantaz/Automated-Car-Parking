@@ -77,18 +77,30 @@
     <br>
     <form action="carparking2" method="post"></form>
     Parking-area status<br>
-    <table width="150px" height= "150px" border="1" align="left" bgcolor= #dcdcdc>
+    <table width="150px" height= "150px" tex border="1" align="left" bgcolor= #dcdcdc>
         <tr>
-            <td></td>
-            <td></td>
+            <td style="background-color: red">
+                <input type="text" th:value="${receivedSlot}" style="background-color: red;" readonly>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
+            <td>
+                <center>Not available</center>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
+            <td>
+                <center>Not available</center>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
         </tr>
     </table>
     <br>

@@ -108,6 +108,7 @@ class HIController {
         model.addAttribute("receivedTemp", "")
         model.addAttribute("receivedFan", "")
         model.addAttribute("receivedTrolley", "")
+        model.addAttribute("receivedSlot", "")
         return "managerGui"
     }
 
@@ -130,7 +131,7 @@ class HIController {
                 "stopFan(0)",
                 connQak.qakdestination
             )
-            "auto_fan" -> MsgUtil.buildDispatch(
+         /*   "auto_fan" -> MsgUtil.buildDispatch(
                 "managergui",
                 "autoFan",
                 "autoFan(0)",
@@ -148,6 +149,8 @@ class HIController {
                 "stopTrolley(0)",
                 connQak.qakdestination
             )
+
+          */
             else -> null
         }
 
@@ -162,19 +165,19 @@ class HIController {
             }
             println("... answer=$answer")
 
-            if (answer.contains("slotnum")) answer = "${parseArg(answer)}   [TMAX=35°]"
+            if (answer.contains("temperature")) answer = "${parseArg(answer)}   [TMAX=35°]"
             else answer = ""
             viewmodel.addAttribute("receivedTemp", answer)
 
-            if (answer.contains("tokenid")) answer = "${parseArg(answer)}"
+            if (answer.contains("fan")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("receivedFan", answer)
 
-            if (answer.contains("tokenid")) answer = "${parseArg(answer)}"
+            if (answer.contains("trolley")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("receivedTrolley", answer)
         }else {
-            viewmodel.addAttribute("received", "")
+            viewmodel.addAttribute("received2", "")
         }
 
         return "managerGui"
