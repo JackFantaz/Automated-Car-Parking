@@ -30,26 +30,23 @@ class Parkserviceguiactor ( name: String, scope: CoroutineScope  ) : ActorBasicF
 								println("Client's GUI feedback -> The SLOTNUM is ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
-								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  
 						}
 						if( checkMsgContent( Term.createTerm("tokenid(TOKENID)"), Term.createTerm("tokenid(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("Client's GUI feedback -> The TOKENID is ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
-								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  
 						}
 						if( checkMsgContent( Term.createTerm("notice(NOTICE)"), Term.createTerm("notice(MESSAGE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("Client's GUI feedback -> Notice received: ${payloadArg(0)}")
 								updateResourceRep( "${currentMsg.msgContent()}"  
 								)
-								 println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}")  
 						}
 					}
-					 transition(edgeName="t11",targetState="receive",cond=whenDispatch("slotnum"))
-					transition(edgeName="t12",targetState="receive",cond=whenDispatch("tokenid"))
-					transition(edgeName="t13",targetState="receive",cond=whenDispatch("notice"))
+					 transition(edgeName="t19",targetState="receive",cond=whenDispatch("slotnum"))
+					transition(edgeName="t20",targetState="receive",cond=whenDispatch("tokenid"))
+					transition(edgeName="t21",targetState="receive",cond=whenDispatch("notice"))
 				}	 
 			}
 		}

@@ -29,8 +29,23 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("acceptIN") { //this:State
 					action { //it:State
+						request("indoorStatus", "indoorStatus(0)" ,"sensorsbrokeractor" )  
 					}
-					 transition( edgeName="goto",targetState="informIN", cond=doswitch() )
+					 transition(edgeName="t2",targetState="do_acceptIn",cond=whenReply("indoorStatus"))
+				}	 
+				state("do_acceptIn") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("indoorStatus(N)"), Term.createTerm("indoorStatus(STATUS)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								if(  payloadArg(0) == "occupied"  
+								 ){forward("notice", "notice(indoorArea(occupied))" ,"parkserviceguiactor" ) 
+								}
+						}
+					}
+					 transition( edgeName="goto",targetState="informIN", cond=doswitchGuarded({ payloadArg(0) == "free"  
+					}) )
+					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( payloadArg(0) == "free"  
+					) }) )
 				}	 
 				state("informIN") { //this:State
 					action { //it:State
@@ -44,17 +59,17 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("do_informIN") { //this:State
 					action { //it:State
 					}
-					 transition(edgeName="t2",targetState="moveToIn",cond=whenDispatch("carEnter"))
+					 transition(edgeName="t3",targetState="moveToIn",cond=whenDispatch("carEnter"))
 				}	 
 				state("moveToIn") { //this:State
 					action { //it:State
 						forward("goto", "goto(indoor)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t3",targetState="receipt",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t4",targetState="receipt",cond=whenDispatch("movementDone"))
 				}	 
 				state("receipt") { //this:State
 					action { //it:State
-						forward("tokenid", "tokenid($Slotnum)" ,"parkserviceguiactor" ) 
+						forward("tokenid", "tokenid($Tokenid)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitch() )
 				}	 
@@ -63,19 +78,49 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						 Slotnum = 0  
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t4",targetState="moveToHome",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t5",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 
 				state("acceptOUT") { //this:State
 					action { //it:State
+						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("exitRequest(TOKENID)"), Term.createTerm("exitRequest(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Tokenid = payloadArg(0)  
 						}
-						forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
+						if(  Slotnum == 0  
+						 ){request("outdoorStatus", "outdoorStatus(0)" ,"sensorsbrokeractor" )  
+						}
+						else
+						 {forward("notice", "notice(tokenid(invalid))" ,"parkserviceguiactor" ) 
+						 }
 					}
-					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ Slotnum == 0  
+					 transition( edgeName="goto",targetState="do_acceptOUT", cond=doswitchGuarded({ Slotnum == 0  
 					}) )
 					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( Slotnum == 0  
+					) }) )
+				}	 
+				state("do_acceptOUT") { //this:State
+					action { //it:State
+						println("$name in ${currentState.stateName} | $currentMsg")
+					}
+					 transition(edgeName="t6",targetState="redo_acceptOUT",cond=whenReply("outdoorStatus"))
+				}	 
+				state("redo_acceptOUT") { //this:State
+					action { //it:State
+						println("$name in ${currentState.stateName} | $currentMsg")
+						if( checkMsgContent( Term.createTerm("outdoorStatus(N)"), Term.createTerm("outdoorStatus(STATUS)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								if(  payloadArg(0) == "free"  
+								 ){forward("notice", "notice(exitRequest(received))" ,"parkserviceguiactor" ) 
+								}
+								else
+								 {forward("notice", "notice(outdoorArea(occupied))" ,"parkserviceguiactor" ) 
+								 }
+						}
+					}
+					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ payloadArg(0) == "free"  
+					}) )
+					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( payloadArg(0) == "free"  
 					) }) )
 				}	 
 				state("findSlot") { //this:State
@@ -88,13 +133,13 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					action { //it:State
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t5",targetState="moveToOut",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t7",targetState="moveToOut",cond=whenDispatch("movementDone"))
 				}	 
 				state("moveToOut") { //this:State
 					action { //it:State
 						forward("goto", "goto(outdoor)" ,"trolleyactor" ) 
 					}
-					 transition(edgeName="t6",targetState="moveToHome",cond=whenDispatch("movementDone"))
+					 transition(edgeName="t8",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 
 			}
 		}
