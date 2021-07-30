@@ -88,8 +88,9 @@ class HIController {
             }
             println("... answer=$answer")
 
-            if (answer.contains("slotnum")) answer = "The SLOTNUM is ${parseArg(answer)}"
-            else if (answer.contains("tokenid")) answer = "The TOKENID is ${parseArg(answer)}"
+            if (answer.contains("valTemp")) answer = "${parseArg(answer)}"
+            else if (answer.contains("fanStatus")) answer = "${parseArg(answer)}"
+            else if (answer.contains("trolleyStatus")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("received", answer)
 
