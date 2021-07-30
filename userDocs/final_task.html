@@ -406,7 +406,7 @@ Parking-slot 6: [4, 3, W]
 
 <p>The customer clarified that the <k>weightsensor</k> measures the <ks>weight of the car</ks> in the <kc>INDOOR-area</kc> and the <k>outsonar</k> detects the <ks>presence of a car</ks> in the <kc>OUTDOOR-area</kc>, but he doesn't provide code or physical devices to use. However, he specified that both should be properly simulated by mock-objects or mock-actors.</p>
 
-<p>While being two physically different components, the <k>weightsensor</k> and the <k>outsonar</k> serve the same logical function and thus they can be both modeled as <ks>presence sensors</ks> with appropriate <ks>adapters</ks>. We report hereunder a diagram to illustrate the conceptual taxonomy:</p>
+<p id="requirements_taxonomy">While being two physically different components, the <k>weightsensor</k> and the <k>outsonar</k> serve the same logical function and thus they can be both modeled as <ks>presence sensors</ks> with appropriate <ks>adapters</ks>. We report hereunder a diagram to illustrate the conceptual taxonomy:</p>
 
 <center><img src="./img/presence_actor.png" width="450px"></center>
 
@@ -556,7 +556,7 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 <h3>Executable model</h3>
 
-<p>A QAK executable model of the logical architecture can be retrieved from the following link: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em>. Every actor introduced in the main logical architecture and in the alarms sub-system has been implemented.</p>
+<p>A QAK executable model of the logical architecture can be retrieved from the following local link: <em><a href="../Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em> (copy on GitHub <a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">here</a>). Every actor introduced in the main logical architecture and in the alarms sub-system has been implemented.</p>
 
 <p>The QActor <k>parkmanagerserviceactor</k> implements the business logic automaton described in the main section of the problem analysis.</p>
 
@@ -645,7 +645,7 @@ outdoor(6, 4, s).
 
 <center><img src="./img/client_gui.png" width="400px"></center>
 
-<p>The GUI sends messages to the business logic as an <ks>"alien QActor"</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.</p>
+<p>The GUI sends messages to the business logic as an <ks>alien component</ks> and receives information by watching the <ks>CoAP resource</ks> associated with the <k>parkserviceguiactor</k>.</p>
 
 <center><img src="./img/proj_conn.png" width="600px"></center>
 
@@ -657,7 +657,7 @@ outdoor(6, 4, s).
 
 <p>The class <kc>DirectionalPlanner</kc>, previously discussed and developed for the problem analysis executable model, has been refactored into a <ks>Kotlin object</ks> to closely resemble its wrapped component (<kc>PlannerUtil</kc>) and to simplify the testing. This component will be used to check the position and the orientation of the trolley.</p>
 
-<p>The full test plan for this sprint can be retrieved from the following link: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Sprint%201/carparking_workspace/CarParking/support/carparking/test/Sprint1Test.kt">Sprint1Test.kt</a></em>. We report hereunder the most significant fragments:</p>
+<p>The full test plan for this sprint can be retrieved from the following local link: <em><a href="../Sprint%201/carparking_workspace/CarParking/support/carparking/test/Sprint1Test.kt">Sprint1Test.kt</a></em> (copy on GitHub <a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Sprint%201/carparking_workspace/CarParking/support/carparking/test/Sprint1Test.kt">here</a>). We report hereunder the most significant fragments:</p>
 
 <pre>
 @Test
@@ -703,16 +703,31 @@ We expect Sprint 2 to be completed within <k>3 working days</k>.<br>
 We expect Sprint 3 to be completed within <k>3 more working days</k>.<br>
 We expect the whole project to be finished by <k>August the 4th</k>.</p>
 
+<h3>Sprint 2</h3>
+
+<h4>Sensors and actuators</h4>
+
+<p>The behavior of <k>weightactor</k>, <k>sonaractor</k>, <k>thermometeractor</k> and <k>fanactor</k> is fundamentally unchanged. We however refactored the code to decouple the actors from the mock objects and to reflect the <a href="#requirements_taxonomy">presence sensors taxonomy</a> presented during the requirements analysis. We also made these actors update their associated CoAP resources to perform some testing and to communicate with the Web GUIs.</p>
+
+<p>While the client and the manager GUIs should have proper Web interfaces, we believe that, for mock-objects, simpler <ks>Java Swing</ks> GUIs are more adequate.</p>
+
+<center><img src="./img/mock_guis.png" width="400px"></center>
+
+<p>Since <k>parkmanagerserviceactor</k> has many states and the processing of the events fired by the sensors would be too cumbersome, we introduced a new actor called <k>sensorsbrokeractor</k> which reads such events and stores their meaning. <k>Parkmanagerserviceactor</k> may then <ks>request</ks> them on-demand when it needs to know their status.</p>
+
+<center><img src="./img/broker.png" width="600px"></center>
+
+<h4>The manager GUI</h4>
+
+<p>...</p>
+
+<h4>Testing</h4>
+
+<p>...</p>
 
 </div>
 
 <!--
-
-<h4>The weight sensor</h4>
-
-<p>The behavior of the <k>weightactor</k> is unchanged. We however refactored the code to reflect the <kc>PresenceSensor</kc> taxonomy presented during the requirements analysis.</p>
-
-<p>While the clients' and the manager's GUIs should have proper Web interfaces, we believe that for the mock-objects, such as the weight sensor, simpler <ks>Java Swing</ks> GUIs are adequate.</p>
 
 <h2>Test plans</h2>
 <div class="remark">
