@@ -63,9 +63,14 @@ class Sprint2Test {
 
 	@After
 	fun afterEach() {
-		observer!!.terminate()
-		observer = null
+		//observer!!.terminate()
+		//observer = null
 		runBlocking { delay(1000) }
+	}
+	
+	@Test
+	fun checkDoorsOccupied() {
+		
 	}
 
 	@Test

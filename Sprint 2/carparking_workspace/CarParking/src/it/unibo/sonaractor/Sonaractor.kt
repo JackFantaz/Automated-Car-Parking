@@ -11,16 +11,22 @@ import kotlinx.coroutines.runBlocking
 class Sonaractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, scope ){
 
 	override fun getInitialState() : String{
-		return "polling"
+		return "setup"
 	}
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
 				val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
-				var previous = mock.isPresent()
-				var present = previous
+				var previous = false
+				var present = false
 		return { //this:ActionBasciFsm
+				state("setup") { //this:State
+					action { //it:State
+						emit("outdoorCleared", "outdoorCleared(0)" ) 
+					}
+					 transition( edgeName="goto",targetState="polling", cond=doswitch() )
+				}	 
 				state("polling") { //this:State
 					action { //it:State
 						 present = mock.isPresent()  

@@ -21,14 +21,18 @@ class Fanactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, s
 				state("stop") { //this:State
 					action { //it:State
 						mock.turnOff(  )
+						updateResourceRep( "fanStop(0)"  
+						)
 					}
-					 transition(edgeName="t14",targetState="start",cond=whenDispatch("fanStart"))
+					 transition(edgeName="t22",targetState="start",cond=whenDispatch("fanStart"))
 				}	 
 				state("start") { //this:State
 					action { //it:State
 						mock.turnOn(  )
+						updateResourceRep( "fanStart(0)"  
+						)
 					}
-					 transition(edgeName="t15",targetState="stop",cond=whenDispatch("fanStop"))
+					 transition(edgeName="t23",targetState="stop",cond=whenDispatch("fanStop"))
 				}	 
 			}
 		}

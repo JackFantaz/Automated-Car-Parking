@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 class Thermometeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, scope ){
 
 	override fun getInitialState() : String{
-		return "polling"
+		return "setup"
 	}
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
@@ -19,8 +19,16 @@ class Thermometeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm(
 		
 				val Mock = carparking.temperature.MockThermometer()
 				var Previous = Mock.getTemperature()
-				var Temperature = Previous
+				var Temperature = Mock.getTemperature()
 		return { //this:ActionBasciFsm
+				state("setup") { //this:State
+					action { //it:State
+						emit("temperature", "temperature($Temperature)" ) 
+						updateResourceRep( "temperature($Temperature)"  
+						)
+					}
+					 transition( edgeName="goto",targetState="polling", cond=doswitch() )
+				}	 
 				state("polling") { //this:State
 					action { //it:State
 						 Temperature = Mock.getTemperature()  

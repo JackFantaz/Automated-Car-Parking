@@ -30,6 +30,12 @@ Event temperature : temperature(VALUE)
 Request step : step(TIME)
 Reply stepdone : stepdone(V)
 
+Request indoorStatus : indoorStatus(N)
+Reply indoorStatus : indoorStatus(STATUS)
+
+Request outdoorStatus : outdoorStatus(N)
+Reply outdoorStatus : outdoorStatus(STATUS)
+
 Context ctxcarparking ip[host="localhost" port=60000]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
 
@@ -48,9 +54,18 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		whenMsg enterRequest -> acceptIN
 		whenMsg exitRequest -> acceptOUT
 
-	State acceptIN {
+	/*State acceptIN {
 		// forward parkserviceguiactor -m notice : notice(enterRequest(received))
-	} Goto informIN // if INDOOR-area free else moveToHome
+	} Goto informIN // if INDOOR-area free else moveToHome*/
+
+	State acceptIN {
+		request sensorsbrokeractor -m indoorStatus : indoorStatus(0)
+	} Transition t whenReply indoorStatus -> do_acceptIn
+		State do_acceptIn {
+			onMsg(indoorStatus : indoorStatus(STATUS)) {
+				if [# payloadArg(0) == "occupied" #] { forward parkserviceguiactor -m notice : notice(indoorArea(occupied)) }
+			}
+		} Goto informIN if [# payloadArg(0) == "free" #] else moveToHome
 
 	State informIN {
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
@@ -65,18 +80,33 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Transition t whenMsg movementDone -> receipt
 
 	State receipt {
-		forward parkserviceguiactor -m tokenid : tokenid($Slotnum)
+		forward parkserviceguiactor -m tokenid : tokenid($Tokenid)
 	} Goto moveToSlotIn
 
 	State moveToSlotIn {
 		[# Slotnum = 0 #]
 		forward trolleyactor -m goto : goto(parking)
 	} Transition t whenMsg movementDone -> moveToHome
-
-	State acceptOUT {
+	
+	/*State acceptOUT {
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
 		forward parkserviceguiactor -m notice : notice(exitRequest(received))
-	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome
+	} Goto findSlot if [# Slotnum == 0 #] else moveToHome // and if OUTDOOR-area free else moveToHome*/
+
+	State acceptOUT {
+		printCurrentMessage
+		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
+		if [# Slotnum == 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
+		else { forward parkserviceguiactor -m notice : notice(tokenid(invalid)) }
+	} Goto do_acceptOUT if [# Slotnum == 0 #] else moveToHome
+		State do_acceptOUT { printCurrentMessage } Transition t whenReply outdoorStatus -> redo_acceptOUT
+		State redo_acceptOUT {
+			printCurrentMessage
+			onMsg(outdoorStatus : outdoorStatus(STATUS)) {
+				if [# payloadArg(0) == "free" #] { forward parkserviceguiactor -m notice : notice(exitRequest(received)) }
+				else { forward parkserviceguiactor -m notice : notice(outdoorArea(occupied)) }
+			}
+		} Goto findSlot if [# payloadArg(0) == "free" #] else moveToHome
 
 	State findSlot {
 		[# Slotnum = 1 #]
@@ -154,6 +184,39 @@ QActor trolleyactor context ctxcarparking {
 
 }
 
+QActor sensorsbrokeractor context ctxcarparking {
+	
+	[#
+		var Indoor = ""
+		var Outdoor = ""
+	#]
+	
+	State waiting initial {
+		onMsg (indoorStatus : indoorStatus(N)) {
+			println("Broker feedback -> Replying with indoorStatus($Indoor)")
+			replyTo indoorStatus with indoorStatus : indoorStatus($Indoor)
+		}
+		onMsg (outdoorStatus : outdoorStatus(N)) {
+			println("Broker feedback -> Replying with outdoorStatus($Outdoor)")
+			replyTo outdoorStatus with outdoorStatus : outdoorStatus($Outdoor)
+		}
+	} Transition t
+		whenEvent indoorOccupied -> register
+		whenEvent outdoorOccupied -> register
+		whenEvent indoorCleared-> register
+		whenEvent outdoorCleared -> register
+		whenRequest indoorStatus -> waiting
+		whenRequest outdoorStatus -> waiting
+		
+	State register {
+		onMsg (indoorOccupied : indoorOccupied(N)) { [# Indoor = "occupied" #] }
+		onMsg (outdoorOccupied : outdoorOccupied(N)) { [# Outdoor = "occupied" #] }
+		onMsg (indoorCleared : indoorCleared(N)) { [# Indoor = "free" #] }
+		onMsg (outdoorCleared : outdoorCleared(N)) { [# Outdoor = "free" #] }
+	} Goto waiting
+	
+}
+
 QActor parkserviceguiactor context ctxcarparking {
 	
 	State setup initial {
@@ -164,17 +227,14 @@ QActor parkserviceguiactor context ctxcarparking {
 		onMsg (slotnum : slotnum(SLOTNUM)) {
 			println("Client's GUI feedback -> The SLOTNUM is ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
-			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (tokenid : tokenid(TOKENID)) {
 			println("Client's GUI feedback -> The TOKENID is ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
-			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 		onMsg (notice : notice(MESSAGE)) {
 			println("Client's GUI feedback -> Notice received: ${payloadArg(0)}")
 			updateResource [# "${currentMsg.msgContent()}" #]
-			[# println("parkserviceguiactor -> updateResource -> ${currentMsg.msgContent()}") #]
 		}
 	} Transition t
 		whenMsg slotnum -> receive
@@ -189,11 +249,15 @@ QActor weightactor context ctxcarparking {
 	
 	[#
 		val mock = carparking.presence.PresenceWeight(carparking.presence.MockWeightSensor())
-		var previous = mock.isPresent()
-		var present = previous
+		var previous = false
+		var present = false
 	#]
 	
-	State polling initial {
+	State setup initial {
+		emit indoorCleared : indoorCleared(0)
+	} Goto polling
+	
+	State polling {
 		[# present = mock.isPresent() #]
 		if [# present && previous!=present #] {
 			emit indoorOccupied : indoorOccupied(0)
@@ -213,11 +277,15 @@ QActor sonaractor context ctxcarparking {
 	
 	[#
 		val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
-		var previous = mock.isPresent()
-		var present = previous
+		var previous = false
+		var present = false
 	#]
 	
-	State polling initial {
+	State setup initial {
+		emit outdoorCleared : outdoorCleared(0)
+	} Goto polling
+	
+	State polling {
 		[# present = mock.isPresent() #]
 		if [# present && previous!=present #] {
 			emit outdoorOccupied : outdoorOccupied(0)
@@ -238,10 +306,15 @@ QActor thermometeractor context ctxcarparking {
 	[#
 		val Mock = carparking.temperature.MockThermometer()
 		var Previous = Mock.getTemperature()
-		var Temperature = Previous
+		var Temperature = Mock.getTemperature()
 	#]
 	
-	State polling initial {
+	State setup initial {
+		emit temperature : temperature($Temperature)
+		updateResource [# "temperature($Temperature)" #]
+	} Goto polling
+	
+	State polling {
 		[# Temperature = Mock.getTemperature() #]
 		if [# Temperature != Previous #] {
 			emit temperature : temperature($Temperature)
@@ -259,10 +332,12 @@ QActor fanactor context ctxcarparking {
 	
 	State stop initial {
 		run mock.turnOff()
+		updateResource [# "fanStop(0)" #]
 	} Transition t whenMsg fanStart -> start
 	
 	State start {
 		run mock.turnOn()
+		updateResource [# "fanStart(0)" #]
 	} Transition t whenMsg fanStop -> stop
 	
 }
