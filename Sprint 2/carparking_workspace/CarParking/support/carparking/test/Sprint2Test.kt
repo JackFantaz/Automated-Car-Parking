@@ -69,8 +69,50 @@ class Sprint2Test {
 	}
 	
 	@Test
-	fun checkDoorsOccupied() {
+	fun checkDoors() {
+		runBlocking {
 		
+			println("checkDoors -> emit indoorOccupied(0)")
+			actor!!.emit("indoorOccupied", "indoorOccupied(0)")
+			
+			println("checkDoors -> forward enterRequest(0)")
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+			
+			println("checkDoors -> forward carEnter(1)")
+			actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+			
+			assertNotMovingInTime(3000)
+			
+			println("checkDoors -> emit indoorCleared(0)")
+			actor!!.emit("indoorCleared", "indoorCleared(0)")
+			
+			println("checkDoors -> forward enterRequest(0)")
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+			
+			println("checkDoors -> forward carEnter(1)")
+			actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+			
+			assertLocationInTime("6", "0", "N", 10000)
+			assertLocationInTime("0", "0", "S", 20000)
+			
+			println("checkDoors -> emit outdoorOccupied(0)")
+			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+			
+			println("checkDoors -> forward exitRequest(0)")
+			actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
+			
+			assertNotMovingInTime(3000)
+			
+			println("checkDoors -> emit outdoorCleared(0)")
+			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+			
+			println("checkDoors -> forward exitRequest(0)")
+			actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
+			
+			assertLocationInTime("6", "4", "S", 20000)
+			assertLocationInTime("0", "0", "S", 50000)
+			
+		}
 	}
 
 	@Test
@@ -119,6 +161,35 @@ class Sprint2Test {
 			else println("assertEvent -> wrong event $result detected instead of $event")
 		}
 		assertEquals(result, event)
+	}
+	
+		private suspend fun assertLocationInTime(x: String, y: String, d: String, millis: Int, verbose: Boolean = true) {
+		var counter = 0;
+		while (!(x == directionalPlanner.getX() && y == directionalPlanner.getY() && d == directionalPlanner.getD()) && counter < millis / 100) {
+			delay(100)
+			counter++
+		}
+		if (verbose) {
+			if (counter < millis / 100) println("assertLocationInTime -> target [$x,$y,$d] reached in ${counter * 100} ms")
+			else println("assertLocationInTime -> target [$x,$y,$d] not reached in time")
+		}
+		assert(counter < millis / 100)
+	}
+
+	private suspend fun assertNotMovingInTime(millis: Int, verbose: Boolean = true) {
+		var counter = 0;
+		val posX = directionalPlanner.getX()
+		val posY = directionalPlanner.getY()
+		val posD = directionalPlanner.getD()
+		while ((directionalPlanner.getX() == posX && directionalPlanner.getY() == posY && directionalPlanner.getD() == posD) && counter < millis / 100) {
+			delay(100)
+			counter++
+		}
+		if (verbose) {
+			if (counter >= millis / 100) println("assertNotMovingInTime -> no movement detected")
+			else println("assertNotMovingInTime -> movement detected within ${counter * 100} ms")
+		}
+		assert(counter >= millis / 100)
 	}
 
 }
