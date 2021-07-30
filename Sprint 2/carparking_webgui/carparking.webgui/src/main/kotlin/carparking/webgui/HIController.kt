@@ -49,11 +49,10 @@ class HIController {
     }
 
     @PostMapping("/carparking")
-    fun carparking(
-        viewmodel: Model,
+    fun carparking(viewmodel: Model,
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String,
-        @RequestParam(name = "token", required = false, defaultValue = "") token: String
-    ): String {
+        @RequestParam(name = "token", required = false, defaultValue = "") token: String): String
+    {
         println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
 
         val message = when (button) {
@@ -63,7 +62,12 @@ class HIController {
                 "enterRequest(0)",
                 connQak.qakdestination
             )
-            "car_enter" -> MsgUtil.buildDispatch("clientsgui", "carEnter", "carEnter(0)", connQak.qakdestination)
+            "car_enter" -> MsgUtil.buildDispatch(
+                "clientsgui",
+                "carEnter",
+                "carEnter(0)",
+                connQak.qakdestination
+            )
             "exit_request" -> MsgUtil.buildDispatch(
                 "clientsgui",
                 "exitRequest",
@@ -84,8 +88,9 @@ class HIController {
             }
             println("... answer=$answer")
 
-            if (answer.contains("slotnum")) answer = "The SLOTNUM is ${parseArg(answer)}"
-            else if (answer.contains("tokenid")) answer = "The TOKENID is ${parseArg(answer)}"
+            if (answer.contains("valTemp")) answer = "${parseArg(answer)}"
+            else if (answer.contains("fanStatus")) answer = "${parseArg(answer)}"
+            else if (answer.contains("trolleyStatus")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("received", answer)
 
@@ -95,6 +100,86 @@ class HIController {
 
         return "clientGui"
     }
+
+
+    @GetMapping("/")
+    fun homePage2(model: Model): String {
+        println("/ $model")
+        model.addAttribute("receivedTemp", "")
+        model.addAttribute("receivedFan", "")
+        model.addAttribute("receivedTrolley", "")
+        return "managerGui"
+    }
+
+    @PostMapping("/carparking")
+    fun carparking2(viewmodel: Model,
+        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String): String
+    {
+        println("/carparking viewmodel=$viewmodel button=$button ...")
+
+        val message = when (button) {
+            "start_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "startFan",
+                "startFan(0)",
+                connQak.qakdestination
+            )
+            "stop_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "stopFan",
+                "stopFan(0)",
+                connQak.qakdestination
+            )
+            "auto_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "autoFan",
+                "autoFan(0)",
+                connQak.qakdestination
+            )
+            "start_trolley" -> MsgUtil.buildDispatch(
+                "managergui",
+                "startTrolley",
+                "startTrolley(0)",
+                connQak.qakdestination
+            )
+            "stop_trolley" -> MsgUtil.buildDispatch(
+                "managergui",
+                "stopTrolley",
+                "stopTrolley(0)",
+                connQak.qakdestination
+            )
+            else -> null
+        }
+
+        if (message != null) {
+
+            var answer = ""
+            coapObserver.channel = answerChannel
+            carparkingConnection.forward(message)
+            runBlocking {
+                answer = answerChannel.receive()
+                coapObserver.channel = null
+            }
+            println("... answer=$answer")
+
+            if (answer.contains("slotnum")) answer = "${parseArg(answer)}   [TMAX=35°]"
+            else answer = ""
+            viewmodel.addAttribute("receivedTemp", answer)
+
+            if (answer.contains("tokenid")) answer = "${parseArg(answer)}"
+            else answer = ""
+            viewmodel.addAttribute("receivedFan", answer)
+
+            if (answer.contains("tokenid")) answer = "${parseArg(answer)}"
+            else answer = ""
+            viewmodel.addAttribute("receivedTrolley", answer)
+        }else {
+            viewmodel.addAttribute("received", "")
+        }
+
+        return "managerGui"
+    }
+
 
     private fun parseArg(message: String): String {
         return message.split("(", ")")[1]

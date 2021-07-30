@@ -75,7 +75,7 @@
 
 <div class="remark">
     <br>
-    <form action="carparking" method="post"></form>
+    <form action="carparking2" method="post"></form>
     Parking-area status<br>
     <table width="150px" height= "150px" border="1" align="left" bgcolor= #dcdcdc>
         <tr>
@@ -103,7 +103,7 @@
             <td>
                 <center>
                     <br>
-                    <input type="text" th:value="${received}" style="font-weight:bold; color:black; background-color: white;" readonly>
+                    <input type="text" th:value="${receivedTemp}" style="font-weight:bold; color:black; background-color: white;" readonly>
                     <br>
                     <br>
                 </center>
@@ -115,7 +115,7 @@
             <td>
                 <center>
                     <br>
-                    <input type="text" th:value="${received}" style="font-weight:bold; color:black; background-color: white;" readonly>
+                    <input type="text" th:value="${receivedFan}" style="font-weight:bold; color:black; background-color: white;" readonly>
                 </center>
             </td>
         </tr>
@@ -124,9 +124,9 @@
             </td>
             <td>
                 <center>
-                <button name="dispatch" value="enter_request">START</button>
-                <button name="dispatch" value="enter_request">STOP</button>
-                <button name="dispatch" value="enter_request">AUTO</button>
+                <button name="dispatch" value="start_fan">START</button>
+                <button name="dispatch" value="stop_fan">STOP</button>
+                <button name="dispatch" value="auto_fan">AUTO</button>
                 <br>
                 <br>
                 </center>
@@ -137,7 +137,7 @@
             <td>
                 <center>
                 <br>
-                <input type="text" th:value="${received}" style="font-weight:bold; color:black; background-color: white;" readonly>
+                <input type="text" th:value="${receivedTrolley}" style="font-weight:bold; color:black; background-color: white;" readonly>
                 </center>
             </td>
         </tr>
@@ -146,8 +146,8 @@
 
             <td>
                 <center>
-                    <button name="dispatch" value="enter_request">START</button>
-                    <button name="dispatch" value="enter_request">STOP</button>
+                    <button name="dispatch" value="start_trolley">START</button>
+                    <button name="dispatch" value="stop_trolley">STOP</button>
                     <br>
                 </center>
             </td>
