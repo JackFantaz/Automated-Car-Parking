@@ -735,7 +735,13 @@ We expect the whole project to be finished by <k>August the 4th</k>.</p>
 
 <h4>The manager GUI</h4>
 
-<p>...</p>
+<p>The <kc>ParkServiceStatusGUI</kc> for the manager has been developed in <ks>Spring Boot</ks> as an external application. To simplify the testing, it is currently deployed on the same node as the <kc>ParkServiceGUI</kc> for clients and it's accessible via Web browser on port 8100, mapping "/status".</p>
+
+<center><img src="./img/manager_gui.png" width="450px"></center>
+
+<p>Its interaction with the business logic is essentially the same as in the other Web GUI. Although, to receive data without waiting for user input, we regularly update the page via <ks>AJAX</ks> and read each interested CoAP resource.</p>
+
+<center><img src="./ancora_da_disegnare.png" width="450px"></center>
 
 <h4>Testing</h4>
 
