@@ -736,7 +736,37 @@ We expect the whole project to be finished by <k>August the 4th</k>.</p>
 
 <h4>Testing</h4>
 
-<p>...</p>
+<p>All the tests conceived for Sprint 1 must still hold. Moreover, we defined a new test case to ensure that the system checks <kc>INDOOR-area</kc> and <kc>OUTDOOR-area</kc> to be free before starting related actions.</p>
+
+<p>We also implemented an additional test case to check wether the mock objects are working as intended. Such test requires <ks>human interaction</ks> to be completed, otherwise we would not be able to assure that the GUIs are working. All the other test cases simulate the behavior of the mock objects and do not require human interaction to be completed.</p>
+
+<p>We report hereunder the most significant fragments of the new tests:</p>
+
+<pre>
+@Test
+fun checkDoors() {
+
+  actor!!.emit("indoorOccupied", "indoorOccupied(0)")
+  actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+  actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+  assertNotMovingInTime(3000)
+
+  actor!!.emit("indoorCleared", "indoorCleared(0)")
+  actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+  assertLocationInTime("6", "0", "N", 10000)
+  assertLocationInTime("0", "0", "S", 20000)
+
+  actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+  actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
+  assertNotMovingInTime(3000)
+
+  actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+  actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
+  assertLocationInTime("6", "4", "S", 20000)
+  assertLocationInTime("0", "0", "S", 50000)
+
+}
+</pre>
 
 </div>
 
