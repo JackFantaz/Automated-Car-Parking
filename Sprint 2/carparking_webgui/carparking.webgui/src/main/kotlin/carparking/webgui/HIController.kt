@@ -25,6 +25,10 @@ class HIController {
     val carparkingAddress = "127.0.0.1"
     val carparkingContext = "ctxcarparking"
 
+    var fanStatus = ""
+    var tempStatus = ""
+    var slotStatus = ""
+
     val clientTopic = "parkserviceguiactor"
     val clientObserver = WebPageCoapHandler(this, null)
     var clientChannel = Channel<String>()
@@ -66,12 +70,14 @@ class HIController {
 
         thermometerConnection = connQakBase.create(ConnectionType.TCP)
         thermometerConnection.createConnection()
-        thermometerSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$thermometerTopic")
+        thermometerSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$thermometerTopic")
         thermometerSupport.observeResource(thermometerObserver)
 
         serviceConnection = connQakBase.create(ConnectionType.TCP)
         serviceConnection.createConnection()
-        serviceSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$serviceTopic")
+        serviceSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$serviceTopic")
         serviceSupport.observeResource(serviceObserver)
 
     }
@@ -90,7 +96,6 @@ class HIController {
         @RequestParam(name = "token", required = false, defaultValue = "") token: String
     ): String {
         println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
-
         val message = when (button) {
             "enter_request" -> MsgUtil.buildDispatch(
                 "clientsgui",
@@ -112,28 +117,18 @@ class HIController {
             )
             else -> null
         }
-
-        if (message != null) {
-
-            var answer = ""
-            clientObserver.channel = clientChannel
-            clientConnection.forward(message)
-            runBlocking {
-                answer = clientChannel.receive()
-                clientObserver.channel = null
-            }
-            println("... answer=$answer")
-
-            if (answer.contains("valTemp")) answer = "${parseArg(answer)}"
-            else if (answer.contains("fanStatus")) answer = "${parseArg(answer)}"
-            else if (answer.contains("trolleyStatus")) answer = "${parseArg(answer)}"
-            else answer = ""
-            viewmodel.addAttribute("received", answer)
-
-        } else {
-            viewmodel.addAttribute("received", "")
-        }
-
+        val answer = sendDispatchCheckCoap(message, clientObserver, clientChannel, clientConnection)
+        /*if (answer.contains("valTemp")) answer = "${parseArg(answer)}"
+        else if (answer.contains("fanStatus")) answer = "${parseArg(answer)}"
+        else if (answer.contains("trolleyStatus")) answer = "${parseArg(answer)}"
+        else answer = ""*/
+        var received = ""
+        if (parseType(answer) == "slotnum") received = "The SLOTNUM is ${parseArg(answer)}"
+        else if (parseType(answer) == "tokenid") received = "The TOKENID is ${parseArg(answer)}"
+        else if (parseType(answer) == "notice") received = answer.substring(7).reversed().substring(1).reversed()
+        else received = answer
+        viewmodel.addAttribute("received", received)
+        println("... answer=$answer receivedFan=$received")
         return "clientGui"
     }
 
@@ -243,33 +238,53 @@ class HIController {
         }
         val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
         val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
-        viewmodel.addAttribute("receivedFan", received)
+        // viewmodel.addAttribute("receivedFan", received)
+        fanStatus = received
+        addStatusAttributes(viewmodel)
         println("... answer=$answer receivedFan=$received")
         return "managerGui"
     }
 
-    @PostMapping("/temperature")
+    /*@PostMapping("/temperature")
     fun temperature(
         viewmodel: Model,
     ): String {
         println("/temperature viewmodel=$viewmodel ...")
         var answer = thermometerSupport.readResource()
         val received = parseArg(answer)
-        viewmodel.addAttribute("receivedTemp", received)
+        // viewmodel.addAttribute("receivedTemp", received)
+        tempStatus = received
+        addStatusAttributes(viewmodel)
         println("... answer=$answer receivedTemp=$received")
         return "managerGui"
-    }
+    }*/
 
-    @PostMapping("/slots")
+    /*@PostMapping("/slots")
     fun slots(
         viewmodel: Model,
     ): String {
         println("/slots viewmodel=$viewmodel ...")
         var answer = serviceSupport.readResource()
         val received = parseArg(answer)
-        viewmodel.addAttribute("receivedSlot", received)
+        // viewmodel.addAttribute("receivedSlot", received)
+        slotStatus = received
+        addStatusAttributes(viewmodel)
         println("... answer=$answer receivedSlot=$received")
         return "managerGui"
+    }*/
+
+    @GetMapping("/ajax")
+    @ResponseBody
+    fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
+        // println("/ajax about=$about ...")
+        val answer = when (about) {
+            "temp" -> parseArg(thermometerSupport.readResource())
+            "slots" -> parseArg(serviceSupport.readResource())
+            "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
+            else -> ""
+        }
+        // println("... answer=$answer")
+        return answer
     }
 
     private fun sendDispatchCheckCoap(
@@ -296,6 +311,12 @@ class HIController {
 
     private fun parseType(message: String): String {
         return message.split("(", ")")[0]
+    }
+
+    private fun addStatusAttributes(model: Model) {
+        model.addAttribute("receivedTemp", tempStatus)
+        model.addAttribute("receivedFan", fanStatus)
+        model.addAttribute("receivedSlot", slotStatus)
     }
 
     @ExceptionHandler
