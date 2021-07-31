@@ -47,8 +47,12 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		var Slotnum = 1
 		var Tokenid = "1"
 	#]
+	
+	State setup initial {
+		updateResource [# "slot(vacant)" #]
+	} Goto moveToHome
 
-	State moveToHome initial {
+	State moveToHome {
 		forward trolleyactor -m goto : goto(home)
 	} Transition t
 		whenMsg enterRequest -> acceptIN
@@ -85,6 +89,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State moveToSlotIn {
 		[# Slotnum = 0 #]
+		updateResource [# "slot(full)" #]
 		forward trolleyactor -m goto : goto(parking)
 	} Transition t whenMsg movementDone -> moveToHome
 	
@@ -110,6 +115,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State findSlot {
 		[# Slotnum = 1 #]
+		updateResource [# "slot(vacant)" #]
 		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
 	} Goto moveToSlotOut
 
@@ -333,12 +339,16 @@ QActor fanactor context ctxcarparking {
 	State stop initial {
 		run mock.turnOff()
 		updateResource [# "fanStop(0)" #]
-	} Transition t whenMsg fanStart -> start
+	} Transition t
+		whenMsg fanStart -> start
+		whenMsg fanStop -> stop
 	
 	State start {
 		run mock.turnOn()
 		updateResource [# "fanStart(0)" #]
-	} Transition t whenMsg fanStop -> stop
+	} Transition t
+		whenMsg fanStart -> start
+		whenMsg fanStop -> stop
 	
 }
 

@@ -2,23 +2,19 @@ package carparking.webgui
 
 import connQak.ConnectionType
 import connQak.connQakBase
+import it.unibo.kactor.ApplMessage
 import it.unibo.kactor.MsgUtil
 import it.unibo.webBasicrobotqak.CoapSupport
 import it.unibo.webBasicrobotqak.WebPageCoapHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 
 @Controller
 class HIController {
@@ -27,18 +23,57 @@ class HIController {
     var appName: String? = null
 
     val carparkingAddress = "127.0.0.1"
-    val coapObserver = WebPageCoapHandler(this, null)
-    var answerChannel = Channel<String>()
-    lateinit var carparkingConnection: connQakBase
-    lateinit var coapsupport: CoapSupport
+    val carparkingContext = "ctxcarparking"
+
+    val clientTopic = "parkserviceguiactor"
+    val clientObserver = WebPageCoapHandler(this, null)
+    var clientChannel = Channel<String>()
+    lateinit var clientConnection: connQakBase
+    lateinit var clientSupport: CoapSupport
+
+    val fanTopic = "fanactor"
+    val fanObserver = WebPageCoapHandler(this, null)
+    var fanChannel = Channel<String>()
+    lateinit var fanConnection: connQakBase
+    lateinit var fanSupport: CoapSupport
+
+    val thermometerTopic = "thermometeractor"
+    val thermometerObserver = WebPageCoapHandler(this, null)
+    var thermometerChannel = Channel<String>()
+    lateinit var thermometerConnection: connQakBase
+    lateinit var thermometerSupport: CoapSupport
+
+    val serviceTopic = "parkmanagerserviceactor"
+    val serviceObserver = WebPageCoapHandler(this, null)
+    var serviceChannel = Channel<String>()
+    lateinit var serviceConnection: connQakBase
+    lateinit var serviceSupport: CoapSupport
 
     init {
+
         connQak.robothostAddr = carparkingAddress
-        carparkingConnection = connQakBase.create(ConnectionType.TCP)
-        carparkingConnection.createConnection()
-        coapsupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "ctxcarparking/parkserviceguiactor")
-        coapsupport.observeResource(coapObserver)
+
+        clientConnection = connQakBase.create(ConnectionType.TCP)
+        clientConnection.createConnection()
+        clientSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$clientTopic")
+        clientSupport.observeResource(clientObserver)
+
+        fanConnection = connQakBase.create(ConnectionType.TCP)
+        fanConnection.createConnection()
+        fanSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$fanTopic")
+        fanSupport.observeResource(fanObserver)
+
+        thermometerConnection = connQakBase.create(ConnectionType.TCP)
+        thermometerConnection.createConnection()
+        thermometerSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$thermometerTopic")
+        thermometerSupport.observeResource(thermometerObserver)
+
+        serviceConnection = connQakBase.create(ConnectionType.TCP)
+        serviceConnection.createConnection()
+        serviceSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$serviceTopic")
+        serviceSupport.observeResource(serviceObserver)
+
     }
 
     @GetMapping("/")
@@ -49,10 +84,11 @@ class HIController {
     }
 
     @PostMapping("/carparking")
-    fun carparking(viewmodel: Model,
+    fun carparking(
+        viewmodel: Model,
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String,
-        @RequestParam(name = "token", required = false, defaultValue = "") token: String): String
-    {
+        @RequestParam(name = "token", required = false, defaultValue = "") token: String
+    ): String {
         println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
 
         val message = when (button) {
@@ -80,11 +116,11 @@ class HIController {
         if (message != null) {
 
             var answer = ""
-            coapObserver.channel = answerChannel
-            carparkingConnection.forward(message)
+            clientObserver.channel = clientChannel
+            clientConnection.forward(message)
             runBlocking {
-                answer = answerChannel.receive()
-                coapObserver.channel = null
+                answer = clientChannel.receive()
+                clientObserver.channel = null
             }
             println("... answer=$answer")
 
@@ -102,9 +138,9 @@ class HIController {
     }
 
 
-    @GetMapping("/")
-    fun homePage2(model: Model): String {
-        println("/ $model")
+    @GetMapping("/status")
+    fun homePageStatus(model: Model): String {
+        println("/status $model")
         model.addAttribute("receivedTemp", "")
         model.addAttribute("receivedFan", "")
         model.addAttribute("receivedTrolley", "")
@@ -112,56 +148,57 @@ class HIController {
         return "managerGui"
     }
 
-    @PostMapping("/carparking")
-    fun carparking2(viewmodel: Model,
-        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String): String
-    {
+    /*@PostMapping("/status_carparking")
+    fun carparking2(
+        viewmodel: Model,
+        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
+    ): String {
         println("/carparking viewmodel=$viewmodel button=$button ...")
 
         val message = when (button) {
             "start_fan" -> MsgUtil.buildDispatch(
                 "managergui",
-                "startFan",
-                "startFan(0)",
-                connQak.qakdestination
+                "fanStart",
+                "fanStart(0)",
+                fanTopic
             )
             "stop_fan" -> MsgUtil.buildDispatch(
                 "managergui",
-                "stopFan",
-                "stopFan(0)",
-                connQak.qakdestination
+                "fanStop",
+                "fanStop(0)",
+                fanTopic
             )
-         /*   "auto_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "autoFan",
-                "autoFan(0)",
-                connQak.qakdestination
-            )
-            "start_trolley" -> MsgUtil.buildDispatch(
-                "managergui",
-                "startTrolley",
-                "startTrolley(0)",
-                connQak.qakdestination
-            )
-            "stop_trolley" -> MsgUtil.buildDispatch(
-                "managergui",
-                "stopTrolley",
-                "stopTrolley(0)",
-                connQak.qakdestination
-            )
+            /*   "auto_fan" -> MsgUtil.buildDispatch(
+                   "managergui",
+                   "autoFan",
+                   "autoFan(0)",
+                   connQak.qakdestination
+               )
+               "start_trolley" -> MsgUtil.buildDispatch(
+                   "managergui",
+                   "startTrolley",
+                   "startTrolley(0)",
+                   connQak.qakdestination
+               )
+               "stop_trolley" -> MsgUtil.buildDispatch(
+                   "managergui",
+                   "stopTrolley",
+                   "stopTrolley(0)",
+                   connQak.qakdestination
+               )
 
-          */
+             */
             else -> null
         }
 
         if (message != null) {
 
             var answer = ""
-            coapObserver.channel = answerChannel
-            carparkingConnection.forward(message)
+            fanObserver.channel = fanChannel
+            fanConnection.forward(message)
             runBlocking {
-                answer = answerChannel.receive()
-                coapObserver.channel = null
+                answer = fanChannel.receive()
+                fanObserver.channel = null
             }
             println("... answer=$answer")
 
@@ -176,16 +213,89 @@ class HIController {
             if (answer.contains("trolley")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("receivedTrolley", answer)
-        }else {
+        } else {
             viewmodel.addAttribute("received2", "")
         }
 
         return "managerGui"
+    }*/
+
+    @PostMapping("/fan")
+    fun fan(
+        viewmodel: Model,
+        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
+    ): String {
+        println("/fan viewmodel=$viewmodel button=$button ...")
+        val message = when (button) {
+            "start_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "fanStart",
+                "fanStart(0)",
+                fanTopic
+            )
+            "stop_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "fanStop",
+                "fanStop(0)",
+                fanTopic
+            )
+            else -> null
+        }
+        val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
+        val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
+        viewmodel.addAttribute("receivedFan", received)
+        println("... answer=$answer receivedFan=$received")
+        return "managerGui"
     }
 
+    @PostMapping("/temperature")
+    fun temperature(
+        viewmodel: Model,
+    ): String {
+        println("/temperature viewmodel=$viewmodel ...")
+        var answer = thermometerSupport.readResource()
+        val received = parseArg(answer)
+        viewmodel.addAttribute("receivedTemp", received)
+        println("... answer=$answer receivedTemp=$received")
+        return "managerGui"
+    }
+
+    @PostMapping("/slots")
+    fun slots(
+        viewmodel: Model,
+    ): String {
+        println("/slots viewmodel=$viewmodel ...")
+        var answer = serviceSupport.readResource()
+        val received = parseArg(answer)
+        viewmodel.addAttribute("receivedSlot", received)
+        println("... answer=$answer receivedSlot=$received")
+        return "managerGui"
+    }
+
+    private fun sendDispatchCheckCoap(
+        dispatch: ApplMessage?,
+        observer: WebPageCoapHandler,
+        channel: Channel<String>,
+        connection: connQakBase
+    ): String {
+        var answer = ""
+        if (dispatch != null) {
+            observer.channel = channel
+            connection.forward(dispatch)
+            runBlocking {
+                answer = channel.receive()
+                observer.channel = null
+            }
+        }
+        return answer
+    }
 
     private fun parseArg(message: String): String {
         return message.split("(", ")")[1]
+    }
+
+    private fun parseType(message: String): String {
+        return message.split("(", ")")[0]
     }
 
     @ExceptionHandler
