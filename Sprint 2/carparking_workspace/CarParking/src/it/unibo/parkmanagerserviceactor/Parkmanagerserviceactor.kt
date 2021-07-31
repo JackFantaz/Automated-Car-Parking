@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, scope ){
 
 	override fun getInitialState() : String{
-		return "moveToHome"
+		return "setup"
 	}
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
@@ -20,6 +20,13 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				var Slotnum = 1
 				var Tokenid = "1"
 		return { //this:ActionBasciFsm
+				state("setup") { //this:State
+					action { //it:State
+						updateResourceRep( "slot(vacant)"  
+						)
+					}
+					 transition( edgeName="goto",targetState="moveToHome", cond=doswitch() )
+				}	 
 				state("moveToHome") { //this:State
 					action { //it:State
 						forward("goto", "goto(home)" ,"trolleyactor" ) 
@@ -76,6 +83,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("moveToSlotIn") { //this:State
 					action { //it:State
 						 Slotnum = 0  
+						updateResourceRep( "slot(full)"  
+						)
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t5",targetState="moveToHome",cond=whenDispatch("movementDone"))
@@ -126,6 +135,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("findSlot") { //this:State
 					action { //it:State
 						 Slotnum = 1  
+						updateResourceRep( "slot(vacant)"  
+						)
 					}
 					 transition( edgeName="goto",targetState="moveToSlotOut", cond=doswitch() )
 				}	 
