@@ -18,7 +18,7 @@ class SliderMock(title: String = "Slider", min: Int = 0, max: Int = 100, x: Int 
 		slider.majorTickSpacing = 10
 		slider.paintTicks = true
 		slider.paintLabels = true
-		slider.snapToTicks = true
+		// slider.snapToTicks = true
 		slider.addChangeListener(this)
 		frame.contentPane.add(slider)
 		frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE

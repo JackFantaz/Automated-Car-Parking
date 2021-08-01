@@ -118,10 +118,6 @@ class HIController {
             else -> null
         }
         val answer = sendDispatchCheckCoap(message, clientObserver, clientChannel, clientConnection)
-        /*if (answer.contains("valTemp")) answer = "${parseArg(answer)}"
-        else if (answer.contains("fanStatus")) answer = "${parseArg(answer)}"
-        else if (answer.contains("trolleyStatus")) answer = "${parseArg(answer)}"
-        else answer = ""*/
         var received = ""
         if (parseType(answer) == "slotnum") received = "The SLOTNUM is ${parseArg(answer)}"
         else if (parseType(answer) == "tokenid") received = "The TOKENID is ${parseArg(answer)}"
@@ -131,7 +127,6 @@ class HIController {
         println("... answer=$answer receivedFan=$received")
         return "clientGui"
     }
-
 
     @GetMapping("/status")
     fun homePageStatus(model: Model): String {
@@ -143,13 +138,12 @@ class HIController {
         return "managerGui"
     }
 
-    /*@PostMapping("/status_carparking")
+    /*@PostMapping("/carparking2")
     fun carparking2(
         viewmodel: Model,
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
     ): String {
         println("/carparking viewmodel=$viewmodel button=$button ...")
-
         val message = when (button) {
             "start_fan" -> MsgUtil.buildDispatch(
                 "managergui",
@@ -185,9 +179,7 @@ class HIController {
              */
             else -> null
         }
-
         if (message != null) {
-
             var answer = ""
             fanObserver.channel = fanChannel
             fanConnection.forward(message)
@@ -196,22 +188,18 @@ class HIController {
                 fanObserver.channel = null
             }
             println("... answer=$answer")
-
             if (answer.contains("temperature")) answer = "${parseArg(answer)}   [TMAX=35°]"
             else answer = ""
             viewmodel.addAttribute("receivedTemp", answer)
-
             if (answer.contains("fan")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("receivedFan", answer)
-
             if (answer.contains("trolley")) answer = "${parseArg(answer)}"
             else answer = ""
             viewmodel.addAttribute("receivedTrolley", answer)
         } else {
             viewmodel.addAttribute("received2", "")
         }
-
         return "managerGui"
     }*/
 
@@ -238,7 +226,6 @@ class HIController {
         }
         val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
         val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
-        // viewmodel.addAttribute("receivedFan", received)
         fanStatus = received
         addStatusAttributes(viewmodel)
         println("... answer=$answer receivedFan=$received")

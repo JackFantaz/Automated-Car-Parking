@@ -22,6 +22,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 		return { //this:ActionBasciFsm
 				state("setup") { //this:State
 					action { //it:State
+						forward("slot", "slot(vacant)" ,"parkservicestatusguiactor" ) 
 						updateResourceRep( "slot(vacant)"  
 						)
 					}
@@ -83,6 +84,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("moveToSlotIn") { //this:State
 					action { //it:State
 						 Slotnum = 0  
+						forward("slot", "slot(full)" ,"parkservicestatusguiactor" ) 
 						updateResourceRep( "slot(full)"  
 						)
 						forward("goto", "goto(parking)" ,"trolleyactor" ) 
@@ -91,7 +93,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("acceptOUT") { //this:State
 					action { //it:State
-						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("exitRequest(TOKENID)"), Term.createTerm("exitRequest(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Tokenid = payloadArg(0)  
@@ -110,13 +111,11 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("do_acceptOUT") { //this:State
 					action { //it:State
-						println("$name in ${currentState.stateName} | $currentMsg")
 					}
 					 transition(edgeName="t6",targetState="redo_acceptOUT",cond=whenReply("outdoorStatus"))
 				}	 
 				state("redo_acceptOUT") { //this:State
 					action { //it:State
-						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("outdoorStatus(N)"), Term.createTerm("outdoorStatus(STATUS)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								if(  payloadArg(0) == "free"  
@@ -135,6 +134,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("findSlot") { //this:State
 					action { //it:State
 						 Slotnum = 1  
+						forward("slot", "slot(vacant)" ,"parkservicestatusguiactor" ) 
 						updateResourceRep( "slot(vacant)"  
 						)
 					}
