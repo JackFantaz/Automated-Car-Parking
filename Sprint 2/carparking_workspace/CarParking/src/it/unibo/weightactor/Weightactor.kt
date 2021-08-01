@@ -41,7 +41,20 @@ class Weightactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name
 						)
 						}
 						 previous = present  
-						delay(500) 
+						stateTimer = TimerActor("timer_polling", 
+							scope, context!!, "local_tout_weightactor_polling", 500.toLong() )
+					}
+					 transition(edgeName="t24",targetState="polling",cond=whenTimeout("local_tout_weightactor_polling"))   
+					transition(edgeName="t25",targetState="response",cond=whenRequest("lastEvent"))
+				}	 
+				state("response") { //this:State
+					action { //it:State
+						if(  present  
+						 ){answer("lastEvent", "indoorOccupied", "indoorOccupied(0)"   )  
+						}
+						else
+						 {answer("lastEvent", "indoorCleared", "indoorCleared(0)"   )  
+						 }
 					}
 					 transition( edgeName="goto",targetState="polling", cond=doswitch() )
 				}	 

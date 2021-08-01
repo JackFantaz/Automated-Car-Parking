@@ -37,6 +37,13 @@ Reply indoorStatus : indoorStatus(STATUS)
 Request outdoorStatus : outdoorStatus(N)
 Reply outdoorStatus : outdoorStatus(STATUS)
 
+Request lastEvent : lastEvent(N)
+Reply indoorCleared : indoorCleared(N)
+Reply indoorOccupied : indoorOccupied(N)
+Reply outdoorCleared : outdoorCleared(N)
+Reply outdoorOccupied : outdoorOccupied(N)
+Reply temperature : temperature(VALUE)
+
 Context ctxcarparking ip[host="localhost" port=60000]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
 
@@ -280,7 +287,13 @@ QActor weightactor context ctxcarparking {
 			updateResource [# "indoorCleared(0)" #]
 		}
 		[# previous = present #]
-		delay 500
+	} Transition t
+		whenTime 500 -> polling
+		whenRequest lastEvent -> response
+
+	State response {
+		if [# present #] { replyTo lastEvent with indoorOccupied : indoorOccupied(0) }
+		else { replyTo lastEvent with indoorCleared : indoorCleared(0) }
 	} Goto polling
 
 }
@@ -308,7 +321,13 @@ QActor sonaractor context ctxcarparking {
 			updateResource [# "outdoorCleared(0)" #]
 		}
 		[# previous = present #]
-		delay 500
+	} Transition t
+		whenTime 500 -> polling
+		whenRequest lastEvent -> response
+
+	State response {
+		if [# present #] { replyTo lastEvent with outdoorOccupied : outdoorOccupied(0) }
+		else { replyTo lastEvent with outdoorCleared : outdoorCleared(0) }
 	} Goto polling
 
 }
@@ -333,7 +352,12 @@ QActor thermometeractor context ctxcarparking {
 			updateResource [# "temperature($Temperature)" #]
 		}
 		[# Previous = Temperature #]
-		delay 500
+	} Transition t
+		whenTime 500 -> polling
+		whenRequest lastEvent -> response
+
+	State response {
+		replyTo lastEvent with temperature : temperature($Temperature)
 	} Goto polling
 
 }

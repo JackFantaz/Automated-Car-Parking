@@ -41,7 +41,20 @@ class Sonaractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 						)
 						}
 						 previous = present  
-						delay(500) 
+						stateTimer = TimerActor("timer_polling", 
+							scope, context!!, "local_tout_sonaractor_polling", 500.toLong() )
+					}
+					 transition(edgeName="t26",targetState="polling",cond=whenTimeout("local_tout_sonaractor_polling"))   
+					transition(edgeName="t27",targetState="response",cond=whenRequest("lastEvent"))
+				}	 
+				state("response") { //this:State
+					action { //it:State
+						if(  present  
+						 ){answer("lastEvent", "outdoorOccupied", "outdoorOccupied(0)"   )  
+						}
+						else
+						 {answer("lastEvent", "outdoorCleared", "outdoorCleared(0)"   )  
+						 }
 					}
 					 transition( edgeName="goto",targetState="polling", cond=doswitch() )
 				}	 
