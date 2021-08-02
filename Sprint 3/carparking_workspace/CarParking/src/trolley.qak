@@ -1,6 +1,6 @@
 /*
  *    Automated Car-Parking
- *    EXECUTABLE MODEL AS A RESULT OF SPRINT 2
+ *    EXECUTABLE MODEL AS A RESULT OF SPRINT 3
  *    by Giacomo Fantazzini and Claudia Badalamenti
  *
  * */
@@ -21,12 +21,17 @@ Dispatch exitRequest : exitRequest(TOKENID)
 
 Dispatch fanStart : fanStart(N)
 Dispatch fanStop : fanStop(N)
+Dispatch fanAuto : fanAuto(STATUS)
 
 Event indoorCleared : indoorCleared(N)
 Event indoorOccupied : indoorOccupied(N)
 Event outdoorCleared : outdoorCleared(N)
 Event outdoorOccupied : outdoorOccupied(N)
 Event temperature : temperature(VALUE)
+Event outdoorAlarm : outdoorAlarm(N)
+Event outdoorAlarmRevoked : outdoorAlarmRevoked(N)
+Event temperatureAlarm : temperatureAlarm(N)
+Event temperatureAlarmRevoked : temperatureAlarmRevoked(N)
 
 Request step : step(TIME)
 Reply stepdone : stepdone(V)
@@ -249,7 +254,7 @@ QActor parkserviceguiactor context ctxcarparking {
 		whenMsg enterRequest -> businessLogicControl
 		whenMsg carEnter -> businessLogicControl
 		whenMsg exitRequest -> businessLogicControl
-		
+
 	State businessLogicControl {
 		onMsg (enterRequest : enterRequest(0)) {
 			println("Client's GUI feedback -> redirecting enterRequest(0)")
@@ -270,6 +275,8 @@ QActor parkserviceguiactor context ctxcarparking {
 
 QActor parkservicestatusguiactor context ctxcarparking {
 
+	[# var auto = false #]
+
 	State receive initial {
 		onMsg (temperature : temperature(VALUE)) {
 			println("Manager's GUI feedback -> The temperature is ${payloadArg(0)}")
@@ -277,12 +284,31 @@ QActor parkservicestatusguiactor context ctxcarparking {
 		onMsg (slot : slot(STATUS)) {
 			println("Manager's GUI feedback -> The slot is ${payloadArg(0)}")
 		}
+		onMsg (outdoorAlarm : outdoorAlarm(N)) {
+			println("Manager's GUI feedback -> OUTDOOR alarm!")
+		}
+		onMsg (outdoorAlarmRevoked : outdoorAlarmRevoked(N)) {
+			println("Manager's GUI feedback -> OUTDOOR alarm REVOKED!")
+		}
+		onMsg (temperatureAlarm : temperatureAlarm(N)) {
+			println("Manager's GUI feedback -> Temperature alarm!")
+			if [# auto #] { forward fanactor -m fanStart : fanStart(0) }
+		}
+		onMsg (temperatureAlarmRevoked : temperatureAlarmRevoked(N)) {
+			println("Manager's GUI feedback -> Temperature alarm REVOKED!")
+			if [# auto #] { forward fanactor -m fanStop : fanStop(0) }
+		}
 	} Transition t
 		whenEvent temperature -> receive
 		whenMsg slot -> receive
 		whenMsg fanStart -> fanControl
 		whenMsg fanStop -> fanControl
-		
+		whenEvent outdoorAlarm -> receive
+		whenEvent outdoorAlarmRevoked -> receive
+		whenEvent temperatureAlarm -> receive
+		whenEvent temperatureAlarmRevoked -> receive
+		whenMsg fanAuto -> setAuto
+
 	State fanControl {
 		onMsg (fanStart : fanStart(0)) {
 			println("Manager's GUI feedback -> redirecting fanStart(0)")
@@ -291,6 +317,16 @@ QActor parkservicestatusguiactor context ctxcarparking {
 		onMsg (fanStop : fanStop(0)) {
 			println("Manager's GUI feedback -> redirecting fanStop(0)")
 			forward fanactor -m fanStop : fanStop(0)
+		}
+	} Goto receive
+
+	State setAuto {
+		onMsg(fanAuto : fanAuto(STATUS)) {
+			[#
+				if (payloadArg(0) == "AUTO") auto = true
+				else if (payloadArg(0) == "MANUAL") auto = false
+			#]
+
 		}
 	} Goto receive
 
@@ -414,6 +450,45 @@ QActor fanactor context ctxcarparking {
 
 }
 
-// outdoorsentinelactor
+QActor outdoorsentinelactor context ctxcarparking {
 
-// temperaturesentinelactor
+	State watching initial { }
+	Transition t whenEvent outdoorOccupied -> timer
+
+	State timer { }
+	Transition t
+		whenTime 5000 -> alarm // DTFREE
+		whenEvent outdoorCleared -> watching
+
+	State alarm {
+		emit outdoorAlarm : outdoorAlarm(0)
+		updateResource [# "outdoorAlarm(0)" #]
+	} Transition t whenEvent outdoorCleared -> revoke
+
+	State revoke {
+		emit outdoorAlarmRevoked : outdoorAlarmRevoked(0)
+		updateResource [# "outdoorAlarmRevoked(0)" #]
+	} Goto watching
+
+}
+
+QActor temperaturesentinelactor context ctxcarparking {
+	[#
+		val tmax = 35.0
+		var alarmed = false
+	#]
+	State watching initial {
+		onMsg (temperature : temperature(VALUE)) {
+			if [# payloadArg(0).toFloat() > tmax && !alarmed #] {
+				emit temperatureAlarm : temperatureAlarm(0)
+				updateResource [# "temperatureAlarm(0)" #]
+				[# alarmed = true #]
+			}
+			if [# payloadArg(0).toFloat() <= tmax && alarmed #] {
+				emit temperatureAlarmRevoked : temperatureAlarmRevoked(0)
+				updateResource [# "temperatureAlarmRevoked(0)" #]
+				[# alarmed = false #]
+			}
+		}
+	} Transition t whenEvent temperature -> watching
+}

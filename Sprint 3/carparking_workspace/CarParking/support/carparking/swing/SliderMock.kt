@@ -7,7 +7,7 @@ import javax.swing.JSlider
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
-class SliderMock(title: String = "Slider", min: Int = 0, max: Int = 100, x: Int = 30, y: Int = 30) : Observable(),
+class SliderMock(title: String = "Slider", min: Int = 0, max: Int = 100, start: Int = 50, /*snap: Boolean = false,*/ x: Int = 30, y: Int = 30) : Observable(),
 	ChangeListener {
 
 	private val frame = JFrame(title)
@@ -18,7 +18,8 @@ class SliderMock(title: String = "Slider", min: Int = 0, max: Int = 100, x: Int 
 		slider.majorTickSpacing = 10
 		slider.paintTicks = true
 		slider.paintLabels = true
-		// slider.snapToTicks = true
+		slider.value = start
+		// slider.snapToTicks = snap
 		slider.addChangeListener(this)
 		frame.contentPane.add(slider)
 		frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE

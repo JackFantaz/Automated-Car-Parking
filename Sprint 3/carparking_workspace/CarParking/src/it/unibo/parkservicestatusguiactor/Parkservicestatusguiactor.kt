@@ -16,6 +16,7 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
+		 var auto = false  
 		return { //this:ActionBasciFsm
 				state("receive") { //this:State
 					action { //it:State
@@ -27,11 +28,38 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("Manager's GUI feedback -> The slot is ${payloadArg(0)}")
 						}
+						if( checkMsgContent( Term.createTerm("outdoorAlarm(N)"), Term.createTerm("outdoorAlarm(N)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> OUTDOOR alarm!")
+						}
+						if( checkMsgContent( Term.createTerm("outdoorAlarmRevoked(N)"), Term.createTerm("outdoorAlarmRevoked(N)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> OUTDOOR alarm REVOKED!")
+						}
+						if( checkMsgContent( Term.createTerm("temperatureAlarm(N)"), Term.createTerm("temperatureAlarm(N)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> Temperature alarm!")
+								if(  auto  
+								 ){forward("fanStart", "fanStart(0)" ,"fanactor" ) 
+								}
+						}
+						if( checkMsgContent( Term.createTerm("temperatureAlarmRevoked(N)"), Term.createTerm("temperatureAlarmRevoked(N)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> Temperature alarm REVOKED!")
+								if(  auto  
+								 ){forward("fanStop", "fanStop(0)" ,"fanactor" ) 
+								}
+						}
 					}
 					 transition(edgeName="t25",targetState="receive",cond=whenEvent("temperature"))
 					transition(edgeName="t26",targetState="receive",cond=whenDispatch("slot"))
 					transition(edgeName="t27",targetState="fanControl",cond=whenDispatch("fanStart"))
 					transition(edgeName="t28",targetState="fanControl",cond=whenDispatch("fanStop"))
+					transition(edgeName="t29",targetState="receive",cond=whenEvent("outdoorAlarm"))
+					transition(edgeName="t30",targetState="receive",cond=whenEvent("outdoorAlarmRevoked"))
+					transition(edgeName="t31",targetState="receive",cond=whenEvent("temperatureAlarm"))
+					transition(edgeName="t32",targetState="receive",cond=whenEvent("temperatureAlarmRevoked"))
+					transition(edgeName="t33",targetState="setAuto",cond=whenDispatch("fanAuto"))
 				}	 
 				state("fanControl") { //this:State
 					action { //it:State
@@ -44,6 +72,17 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("Manager's GUI feedback -> redirecting fanStop(0)")
 								forward("fanStop", "fanStop(0)" ,"fanactor" ) 
+						}
+					}
+					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
+				}	 
+				state("setAuto") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("fanAuto(STATUS)"), Term.createTerm("fanAuto(STATUS)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												if (payloadArg(0) == "AUTO") auto = true
+												else if (payloadArg(0) == "MANUAL") auto = false
 						}
 					}
 					 transition( edgeName="goto",targetState="receive", cond=doswitch() )

@@ -13,3 +13,5 @@ context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
   qactor( sonaractor, ctxcarparking, "it.unibo.sonaractor.Sonaractor").
   qactor( thermometeractor, ctxcarparking, "it.unibo.thermometeractor.Thermometeractor").
   qactor( fanactor, ctxcarparking, "it.unibo.fanactor.Fanactor").
+  qactor( outdoorsentinelactor, ctxcarparking, "it.unibo.outdoorsentinelactor.Outdoorsentinelactor").
+  qactor( temperaturesentinelactor, ctxcarparking, "it.unibo.temperaturesentinelactor.Temperaturesentinelactor").
