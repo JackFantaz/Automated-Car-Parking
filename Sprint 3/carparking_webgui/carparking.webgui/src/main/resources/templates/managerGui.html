@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ParkServiceStatusGUI</title>
+
+    <style type="text/css">
+        div.remark{
+            background-color: #e0ffff;
+            border: 2px solid;
+            padding: 20px;
+
+        }
+        body {
+            font-family: Calibri;
+            font-weight: 700;
+            margin: 5px;
+        }
+
+        button {
+            position: relative;
+            display: inline-block;
+
+            width: 12em;
+            height: 2.5em;
+            line-height: 2.4em;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: 700;
+            color: #000;
+            border: 1px solid rgba(127, 131, 133, 0.644);
+            border-top-color: rgba(0, 0, 0, 0.692);
+            border-radius: 5px;
+            background: rgb(206, 220, 231) linear-gradient(rgb(206,220,231), rgb(89,106,114));
+            box-shadow:
+            0 -1px rgba(10,21,28,.9) inset,
+            0 1px rgba(255,255,255,.5) inset;
+        }
+        button:hover {
+            background: linear-gradient(#d2dfea, #71828c);
+        }
+        button:active {
+            line-height: 2.6em;
+            background: linear-gradient(#bac6cf, #c5d3de 20%, #71828c);
+            box-shadow: 0 -1px rgba(255,255,255,.4) inset;
+        }
+        button:before {
+            content: "";
+            position: absolute;
+            top: -10px; right: -10px; bottom: -10px; left: -10px;
+            z-index: -1;
+            border-radius: 8px;
+            background: linear-gradient(rgba(200,200,200,.5), rgba(240,240,240,.5));
+        }
+        td {
+            vertical-align: middle;
+            /*border: 3px solid black;*/
+        }
+
+    </style>
+
+    <script>
+
+        function sendAjaxRequest(method, destination, parameters, handler, format) {
+            var ajax;
+            var	list;
+            var created;
+            var i;
+            var getParameters;
+            var postParameters;
+            ajax = false;
+            list = new Array('Microsoft.XmlHttp', 'MSXML4.XmlHttp', 'MSXML3.XmlHttp', 'MSXML2.XmlHttp', 'MSXML.XmlHttp');
+            try {
+                ajax = new XMLHttpRequest();
+            } catch (e) {}
+            if (!ajax) {
+                created = false;
+                for (var i = 0 ; i < list.length && !created; i++) {
+                    try {
+                        ajax = new ActiveXObject(list[i]);
+                        created = true;
+                    } catch (e) {}
+                }
+            }
+            if (ajax) {
+                ajax.onreadystatechange = function() {
+                    if ((ajax.readyState === 4) && (ajax.status === 200)) {
+                        format = format.toUpperCase();
+                        if (format === 'TEXT') {
+                            handler(ajax.responseText);
+                        } else if (format === 'XML') {
+                            handler(ajax.responseXML);
+                        }
+                    }
+                };
+                method = method.toUpperCase();
+                if (method === 'GET') {
+                    getParameters = "?" + parameters;
+                    postParameters = null;
+                } else if (method === 'POST') {
+                    getParameters = "";
+                    postParameters = parameters;
+                }
+                ajax.open(method, destination + getParameters, true);
+                // ajax.setRequestHeader('connection', 'close');
+                ajax.send(postParameters);
+            }
+        }
+
+        function initUpdate(millis) {
+            sendAjaxRequest("GET", "/ajax", "about=temp", tempHandler, "TEXT")
+            sendAjaxRequest("GET", "/ajax", "about=slots", slotsHandler, "TEXT")
+            sendAjaxRequest("GET", "/ajax", "about=fan", fanHandler, "TEXT")
+            window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=temp", tempHandler, "TEXT"), millis)
+            window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=slots", slotsHandler, "TEXT"), millis)
+            window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=fan", fanHandler, "TEXT"), millis)
+        }
+
+        function tempHandler(response) {
+            document.getElementById("temp_endpoint").value = response
+        }
+
+        function slotsHandler(response) {
+            document.getElementById("slots_endpoint").innerText = response
+        }
+
+        function fanHandler(response) {
+            document.getElementById("fan_endpoint").value = response
+        }
+
+
+    </script>
+
+</head>
+
+<body onload="initUpdate(1000)">
+<div style="background-color: #48d1cc; border: 2px solid ">
+    <center><h2>ParkServiceStatusGUI</h2></center>
+</div>
+
+<div class="remark">
+    <br>
+    <form action="carparking2" method="post"></form>
+    Parking-area status<br>
+    <table width="150px" height="150px" tex border="1" align="left" bgcolor=#dcdcdc>
+        <tr>
+            <td style="background-color: red">
+                <center><span id="slots_endpoint" th:text="${receivedSlot}">Not available</span></center>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>Not available</center>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>Not available</center>
+            </td>
+            <td>
+                <center>Not available</center>
+            </td>
+        </tr>
+    </table>
+    <!--<form action="slots" method="post">
+        <button name="dispatch" value="">CHECK</button>
+    </form>-->
+    <br>
+
+    <table style="padding:10px; border: 2px solid black;" width="350px" height="300px" align=center bgcolor=#f5f5f5>
+        <tr>
+            <td>Temperature:</td>
+            <br>
+            <br>
+            <td>
+                <center>
+                    <br>
+                    <input id="temp_endpoint" type="text" th:value="${receivedTemp}"
+                           style="font-weight:bold; color:black; background-color: white;" readonly>
+                    <!--<form action="temperature" method="post">
+                        <button name="dispatch" value="">CHECK</button>
+                    </form>-->
+                    <br>
+                    <br>
+                </center>
+            </td>
+        </tr>
+        <td></td>
+        <tr>
+            <td>Fan status:</td>
+            <td>
+                <center>
+                    <br>
+                    <input id="fan_endpoint" type="text" th:value="${receivedFan}"
+                           style="font-weight:bold; color:black; background-color: white;" readonly>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <center>
+                    <form action="fan" method="post">
+                        <button name="dispatch" value="start_fan">START</button>
+                        <button name="dispatch" value="stop_fan">STOP</button>
+                        <button name="dispatch" value="auto_fan" disabled>AUTO</button>
+                    </form>
+                    <br>
+                    <br>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>Transport trolley status:</td>
+            <td>
+                <center>
+                    <br>
+                    <input type="text" th:value="${receivedTrolley}"
+                           style="font-weight:bold; color:black; background-color: white;" readonly disabled>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+
+            <td>
+                <center>
+                    <button name="dispatch" value="start_trolley" disabled>START</button>
+                    <button name="dispatch" value="stop_trolley" disabled>STOP</button>
+                    <br>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+    <br>
+    <br>
+
+    <!--<table>
+        <tr>
+            <div style="background-color: #fafad2; border:1px solid black; width: 200px; height: 20px; padding:7px">
+                Alarms:
+            </div>
+
+        </tr>
+        <tr>
+            <div style="background-color: #fafad2; border:1px solid black; font-family: Calibri; font-weight: 700; width: 200px; padding:7px; height: 60px;"></div>
+        </tr>
+    </table>-->
+
+</div>
+</body>
+</html>
