@@ -799,6 +799,13 @@ fun checkDoors() {
 	</table>
 </center>
 
+<h3>Sprint 3</h3>
+
+<h4>The real sonar device</h4>
+<p>
+	In addition to the use of a mock-object for the simulation of the presence / absence of the car in the outdoors, a <ks>real sensor</ks> (HCSR04) was used to perform the function of the <kc>outsonar</kc>. To do this we used a file obtained by the customer <em><a href="../Sprint%203/carparking_workspace/CarParking/sonar.c">Sonar.c</a></em> thanks to which the distance in centimeters of the object from the sensor is shown on the screen. The file was simply modified so that it did not report the values in cascade, but only the measurement at the moment in which it is requested. Experiments show that the minimum distance that the sonar is able to intercept is 3 cm, while the maximum is 42 cm. For this reason we established a <ks>threshold value of 25 cm</ks> that is the limit for which the sonar can find the presence of the car or not.
+</p>
+
 </div>
 
 <!--
