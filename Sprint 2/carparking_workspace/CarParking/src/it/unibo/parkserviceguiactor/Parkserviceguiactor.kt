@@ -47,6 +47,30 @@ class Parkserviceguiactor ( name: String, scope: CoroutineScope  ) : ActorBasicF
 					 transition(edgeName="t19",targetState="receive",cond=whenDispatch("slotnum"))
 					transition(edgeName="t20",targetState="receive",cond=whenDispatch("tokenid"))
 					transition(edgeName="t21",targetState="receive",cond=whenDispatch("notice"))
+					transition(edgeName="t22",targetState="businessLogicControl",cond=whenDispatch("enterRequest"))
+					transition(edgeName="t23",targetState="businessLogicControl",cond=whenDispatch("carEnter"))
+					transition(edgeName="t24",targetState="businessLogicControl",cond=whenDispatch("exitRequest"))
+				}	 
+				state("businessLogicControl") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("enterRequest(N)"), Term.createTerm("enterRequest(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Client's GUI feedback -> redirecting enterRequest(0)")
+								forward("enterRequest", "enterRequest(0)" ,"parkmanagerserviceactor" ) 
+						}
+						if( checkMsgContent( Term.createTerm("carEnter(N)"), Term.createTerm("carEnter(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Client's GUI feedback -> redirecting carEnter(0)")
+								forward("carEnter", "carEnter(0)" ,"parkmanagerserviceactor" ) 
+						}
+						if( checkMsgContent( Term.createTerm("exitRequest(TOKENID)"), Term.createTerm("exitRequest(TOKENID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 var Temp = payloadArg(0)  
+								println("Client's GUI feedback -> redirecting exitRequest($Temp)")
+								forward("exitRequest", "exitRequest($Temp)" ,"parkmanagerserviceactor" ) 
+						}
+					}
+					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
 				}	 
 			}
 		}

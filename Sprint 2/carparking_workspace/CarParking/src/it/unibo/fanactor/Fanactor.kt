@@ -24,8 +24,8 @@ class Fanactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, s
 						updateResourceRep( "fanStop(0)"  
 						)
 					}
-					 transition(edgeName="t30",targetState="start",cond=whenDispatch("fanStart"))
-					transition(edgeName="t31",targetState="stop",cond=whenDispatch("fanStop"))
+					 transition(edgeName="t35",targetState="start",cond=whenDispatch("fanStart"))
+					transition(edgeName="t36",targetState="stop",cond=whenDispatch("fanStop"))
 				}	 
 				state("start") { //this:State
 					action { //it:State
@@ -33,8 +33,8 @@ class Fanactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, s
 						updateResourceRep( "fanStart(0)"  
 						)
 					}
-					 transition(edgeName="t32",targetState="start",cond=whenDispatch("fanStart"))
-					transition(edgeName="t33",targetState="stop",cond=whenDispatch("fanStop"))
+					 transition(edgeName="t37",targetState="start",cond=whenDispatch("fanStart"))
+					transition(edgeName="t38",targetState="stop",cond=whenDispatch("fanStop"))
 				}	 
 			}
 		}

@@ -53,6 +53,12 @@ class HIController {
     lateinit var serviceConnection: connQakBase
     lateinit var serviceSupport: CoapSupport
 
+    val managerTopic = "parkservicestatusguiactor"
+    val managerObserver = WebPageCoapHandler(this, null)
+    var managerChannel = Channel<String>()
+    lateinit var managerConnection: connQakBase
+    lateinit var managerSupport: CoapSupport
+
     init {
 
         connQak.robothostAddr = carparkingAddress
@@ -80,6 +86,12 @@ class HIController {
             CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$serviceTopic")
         serviceSupport.observeResource(serviceObserver)
 
+        managerConnection = connQakBase.create(ConnectionType.TCP)
+        managerConnection.createConnection()
+        managerSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$managerTopic")
+        managerSupport.observeResource(managerObserver)
+
     }
 
     @GetMapping("/")
@@ -95,36 +107,44 @@ class HIController {
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String,
         @RequestParam(name = "token", required = false, defaultValue = "") token: String
     ): String {
-        println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
-        val message = when (button) {
-            "enter_request" -> MsgUtil.buildDispatch(
-                "clientsgui",
-                "enterRequest",
-                "enterRequest(0)",
-                connQak.qakdestination
-            )
-            "car_enter" -> MsgUtil.buildDispatch(
-                "clientsgui",
-                "carEnter",
-                "carEnter(0)",
-                connQak.qakdestination
-            )
-            "exit_request" -> MsgUtil.buildDispatch(
-                "clientsgui",
-                "exitRequest",
-                "exitRequest(${token.lowercase()})",
-                connQak.qakdestination
-            )
-            else -> null
+        if (button == "exit_request" && token == "") {
+            println("/carparking viewmodel=$viewmodel button=$button token=$token")
+            viewmodel.addAttribute("received", "Please enter your TOKENID")
+        } else {
+            println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
+            val message = when (button) {
+                "enter_request" -> MsgUtil.buildDispatch(
+                    "clientsgui",
+                    "enterRequest",
+                    "enterRequest(0)",
+                    // connQak.qakdestination
+                    clientTopic
+                )
+                "car_enter" -> MsgUtil.buildDispatch(
+                    "clientsgui",
+                    "carEnter",
+                    "carEnter(0)",
+                    // connQak.qakdestination
+                    clientTopic
+                )
+                "exit_request" -> MsgUtil.buildDispatch(
+                    "clientsgui",
+                    "exitRequest",
+                    "exitRequest(${token.lowercase()})",
+                    // connQak.qakdestination
+                    clientTopic
+                )
+                else -> null
+            }
+            val answer = sendDispatchCheckCoap(message, clientObserver, clientChannel, clientConnection)
+            var received = ""
+            if (parseType(answer) == "slotnum") received = "The SLOTNUM is ${parseArg(answer)}"
+            else if (parseType(answer) == "tokenid") received = "The TOKENID is ${parseArg(answer)}"
+            else if (parseType(answer) == "notice") received = answer.substring(7).reversed().substring(1).reversed()
+            else received = answer
+            viewmodel.addAttribute("received", received)
+            println("... answer=$answer receivedFan=$received")
         }
-        val answer = sendDispatchCheckCoap(message, clientObserver, clientChannel, clientConnection)
-        var received = ""
-        if (parseType(answer) == "slotnum") received = "The SLOTNUM is ${parseArg(answer)}"
-        else if (parseType(answer) == "tokenid") received = "The TOKENID is ${parseArg(answer)}"
-        else if (parseType(answer) == "notice") received = answer.substring(7).reversed().substring(1).reversed()
-        else received = answer
-        viewmodel.addAttribute("received", received)
-        println("... answer=$answer receivedFan=$received")
         return "clientGui"
     }
 
@@ -208,27 +228,31 @@ class HIController {
         viewmodel: Model,
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
     ): String {
-        println("/fan viewmodel=$viewmodel button=$button ...")
+        // println("/fan viewmodel=$viewmodel button=$button ...")
+        println("/fan viewmodel=$viewmodel button=$button")
         val message = when (button) {
             "start_fan" -> MsgUtil.buildDispatch(
                 "managergui",
                 "fanStart",
                 "fanStart(0)",
-                fanTopic
+                // fanTopic
+                managerTopic
             )
             "stop_fan" -> MsgUtil.buildDispatch(
                 "managergui",
                 "fanStop",
                 "fanStop(0)",
-                fanTopic
+                // fanTopic
+                managerTopic
             )
             else -> null
         }
-        val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
-        val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
+        // val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
+        if (message != null) managerConnection.forward(message)
+        /*val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
         fanStatus = received
         addStatusAttributes(viewmodel)
-        println("... answer=$answer receivedFan=$received")
+        println("... answer=$answer receivedFan=$received")*/
         return "managerGui"
     }
 

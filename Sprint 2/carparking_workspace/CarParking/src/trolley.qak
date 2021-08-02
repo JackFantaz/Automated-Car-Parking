@@ -246,6 +246,25 @@ QActor parkserviceguiactor context ctxcarparking {
 		whenMsg slotnum -> receive
 		whenMsg tokenid -> receive
 		whenMsg notice -> receive
+		whenMsg enterRequest -> businessLogicControl
+		whenMsg carEnter -> businessLogicControl
+		whenMsg exitRequest -> businessLogicControl
+		
+	State businessLogicControl {
+		onMsg (enterRequest : enterRequest(0)) {
+			println("Client's GUI feedback -> redirecting enterRequest(0)")
+			forward parkmanagerserviceactor -m enterRequest : enterRequest(0)
+		}
+		onMsg (carEnter : carEnter(0)) {
+			println("Client's GUI feedback -> redirecting carEnter(0)")
+			forward parkmanagerserviceactor -m carEnter : carEnter(0)
+		}
+		onMsg (exitRequest : exitRequest(TOKENID)) {
+			[# var Temp = payloadArg(0) #]
+			println("Client's GUI feedback -> redirecting exitRequest($Temp)")
+			forward parkmanagerserviceactor -m exitRequest : exitRequest($Temp)
+		}
+	} Goto receive
 
 }
 
@@ -261,6 +280,19 @@ QActor parkservicestatusguiactor context ctxcarparking {
 	} Transition t
 		whenEvent temperature -> receive
 		whenMsg slot -> receive
+		whenMsg fanStart -> fanControl
+		whenMsg fanStop -> fanControl
+		
+	State fanControl {
+		onMsg (fanStart : fanStart(0)) {
+			println("Manager's GUI feedback -> redirecting fanStart(0)")
+			forward fanactor -m fanStart : fanStart(0)
+		}
+		onMsg (fanStop : fanStop(0)) {
+			println("Manager's GUI feedback -> redirecting fanStop(0)")
+			forward fanactor -m fanStop : fanStop(0)
+		}
+	} Goto receive
 
 }
 

@@ -741,9 +741,13 @@ We expect the whole project to be finished by <k>August the 4th</k>.</p>
 
 <center><img src="./img/manager_gui.png" width="450px"></center>
 
-<p>Its interaction with the business logic is essentially the same as in the other Web GUI. Although, to receive data without waiting for user input, we regularly update the page via <ks>AJAX</ks> and read each interested CoAP resource. The <k>parkservicestatusguiactor</k>, theorized during the problem analysis phase, has been kept in the system for debug purposes, however it is not anymore essential for the operation of the system.</p>
+<p>The interaction with the business logic of this external component, called <kc>ManagerGUI</kc>, is essentially the same as in the other Web GUI. Although, to receive data without waiting for user input, we regularly update the page via <ks>AJAX</ks> and read each interested CoAP resource. The <k>parkservicestatusguiactor</k> receives messages from the external GUI and redirects them to the correct actor.</p>
 
-<center><img src="./img/proj_conn_stat.png" width="700px"></center>
+<center><img src="./img/proj_conn_stat_2.png" width="700px"></center>
+
+<p>The <kc>ClientGUI</kc> has been refactored to follow the same cleaner approach. Since all the data needed by the <kc>ClientGUI</kc> come from messages specifically intended for the <k>parkserviceguiactor</k>, it does not need to interact with any other actor inside our context.</p>
+
+<center><img src="./img/proj_conn_2.png" width="700px"></center>
 
 <h4>Testing</h4>
 

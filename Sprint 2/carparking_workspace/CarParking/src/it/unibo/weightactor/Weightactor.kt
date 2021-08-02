@@ -44,8 +44,8 @@ class Weightactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name
 						stateTimer = TimerActor("timer_polling", 
 							scope, context!!, "local_tout_weightactor_polling", 500.toLong() )
 					}
-					 transition(edgeName="t24",targetState="polling",cond=whenTimeout("local_tout_weightactor_polling"))   
-					transition(edgeName="t25",targetState="response",cond=whenRequest("lastEvent"))
+					 transition(edgeName="t29",targetState="polling",cond=whenTimeout("local_tout_weightactor_polling"))   
+					transition(edgeName="t30",targetState="response",cond=whenRequest("lastEvent"))
 				}	 
 				state("response") { //this:State
 					action { //it:State

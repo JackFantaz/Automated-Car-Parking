@@ -28,8 +28,25 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 								println("Manager's GUI feedback -> The slot is ${payloadArg(0)}")
 						}
 					}
-					 transition(edgeName="t22",targetState="receive",cond=whenEvent("temperature"))
-					transition(edgeName="t23",targetState="receive",cond=whenDispatch("slot"))
+					 transition(edgeName="t25",targetState="receive",cond=whenEvent("temperature"))
+					transition(edgeName="t26",targetState="receive",cond=whenDispatch("slot"))
+					transition(edgeName="t27",targetState="fanControl",cond=whenDispatch("fanStart"))
+					transition(edgeName="t28",targetState="fanControl",cond=whenDispatch("fanStop"))
+				}	 
+				state("fanControl") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("fanStart(N)"), Term.createTerm("fanStart(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> redirecting fanStart(0)")
+								forward("fanStart", "fanStart(0)" ,"fanactor" ) 
+						}
+						if( checkMsgContent( Term.createTerm("fanStop(N)"), Term.createTerm("fanStop(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> redirecting fanStop(0)")
+								forward("fanStop", "fanStop(0)" ,"fanactor" ) 
+						}
+					}
+					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
 				}	 
 			}
 		}
