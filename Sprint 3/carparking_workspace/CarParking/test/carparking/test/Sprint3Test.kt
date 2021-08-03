@@ -71,8 +71,9 @@ class Sprint3Test {
 	@After
 	fun afterEach() {
 		runBlocking { delay(3000) }
-		// println("~~~ HERE ~~~")
-		// job!!.cancel()
+		/*job!!.cancel()
+		println("~~~ HERE ~~~")
+		runBlocking { delay(5000) }*/
 	}
 
 	@Test
@@ -96,6 +97,8 @@ class Sprint3Test {
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
+
+			consume()
 
 		}
 	}
@@ -133,6 +136,8 @@ class Sprint3Test {
 				assertLocationInTime("6", "4", "S", 10000)
 				assertLocationInTime("0", "0", "S", 50000)
 				assertNotMovingInTime(3000)
+
+				consume()
 
 			}
 
@@ -180,6 +185,8 @@ class Sprint3Test {
 			assertLocationInTime("6", "4", "S", 20000)
 			assertLocationInTime("0", "0", "S", 60000)
 
+			consume()
+
 		}
 	}
 
@@ -213,6 +220,8 @@ class Sprint3Test {
 			println("checkSensorsAndActuators -> please wait for fan to turn off and press ENTER on console")
 			print("> ")
 			readLine()
+
+			consume()
 
 		}
 	}
@@ -263,6 +272,16 @@ class Sprint3Test {
 			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
 			assertNoEventInTime(1000)
 
+			consume()
+
+		}
+	}
+
+	private suspend fun consume() {
+		while (obsChannel.poll() != null) {
+			println("~~~ CONSUMED DIRTY DATA ON CHANNEL")
+			print("~~~ > ")
+			readLine()
 		}
 	}
 

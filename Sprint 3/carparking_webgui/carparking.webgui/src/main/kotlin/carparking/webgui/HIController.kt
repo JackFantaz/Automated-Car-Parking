@@ -59,6 +59,13 @@ class HIController {
     lateinit var managerConnection: connQakBase
     lateinit var managerSupport: CoapSupport
 
+    val tempSentinelTopic = "temperaturesentinelactor"
+    val outSentinelTopic = "outdoorsentinelactor"
+    lateinit var tempSentinelSupport: CoapSupport
+    lateinit var outSentinelSupport: CoapSupport
+    val tempSentinelObserver = WebPageCoapHandler(this, null)
+    val outSentinelObserver = WebPageCoapHandler(this, null)
+
     init {
 
         connQak.robothostAddr = carparkingAddress
@@ -91,6 +98,11 @@ class HIController {
         managerSupport =
             CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$managerTopic")
         managerSupport.observeResource(managerObserver)
+
+        tempSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$tempSentinelTopic")
+        tempSentinelSupport.observeResource(tempSentinelObserver)
+        outSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
+        outSentinelSupport.observeResource(outSentinelObserver)
 
     }
 
@@ -297,15 +309,17 @@ class HIController {
     @GetMapping("/ajax")
     @ResponseBody
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
-        // println("/ajax about=$about ...")
+        println("/ajax about=$about ...")
         var answer = when (about) {
             "temp" -> parseArg(thermometerSupport.readResource())
             "slots" -> parseArg(serviceSupport.readResource())
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
+            "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
+            "outAlarm" -> if (parseType(outSentinelSupport.readResource()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
             else -> ""
         }
         if (about == "fan") answer = "$answer (${managerSupport.readResource()})"
-        // println("... answer=$answer")
+        println("... answer=$answer")
         return answer
     }
 
