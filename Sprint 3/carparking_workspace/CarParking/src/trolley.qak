@@ -14,6 +14,7 @@ Dispatch slotnum : slotnum(SLOTNUM)
 Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
 Dispatch slot : slot(STATUS)
+//Dispatch slot : slot(SLOTNUM, STATUS)
 
 Dispatch enterRequest : enterRequest(N)
 Dispatch carEnter : carEnter(N)
@@ -71,6 +72,11 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State setup initial {
 		forward parkservicestatusguiactor -m slot : slot(vacant)
+		//forward parkservicestatusguiactor -m slot : slot(2, vacant)
+		//forward parkservicestatusguiactor -m slot : slot(3, vacant)
+		//forward parkservicestatusguiactor -m slot : slot(4, vacant)
+		//forward parkservicestatusguiactor -m slot : slot(5, vacant)
+		//forward parkservicestatusguiactor -m slot : slot(6, vacant)
 		updateResource [# "slot(vacant)" #]
 	} Goto moveToHome
 
@@ -131,10 +137,18 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State acceptOUT {
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
-		if [# Slotnum == 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
+		[# 
+			for((key, value) in ParkingMap){
+				if(value.equals(Tokenid,true)){
+					Slotnum = key
+				}
+			} 
+		#]
+		 if [# Slotnum > 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
 		else { forward parkserviceguiactor -m notice : notice(tokenid(invalid)) }
-	} Goto do_acceptOUT if [# Slotnum == 0 #] else moveToHome
+	} Goto do_acceptOUT if [# Slotnum > 0 #] else moveToHome
 		State do_acceptOUT { } Transition t whenReply outdoorStatus -> redo_acceptOUT
+		
 		State redo_acceptOUT {
 			onMsg(outdoorStatus : outdoorStatus(STATUS)) {
 				if [# payloadArg(0) == "free" #] { forward parkserviceguiactor -m notice : notice(exitRequest(received)) }
@@ -143,14 +157,19 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		} Goto findSlot if [# payloadArg(0) == "free" #] else moveToHome
 
 	State findSlot {
-		[# Slotnum = 1 #]
+		//[# Slotnum = 1 #]
 		forward parkservicestatusguiactor -m slot : slot(vacant)
 		updateResource [# "slot(vacant)" #]
 		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
 	} Goto moveToSlotOut
 
 	State moveToSlotOut {
-		forward trolleyactor -m goto : goto(parking)
+		if [# Slotnum == 1 #] {	forward trolleyactor -m goto : goto(parking1)}
+		if [# Slotnum == 2 #] {	forward trolleyactor -m goto : goto(parking2)}
+		if [# Slotnum == 3 #] {	forward trolleyactor -m goto : goto(parking3)}
+		if [# Slotnum == 4 #] {	forward trolleyactor -m goto : goto(parking4)}
+		if [# Slotnum == 5 #] {	forward trolleyactor -m goto : goto(parking5)}
+		if [# Slotnum == 6 #] {	forward trolleyactor -m goto : goto(parking6)}
 	} Transition t whenMsg movementDone -> moveToOut
 
 	State moveToOut {
