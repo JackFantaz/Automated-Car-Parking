@@ -60,7 +60,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	[#
 		var Slotnum = 0
 		var Tokenid = "0"
-		val ParkingMap = hashMapOf(
+		val ParkingMap = mutableMapOf(
 			1 to "-", 
 			2 to "-", 
 			3 to "-", 
@@ -117,8 +117,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State receipt {
 		[#
+			ParkingMap[Slotnum] = (10000..99999).random().toString()
 			Tokenid = ParkingMap[Slotnum]!!
-			Tokenid = (10000..99999).random().toString()
 		#]
 		forward parkserviceguiactor -m tokenid : tokenid($Tokenid)
 	} Goto moveToSlotIn
@@ -136,11 +136,13 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Transition t whenMsg movementDone -> moveToHome
 
 	State acceptOUT {
+		[# Slotnum = 0 #]
 		onMsg (exitRequest : exitRequest(TOKENID)) { [# Tokenid = payloadArg(0) #] }
 		[# 
 			for((key, value) in ParkingMap){
 				if(value.equals(Tokenid,true)){
 					Slotnum = key
+					println("$key $value    $Slotnum $Tokenid")
 				}
 			} 
 		#]
@@ -173,6 +175,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Transition t whenMsg movementDone -> moveToOut
 
 	State moveToOut {
+		[# ParkingMap[Slotnum] = "-" #]
 		forward trolleyactor -m goto : goto(outdoor)
 	} Transition t whenMsg movementDone -> moveToHome
 

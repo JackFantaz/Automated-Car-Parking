@@ -19,7 +19,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 		
 				var Slotnum = 0
 				var Tokenid = "0"
-				val ParkingMap = hashMapOf(
+				val ParkingMap = mutableMapOf(
 					1 to "-", 
 					2 to "-", 
 					3 to "-", 
@@ -92,8 +92,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("receipt") { //this:State
 					action { //it:State
 						
+									ParkingMap[Slotnum] = (10000..99999).random().toString()
 									Tokenid = ParkingMap[Slotnum]!!
-									Tokenid = (10000..99999).random().toString()
 						forward("tokenid", "tokenid($Tokenid)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitch() )
@@ -126,6 +126,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("acceptOUT") { //this:State
 					action { //it:State
+						 Slotnum = 0  
 						if( checkMsgContent( Term.createTerm("exitRequest(TOKENID)"), Term.createTerm("exitRequest(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Tokenid = payloadArg(0)  
@@ -134,6 +135,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 									for((key, value) in ParkingMap){
 										if(value.equals(Tokenid,true)){
 											Slotnum = key
+											println("$key $value    $Slotnum $Tokenid")
 										}
 									} 
 						if(  Slotnum > 0  
@@ -203,6 +205,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("moveToOut") { //this:State
 					action { //it:State
+						 ParkingMap[Slotnum] = "-"  
 						forward("goto", "goto(outdoor)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t8",targetState="moveToHome",cond=whenDispatch("movementDone"))
