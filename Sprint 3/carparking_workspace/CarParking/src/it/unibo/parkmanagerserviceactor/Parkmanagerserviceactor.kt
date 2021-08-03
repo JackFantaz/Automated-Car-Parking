@@ -17,8 +17,16 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
-				var Slotnum = 1
-				var Tokenid = "1"
+				//var Slotnum = 1
+				//var Tokenid = "1"
+				val parkingMap = hashMapOf(
+					"-" to 1, 
+					"-" to 2, 
+					"-" to 3, 
+					"-" to 4, 
+					"-" to 5, 
+					"-" to 6
+				)
 		return { //this:ActionBasciFsm
 				state("setup") { //this:State
 					action { //it:State
@@ -77,6 +85,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("receipt") { //this:State
 					action { //it:State
+						
+									var Tokenid = parkingMap[$Slotnum -1] = (10000..99999).random()
 						forward("tokenid", "tokenid($Tokenid)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitch() )
@@ -87,7 +97,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 						forward("slot", "slot(full)" ,"parkservicestatusguiactor" ) 
 						updateResourceRep( "slot(full)"  
 						)
-						forward("goto", "goto(parking)" ,"trolleyactor" ) 
+						forward("goto", "goto(parking1)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t5",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 
