@@ -11,13 +11,20 @@ import kotlinx.coroutines.runBlocking
 class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, scope ){
 
 	override fun getInitialState() : String{
-		return "receive"
+		return "setup"
 	}
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		 var auto = false  
 		return { //this:ActionBasciFsm
+				state("setup") { //this:State
+					action { //it:State
+						updateResourceRep( "manual"  
+						)
+					}
+					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
+				}	 
 				state("receive") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("temperature(VALUE)"), Term.createTerm("temperature(VALUE)"), 
@@ -80,9 +87,18 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("fanAuto(STATUS)"), Term.createTerm("fanAuto(STATUS)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								
-												if (payloadArg(0) == "auto") auto = true
-												else if (payloadArg(0) == "manual") auto = false
+								if(  payloadArg(0) == "auto"  
+								 ){println("Manager's GUI feedback -> setting fan control to auto")
+								 auto = true  
+								updateResourceRep( "auto"  
+								)
+								}
+								if(  payloadArg(0) == "manual"  
+								 ){println("Manager's GUI feedback -> setting fan control to manual")
+								 auto = false  
+								updateResourceRep( "manual"  
+								)
+								}
 						}
 					}
 					 transition( edgeName="goto",targetState="receive", cond=doswitch() )

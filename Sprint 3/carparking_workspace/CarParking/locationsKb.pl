@@ -2,3 +2,9 @@ home(0, 0, s).
 parking(1, 1, e).
 indoor(6, 0, n).
 outdoor(6, 4, s).
+parking1(1, 1, e).
+parking2(1, 2, e).
+parking3(1, 3, e).
+parking4(4, 1, w).
+parking5(4, 2, w).
+parking6(4, 3, w).
