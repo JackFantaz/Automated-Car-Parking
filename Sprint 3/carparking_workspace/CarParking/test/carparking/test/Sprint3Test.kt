@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -32,11 +33,12 @@ class Sprint3Test {
 		var observer: CoapObserverForTesting? = null
 		var observer2: CoapObserverForTesting? = null
 		var started = false
+		// var job: Job? = null
 
 		@JvmStatic
 		@BeforeClass
 		fun beforeAll() {
-			GlobalScope.launch { it.unibo.ctxcarparking.main() }
+			/*job =*/ GlobalScope.launch { it.unibo.ctxcarparking.main() }
 			GlobalScope.launch {
 				while (actor == null) {
 					println("waiting for system startup...")
@@ -69,9 +71,12 @@ class Sprint3Test {
 	@After
 	fun afterEach() {
 		runBlocking { delay(3000) }
+		/*job!!.cancel()
+		println("~~~ HERE ~~~")
+		runBlocking { delay(5000) }*/
 	}
 
-	/*@Test
+	@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
@@ -92,6 +97,8 @@ class Sprint3Test {
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
+
+			consume()
 
 		}
 	}
@@ -129,6 +136,8 @@ class Sprint3Test {
 				assertLocationInTime("6", "4", "S", 10000)
 				assertLocationInTime("0", "0", "S", 50000)
 				assertNotMovingInTime(3000)
+
+				consume()
 
 			}
 
@@ -174,7 +183,9 @@ class Sprint3Test {
 			actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
 
 			assertLocationInTime("6", "4", "S", 20000)
-			assertLocationInTime("0", "0", "S", 50000)
+			assertLocationInTime("0", "0", "S", 60000)
+
+			consume()
 
 		}
 	}
@@ -195,11 +206,11 @@ class Sprint3Test {
 			println("checkSensorsAndActuators -> please move sonar above threshold (default 40)")
 			assertEvent("outdoorCleared(0)")
 
-			println("checkSensorsAndActuators -> please set temperature to 80.0 degrees and press ENTER on console")
+			println("checkSensorsAndActuators -> please set temperature to 15.0 degrees and press ENTER on console")
 			print("> ")
 			readLine()
 			observe("thermometeractor", arrayOf("temperature"))
-			assertEvent("temperature(80.0)")
+			assertEvent("temperature(15.0)")
 
 			actor!!.forward("fanStart", "fanStart(0)", "fanactor")
 			println("checkSensorsAndActuators -> please wait for fan to turn on and press ENTER on console")
@@ -210,8 +221,10 @@ class Sprint3Test {
 			print("> ")
 			readLine()
 
+			consume()
+
 		}
-	}*/
+	}
 
 	@Test
 	fun checkAlarms() {
@@ -259,10 +272,22 @@ class Sprint3Test {
 			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
 			assertNoEventInTime(1000)
 
+			consume()
+
 		}
 	}
 
-	private fun observe(actor: String, messages: Array<String>) {
+	private suspend fun consume() {
+		while (obsChannel.poll() != null) {
+			println("~~~ CONSUMED DIRTY DATA ON CHANNEL")
+			print("~~~ > ")
+			readLine()
+		}
+	}
+
+	private suspend fun observe(actor: String, messages: Array<String>) {
+		// if (observer != null ) (observer as CoapObserverForTesting).terminate()
+		// while (obsChannel.poll() != null) delay(100)
 		observer = CoapObserverForTesting(actor)
 		for (m in messages) observer!!.addObserver(obsChannel, m)
 	}

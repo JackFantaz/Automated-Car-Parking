@@ -26,6 +26,6 @@ class CoapObserverForTesting(
 		client!!.observe(handler)
 	}
 
-	fun terminate() {}
+	fun terminate() { /* if (client != null) client!!.shutdown() */ }
 
 }

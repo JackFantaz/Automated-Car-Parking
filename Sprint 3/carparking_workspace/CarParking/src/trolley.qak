@@ -290,7 +290,11 @@ QActor parkservicestatusguiactor context ctxcarparking {
 
 	[# var auto = false #]
 
-	State receive initial {
+	State setup initial {
+		updateResource [# "manual" #]
+	} Goto receive
+
+	State receive {
 		onMsg (temperature : temperature(VALUE)) {
 			println("Manager's GUI feedback -> The temperature is ${payloadArg(0)}")
 		}
@@ -335,11 +339,16 @@ QActor parkservicestatusguiactor context ctxcarparking {
 
 	State setAuto {
 		onMsg(fanAuto : fanAuto(STATUS)) {
-			[#
-				if (payloadArg(0) == "auto") auto = true
-				else if (payloadArg(0) == "manual") auto = false
-			#]
-
+			if [# payloadArg(0) == "auto" #] {
+				println("Manager's GUI feedback -> setting fan control to auto")
+				[# auto = true #]
+				updateResource [# "auto" #]
+			}
+			if [# payloadArg(0) == "manual" #] {
+				println("Manager's GUI feedback -> setting fan control to manual")
+				[# auto = false #]
+				updateResource [# "manual" #]
+			}
 		}
 	} Goto receive
 

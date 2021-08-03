@@ -59,6 +59,13 @@ class HIController {
     lateinit var managerConnection: connQakBase
     lateinit var managerSupport: CoapSupport
 
+    val tempSentinelTopic = "temperaturesentinelactor"
+    val outSentinelTopic = "outdoorsentinelactor"
+    lateinit var tempSentinelSupport: CoapSupport
+    lateinit var outSentinelSupport: CoapSupport
+    val tempSentinelObserver = WebPageCoapHandler(this, null)
+    val outSentinelObserver = WebPageCoapHandler(this, null)
+
     init {
 
         connQak.robothostAddr = carparkingAddress
@@ -91,6 +98,11 @@ class HIController {
         managerSupport =
             CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$managerTopic")
         managerSupport.observeResource(managerObserver)
+
+        tempSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$tempSentinelTopic")
+        tempSentinelSupport.observeResource(tempSentinelObserver)
+        outSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
+        outSentinelSupport.observeResource(outSentinelObserver)
 
     }
 
@@ -230,7 +242,7 @@ class HIController {
     ): String {
         // println("/fan viewmodel=$viewmodel button=$button ...")
         println("/fan viewmodel=$viewmodel button=$button")
-        val message = when (button) {
+        var message = when (button) {
             "start_fan" -> MsgUtil.buildDispatch(
                 "managergui",
                 "fanStart",
@@ -245,13 +257,6 @@ class HIController {
                 // fanTopic
                 managerTopic
             )
-            "auto_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "fanAuto",
-                "fanAuto(0)",
-                // fanTopic
-                managerTopic
-            )
             else -> null
         }
         // val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
@@ -260,6 +265,16 @@ class HIController {
         fanStatus = received
         addStatusAttributes(viewmodel)
         println("... answer=$answer receivedFan=$received")*/
+
+        if (button == "auto_fan") {
+            val resource = managerSupport.readResource()
+            val control = if (resource == "auto") "manual" else "auto"
+            println("... resource=$resource control=$control")
+            message = MsgUtil.buildDispatch("managergui", "fanAuto", "fanAuto($control)", managerTopic)
+            managerConnection.forward(message)
+        }
+
+
         return "managerGui"
     }
 
@@ -294,14 +309,17 @@ class HIController {
     @GetMapping("/ajax")
     @ResponseBody
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
-        // println("/ajax about=$about ...")
-        val answer = when (about) {
+        println("/ajax about=$about ...")
+        var answer = when (about) {
             "temp" -> parseArg(thermometerSupport.readResource())
             "slots" -> parseArg(serviceSupport.readResource())
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
+            "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
+            "outAlarm" -> if (parseType(outSentinelSupport.readResource()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
             else -> ""
         }
-        // println("... answer=$answer")
+        if (about == "fan") answer = "$answer (${managerSupport.readResource()})"
+        println("... answer=$answer")
         return answer
     }
 
