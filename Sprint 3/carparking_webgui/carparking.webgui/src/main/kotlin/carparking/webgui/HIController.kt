@@ -99,9 +99,11 @@ class HIController {
             CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$managerTopic")
         managerSupport.observeResource(managerObserver)
 
-        tempSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$tempSentinelTopic")
+        tempSentinelSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$tempSentinelTopic")
         tempSentinelSupport.observeResource(tempSentinelObserver)
-        outSentinelSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
+        outSentinelSupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
         outSentinelSupport.observeResource(outSentinelObserver)
 
     }
@@ -306,10 +308,35 @@ class HIController {
         return "managerGui"
     }*/
 
+    @PostMapping("/trolley")
+    fun trolley(
+        viewmodel: Model,
+        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
+    ): String {
+        println("/trolley viewmodel=$viewmodel button=$button")
+        var message = when (button) {
+            "start_trolley" -> MsgUtil.buildDispatch(
+                "managergui",
+                "startTrolley",
+                "startTrolley(0)",
+                managerTopic
+            )
+            "stop_trolley" -> MsgUtil.buildDispatch(
+                "managergui",
+                "stopTrolley",
+                "stopTrolley(0)",
+                managerTopic
+            )
+            else -> null
+        }
+        if (message != null) managerConnection.forward(message)
+        return "managerGui"
+    }
+
     @GetMapping("/ajax")
     @ResponseBody
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
-        println("/ajax about=$about ...")
+        // println("/ajax about=$about ...")
         var answer = when (about) {
             "temp" -> parseArg(thermometerSupport.readResource())
             "slots" -> parseArg(serviceSupport.readResource())
@@ -319,7 +346,7 @@ class HIController {
             else -> ""
         }
         if (about == "fan") answer = "$answer (${managerSupport.readResource()})"
-        println("... answer=$answer")
+        // println("... answer=$answer")
         return answer
     }
 

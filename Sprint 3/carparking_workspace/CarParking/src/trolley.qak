@@ -24,6 +24,9 @@ Dispatch fanStart : fanStart(N)
 Dispatch fanStop : fanStop(N)
 Dispatch fanAuto : fanAuto(STATUS)
 
+Dispatch startTrolley : startTrolley(N)
+Dispatch stopTrolley : stopTrolley(N)
+
 Event indoorCleared : indoorCleared(N)
 Event indoorOccupied : indoorOccupied(N)
 Event outdoorCleared : outdoorCleared(N)
@@ -223,6 +226,7 @@ QActor trolleyactor context ctxcarparking {
 	} Transition t whenMsg goto -> idle
 
 	State idle {
+		updateResource [# "idle" #]
 		onMsg (goto : goto(home)) {
 			run carparking.directionalPlanner.planFor(home)
 			[# goingHome = true #]
@@ -262,6 +266,7 @@ QActor trolleyactor context ctxcarparking {
 	} Goto working
 
 	State working {
+		updateResource [# "working" #]
 		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
 		if [# move.isNotEmpty() #] {
 			if [# move == "w" #] { request basicrobot -m step : step(340) }
@@ -278,6 +283,14 @@ QActor trolleyactor context ctxcarparking {
 		whenTime 450 -> working
 		whenReply stepdone -> working
 		whenMsg goto -> idle
+		whenMsg startTrolley -> working
+		whenMsg stopTrolley -> stopped
+
+	State stopped {
+		updateResource [# "stopped" #]
+	} Transition t
+		whenMsg startTrolley -> working
+		whenMsg stopTrolley -> stopped
 
 }
 
@@ -398,6 +411,8 @@ QActor parkservicestatusguiactor context ctxcarparking {
 		whenEvent temperatureAlarm -> receive
 		whenEvent temperatureAlarmRevoked -> receive
 		whenMsg fanAuto -> setAuto
+		whenMsg startTrolley -> trolleyControl
+		whenMsg stopTrolley -> trolleyControl
 
 	State fanControl {
 		onMsg (fanStart : fanStart(0)) {
@@ -407,6 +422,17 @@ QActor parkservicestatusguiactor context ctxcarparking {
 		onMsg (fanStop : fanStop(0)) {
 			println("Manager's GUI feedback -> redirecting fanStop(0)")
 			forward fanactor -m fanStop : fanStop(0)
+		}
+	} Goto receive
+	
+	State trolleyControl {
+		onMsg (startTrolley : startTrolley(0)) {
+			println("Manager's GUI feedback -> redirecting startTrolley(0)")
+			forward trolleyactor -m startTrolley : startTrolley(0)
+		}
+		onMsg (stopTrolley : stopTrolley(0)) {
+			println("Manager's GUI feedback -> redirecting stopTrolley(0)")
+			forward trolleyactor -m stopTrolley : stopTrolley(0)
 		}
 	} Goto receive
 

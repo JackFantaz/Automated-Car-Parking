@@ -58,6 +58,8 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("idle") { //this:State
 					action { //it:State
+						updateResourceRep( "idle"  
+						)
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(home)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								carparking.directionalPlanner.planFor( home  )
@@ -108,6 +110,8 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("working") { //this:State
 					action { //it:State
+						updateResourceRep( "working"  
+						)
 						 val move = carparking.directionalPlanner.getNextPlannedMove()  
 						if(  move.isNotEmpty()  
 						 ){if(  move == "w"  
@@ -133,6 +137,16 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 					 transition(edgeName="t10",targetState="working",cond=whenTimeout("local_tout_trolleyactor_working"))   
 					transition(edgeName="t11",targetState="working",cond=whenReply("stepdone"))
 					transition(edgeName="t12",targetState="idle",cond=whenDispatch("goto"))
+					transition(edgeName="t13",targetState="working",cond=whenDispatch("startTrolley"))
+					transition(edgeName="t14",targetState="stopped",cond=whenDispatch("stopTrolley"))
+				}	 
+				state("stopped") { //this:State
+					action { //it:State
+						updateResourceRep( "stopped"  
+						)
+					}
+					 transition(edgeName="t15",targetState="working",cond=whenDispatch("startTrolley"))
+					transition(edgeName="t16",targetState="stopped",cond=whenDispatch("stopTrolley"))
 				}	 
 			}
 		}

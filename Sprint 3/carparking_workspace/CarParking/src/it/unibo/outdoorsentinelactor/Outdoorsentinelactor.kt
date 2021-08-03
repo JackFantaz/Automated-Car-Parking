@@ -20,15 +20,15 @@ class Outdoorsentinelactor ( name: String, scope: CoroutineScope  ) : ActorBasic
 				state("watching") { //this:State
 					action { //it:State
 					}
-					 transition(edgeName="t44",targetState="timer",cond=whenEvent("outdoorOccupied"))
+					 transition(edgeName="t50",targetState="timer",cond=whenEvent("outdoorOccupied"))
 				}	 
 				state("timer") { //this:State
 					action { //it:State
 						stateTimer = TimerActor("timer_timer", 
 							scope, context!!, "local_tout_outdoorsentinelactor_timer", 5000.toLong() )
 					}
-					 transition(edgeName="t45",targetState="alarm",cond=whenTimeout("local_tout_outdoorsentinelactor_timer"))   
-					transition(edgeName="t46",targetState="watching",cond=whenEvent("outdoorCleared"))
+					 transition(edgeName="t51",targetState="alarm",cond=whenTimeout("local_tout_outdoorsentinelactor_timer"))   
+					transition(edgeName="t52",targetState="watching",cond=whenEvent("outdoorCleared"))
 				}	 
 				state("alarm") { //this:State
 					action { //it:State
@@ -36,7 +36,7 @@ class Outdoorsentinelactor ( name: String, scope: CoroutineScope  ) : ActorBasic
 						updateResourceRep( "outdoorAlarm(0)"  
 						)
 					}
-					 transition(edgeName="t47",targetState="revoke",cond=whenEvent("outdoorCleared"))
+					 transition(edgeName="t53",targetState="revoke",cond=whenEvent("outdoorCleared"))
 				}	 
 				state("revoke") { //this:State
 					action { //it:State
