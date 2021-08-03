@@ -57,8 +57,16 @@ ExternalQActor basicrobot context ctxbasicrobot
 QActor parkmanagerserviceactor context ctxcarparking {
 
 	[#
-		var Slotnum = 1
-		var Tokenid = "1"
+		//var Slotnum = 1
+		//var Tokenid = "1"
+		val parkingMap = hashMapOf(
+			"-" to 1, 
+			"-" to 2, 
+			"-" to 3, 
+			"-" to 4, 
+			"-" to 5, 
+			"-" to 6
+		)
 	#]
 
 	State setup initial {
@@ -82,6 +90,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		} Goto informIN if [# payloadArg(0) == "free" #] else moveToHome
 
 	State informIN {
+		//[# for (parkingMap Slotnum > 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
+		//else { forward parkserviceguiactor -m notice : notice(tokenid(invalid)) }
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
 	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
 		State do_informIN { } Transition t whenMsg carEnter -> moveToIn
@@ -94,6 +104,9 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Transition t whenMsg movementDone -> receipt
 
 	State receipt {
+		[#
+			var Tokenid = parkingMap[$Slotnum -1] = (10000..99999).random()
+		#]
 		forward parkserviceguiactor -m tokenid : tokenid($Tokenid)
 	} Goto moveToSlotIn
 
@@ -101,7 +114,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		[# Slotnum = 0 #]
 		forward parkservicestatusguiactor -m slot : slot(full)
 		updateResource [# "slot(full)" #]
-		forward trolleyactor -m goto : goto(parking)
+		forward trolleyactor -m goto : goto(parking1)
 	} Transition t whenMsg movementDone -> moveToHome
 
 	State acceptOUT {
