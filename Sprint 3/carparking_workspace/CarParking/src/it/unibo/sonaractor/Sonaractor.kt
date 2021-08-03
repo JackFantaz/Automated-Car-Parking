@@ -18,6 +18,7 @@ class Sonaractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
 				val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+				// val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
 				var previous = false
 				var present = false
 		return { //this:ActionBasciFsm
