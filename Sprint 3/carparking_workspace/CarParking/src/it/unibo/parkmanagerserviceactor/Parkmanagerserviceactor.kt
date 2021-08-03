@@ -17,15 +17,15 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
-				//var Slotnum = 1
-				//var Tokenid = "1"
-				val parkingMap = hashMapOf(
-					"-" to 1, 
-					"-" to 2, 
-					"-" to 3, 
-					"-" to 4, 
-					"-" to 5, 
-					"-" to 6
+				var Slotnum = 0
+				var Tokenid = "0"
+				val ParkingMap = hashMapOf(
+					1 to "-", 
+					2 to "-", 
+					3 to "-", 
+					4 to "-", 
+					5 to "-", 
+					6 to "-"
 				)
 		return { //this:ActionBasciFsm
 				state("setup") { //this:State
@@ -65,6 +65,12 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("informIN") { //this:State
 					action { //it:State
+						 
+									for((key, value) in ParkingMap){
+										if(value.equals("-",true)){
+											Slotnum = key
+										}
+									} 
 						forward("slotnum", "slotnum($Slotnum)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="do_informIN", cond=doswitchGuarded({ Slotnum > 0  
@@ -86,18 +92,35 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("receipt") { //this:State
 					action { //it:State
 						
-									var Tokenid = parkingMap[$Slotnum -1] = (10000..99999).random()
+									Tokenid = ParkingMap[Slotnum]!!
+									Tokenid = (10000..99999).random().toString()
 						forward("tokenid", "tokenid($Tokenid)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitch() )
 				}	 
 				state("moveToSlotIn") { //this:State
 					action { //it:State
-						 Slotnum = 0  
 						forward("slot", "slot(full)" ,"parkservicestatusguiactor" ) 
 						updateResourceRep( "slot(full)"  
 						)
-						forward("goto", "goto(parking1)" ,"trolleyactor" ) 
+						if(  Slotnum == 1  
+						 ){forward("goto", "goto(parking1)" ,"trolleyactor" ) 
+						}
+						if(  Slotnum == 2  
+						 ){forward("goto", "goto(parking2)" ,"trolleyactor" ) 
+						}
+						if(  Slotnum == 3  
+						 ){forward("goto", "goto(parking3)" ,"trolleyactor" ) 
+						}
+						if(  Slotnum == 4  
+						 ){forward("goto", "goto(parking4)" ,"trolleyactor" ) 
+						}
+						if(  Slotnum == 5  
+						 ){forward("goto", "goto(parking5)" ,"trolleyactor" ) 
+						}
+						if(  Slotnum == 6  
+						 ){forward("goto", "goto(parking6)" ,"trolleyactor" ) 
+						}
 					}
 					 transition(edgeName="t5",targetState="moveToHome",cond=whenDispatch("movementDone"))
 				}	 

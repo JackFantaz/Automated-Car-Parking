@@ -57,15 +57,15 @@ ExternalQActor basicrobot context ctxbasicrobot
 QActor parkmanagerserviceactor context ctxcarparking {
 
 	[#
-		//var Slotnum = 1
-		//var Tokenid = "1"
-		val parkingMap = hashMapOf(
-			"-" to 1, 
-			"-" to 2, 
-			"-" to 3, 
-			"-" to 4, 
-			"-" to 5, 
-			"-" to 6
+		var Slotnum = 0
+		var Tokenid = "0"
+		val ParkingMap = hashMapOf(
+			1 to "-", 
+			2 to "-", 
+			3 to "-", 
+			4 to "-", 
+			5 to "-", 
+			6 to "-"
 		)
 	#]
 
@@ -90,11 +90,17 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		} Goto informIN if [# payloadArg(0) == "free" #] else moveToHome
 
 	State informIN {
-		//[# for (parkingMap Slotnum > 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
-		//else { forward parkserviceguiactor -m notice : notice(tokenid(invalid)) }
+		[# 
+			for((key, value) in ParkingMap){
+				if(value.equals("-",true)){
+					Slotnum = key
+				}
+			} 
+		#]
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
 	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
-		State do_informIN { } Transition t whenMsg carEnter -> moveToIn
+	
+	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
 	// Goto moveToIn if [# Slotnum > 0 #] else moveToHome
 	// Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn else Goto moveToHome
 
@@ -105,16 +111,22 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State receipt {
 		[#
-			var Tokenid = parkingMap[$Slotnum -1] = (10000..99999).random()
+			Tokenid = ParkingMap[Slotnum]!!
+			Tokenid = (10000..99999).random().toString()
 		#]
 		forward parkserviceguiactor -m tokenid : tokenid($Tokenid)
 	} Goto moveToSlotIn
 
 	State moveToSlotIn {
-		[# Slotnum = 0 #]
+		//[# Slotnum = 0 #]
 		forward parkservicestatusguiactor -m slot : slot(full)
 		updateResource [# "slot(full)" #]
-		forward trolleyactor -m goto : goto(parking1)
+		if [# Slotnum == 1 #] {	forward trolleyactor -m goto : goto(parking1)}
+		if [# Slotnum == 2 #] {	forward trolleyactor -m goto : goto(parking2)}
+		if [# Slotnum == 3 #] {	forward trolleyactor -m goto : goto(parking3)}
+		if [# Slotnum == 4 #] {	forward trolleyactor -m goto : goto(parking4)}
+		if [# Slotnum == 5 #] {	forward trolleyactor -m goto : goto(parking5)}
+		if [# Slotnum == 6 #] {	forward trolleyactor -m goto : goto(parking6)}
 	} Transition t whenMsg movementDone -> moveToHome
 
 	State acceptOUT {
