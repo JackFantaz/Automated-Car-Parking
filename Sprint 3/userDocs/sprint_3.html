@@ -182,7 +182,12 @@ div.imagedesc{
 <h3>Sprint 3</h3>
 
 <h4>The alarms</h4>
-<p>...</p>
+
+<p>The <k>outdoorsentinelactor</k> and the <k>temperaturesentinelactor</k> have been implemented faithfully to their <a href="../../Analysis%20model/userDocs/analysis.html#analysis_alarms">previous description</a> and to the <a href="../../Analysis%20model/userDocs/analysis.html#alarms_diagram">alarms diagram</a>. The only difference with their implementation in the <a href="../../Analysis%20model/userDocs/analysis.html#executable_model">first executable model</a> is that they now also update their CoAP resource with the last issued alarm (or revocation of an alarm) to inform the external GUI and the test plan.</p>
+
+<p>When the user sets the fan to be handled automatically, <k>parkservicestatusguiactor</k> remains responsible to turn on and off the fan. It does it by itself, listening for temperature alarms and sending messages to <k>fanactor</k> according to them.</p>
+
+<center><img src="./img/sp3_conn.png" width="700px"></center>
 
 <h4>The real sonar device</h4>
 <p>

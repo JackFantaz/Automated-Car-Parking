@@ -379,6 +379,7 @@ QActor sonaractor context ctxcarparking {
 
 	[#
 		val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+		// val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
 		var previous = false
 		var present = false
 	#]

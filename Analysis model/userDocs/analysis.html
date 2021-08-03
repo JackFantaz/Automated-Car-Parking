@@ -521,7 +521,7 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 
 <p>The <kc>WEnv</kc> itself presents both proactive and reactive behavior, however it is only required its <k>reactive</k> nature for this application, since there are no virtual sonars in the scene and since robot collisions are theoretically excluded thanks to the map.</p>
 
-<h4>The alarms</h4>
+<h4 id="analysis_alarms">The alarms</h4>
 
 <p>The system requires the presence of a timed alarm for when the <kc>OUTDOOR-area</kc> has not been cleared within <ks>DTFREE</ks> time from the beginning of its occupation. The system also suggests the presence of a second alarm for when <ks>TA</ks> exceeds <ks>TMAX</ks> and some kind of notification for when <ks>TA</ks> goes back into its normal low temperature range.</p>
 
@@ -554,7 +554,7 @@ The <a href="#requirements_requirements">requirement details</a> provided by the
 	<li>When the temperature is higher than TMAX, an alarm message is shown on the screen. As soon as the temperature is again lower than the threshold value, the error message is no longer shown.</li>
 </ul>
 
-<h3>Executable model</h3>
+<h3 id="executable_model">Executable model</h3>
 
 <p>A QAK executable model of the logical architecture can be retrieved from the following local link: <em><a href="../carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em> (copy on GitHub <a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">here</a>). Every actor introduced in the main logical architecture and in the alarms sub-system has been implemented.</p>
 
