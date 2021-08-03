@@ -28,7 +28,6 @@ class Sprint3Test {
 		var actor: ActorBasic? = null
 		var syncChannel = Channel<String>()
 		var obsChannel = Channel<String>()
-		var obsChannel2 = Channel<String>()
 
 		var observer: CoapObserverForTesting? = null
 		var observer2: CoapObserverForTesting? = null
@@ -219,6 +218,9 @@ class Sprint3Test {
 		runBlocking {
 
 			observe("temperaturesentinelactor", arrayOf("temperatureAlarm(0)", "temperatureAlarmRevoked(0)"))
+			println("checkAlarms -> emit temperature(10.0)")
+			actor!!.emit("temperature", "temperature(10.0)")
+			assertNoEventInTime(1000)
 			println("checkAlarms -> emit temperature(40.0)")
 			actor!!.emit("temperature", "temperature(40.0)")
 			assertEvent("temperatureAlarm(0)")
@@ -227,14 +229,35 @@ class Sprint3Test {
 			assertEvent("temperatureAlarmRevoked(0)")
 
 			observe("outdoorsentinelactor", arrayOf("outdoorAlarm(0)", "outdoorAlarmRevoked(0)"))
+			println("checkAlarms -> emit outdoorCleared(0)")
+			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+			assertNoEventInTime(1000)
 			println("checkAlarms -> emit outdoorOccupied(0)")
 			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+			assertNoEventInTime(4000)
 			assertEvent("outdoorAlarm(0)")
 			println("checkAlarms -> emit outdoorCleared(0)")
 			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
 			assertEvent("outdoorAlarmRevoked(0)")
-			
-			// auto fan + tempo per outsonar
+
+			observe("fanactor", arrayOf("fanStop(0)", "fanStart(0)"))
+			assertEvent("fanStop(0)")
+			println("checkAlarms -> forward fanAuto(auto)")
+			actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
+			println("checkAlarms -> emit temperatureAlarm(0)")
+			actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
+			assertEvent("fanStart(0)")
+			println("checkAlarms -> emit temperatureAlarmRevoked(0)")
+			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
+			assertEvent("fanStop(0)")
+			println("checkAlarms -> forward fanAuto(manual)")
+			actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
+			println("checkAlarms -> emit temperatureAlarm(0)")
+			actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
+			assertNoEventInTime(1000)
+			println("checkAlarms -> emit temperatureAlarmRevoked(0)")
+			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
+			assertNoEventInTime(1000)
 
 		}
 	}
@@ -251,6 +274,21 @@ class Sprint3Test {
 			else println("assertEvent -> wrong event $result detected instead of $event")
 		}
 		assertEquals(result, event)
+	}
+
+	private suspend fun assertNoEventInTime(millis: Int, verbose: Boolean = true) {
+		var counter = 0;
+		var result: String? = null;
+		do {
+			result = obsChannel.poll()
+			delay(100)
+			counter++
+		} while (result == null && counter < millis / 100)
+		if (verbose) {
+			if (counter >= millis / 100) println("assertNoEventInTime -> no events detected")
+			else println("assertNoEventInTime -> event $result detected within ${counter * 100} ms")
+		}
+		assert(counter >= millis / 100)
 	}
 
 	private suspend fun assertLocationInTime(x: String, y: String, d: String, millis: Int, verbose: Boolean = true) {

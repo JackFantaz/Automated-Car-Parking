@@ -323,8 +323,8 @@ QActor parkservicestatusguiactor context ctxcarparking {
 	State setAuto {
 		onMsg(fanAuto : fanAuto(STATUS)) {
 			[#
-				if (payloadArg(0) == "AUTO") auto = true
-				else if (payloadArg(0) == "MANUAL") auto = false
+				if (payloadArg(0) == "auto") auto = true
+				else if (payloadArg(0) == "manual") auto = false
 			#]
 
 		}

@@ -245,6 +245,13 @@ class HIController {
                 // fanTopic
                 managerTopic
             )
+            "auto_fan" -> MsgUtil.buildDispatch(
+                "managergui",
+                "fanAuto",
+                "fanAuto(0)",
+                // fanTopic
+                managerTopic
+            )
             else -> null
         }
         // val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)

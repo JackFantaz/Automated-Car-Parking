@@ -15,7 +15,7 @@ class UpdateCoapHandler(
 	override fun onLoad(response: CoapResponse) {
 		val content = response.responseText
 		if (response.code == CoAP.ResponseCode.NOT_FOUND) return
-		// println("~~~   content=$content   expected=$expected   contains=${content.contains(expected!!)}")
+		// println("~~~   content=\"$content\"   expected=\"$expected\"   contains=\"${content.contains(expected!!)}\"")
 		if (expected != null && content.contains(expected)) runBlocking { channel.send(content) }
 	}
 

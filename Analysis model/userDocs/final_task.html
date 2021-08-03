@@ -1,0 +1,642 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<style type="text/css">
+body {
+    margin-left:  30px;
+    margin-right: 30px;
+};
+P {
+    font-family: Tahoma;
+    font-size: 10pt;
+};
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+	font-size: 93%;
+}
+a:hover {
+    background-color: #cccccc;
+}
+hr {
+    clear: both;
+    height: 1px;
+    color: #242424;
+    background-color: transparent;
+}
+h1, h2, h3 {
+    color: #242424;
+    clear: left;
+    font: 100% Tahoma, Helvetica, Arial, sans-serif;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+	border-radius: 10px;
+	padding: 5px;
+}
+top {
+	width: 100%;
+}
+#i {
+    color: #ff1010;
+}
+tt{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	color: #006600;
+}
+em{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	border-style:solid;
+	border-color: #abe876;
+    color: #1632cc;
+}
+bc{
+	font-family: "Arial";
+	font-size: 90%;
+	font-weight: bold;
+    color: #990000;
+	background-color: #fcf8c7;
+}
+ks{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #0000CD	;
+	font-size: 90%;
+}
+kc{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #008000	;
+	font-size: 90%;
+}
+pre{
+	font-family: "Consolas";
+	font-size: 85%;
+	background-color: #f5f5f5;
+	border: 1.5px solid silver;
+	padding: 5px;
+}
+m{
+	font-family: "Helvetica";
+	line-height: 100%;
+ 	font-size: 75%;
+}
+div.body{
+
+    font-size: 18px;
+}
+k{
+    color: #990000;
+	font-weight: bold;
+	font-size: 90%;
+}
+h1 {
+    font-size: 150%;
+    background-color: #b2c0ff;
+	padding: 10px;
+}
+h2 {
+    background-color: #9ed8ff;
+    font-size: 130%;
+}
+h3 {
+	background-color: #e6ccff;
+    font-size: 100%;
+}
+h4 {
+    background-color: #ccffcc;
+    font-size: 100%;
+	width: 95%;
+	border-radius: 5px;
+	padding: 2px;
+}
+h5 {
+    background-color: #d5ffb0;
+    font-size: 100%;
+
+}
+div.req{
+	background-color: #d9ffb3;
+    font-size: 18px;
+	width: 700px;
+    border: 3px solid green;
+    padding: 15px;
+    margin: 10px;
+}
+div.remark{
+	background-color: #E3F2FD;
+    border: 1.5px solid #d5f2ed;
+    padding: 15px;
+    margin: 10px;
+	border-radius: 25px;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+ol, ul, li {
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+  padding-bottom: 5px;
+}
+table, th, td {
+	border: 1px solid black;
+}
+img {
+	border: 1.5px solid #d5f2ed
+
+}
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+}
+div.wrapdesc{
+	width: 90%;
+	margin: auto;
+}
+div.imagedesc{
+	width: 85%;
+	margin: auto;
+}
+</style>
+<title>Final task ISS-2021 Bologna: Automated Car-Parking</title>
+</head>
+
+<body>
+
+<div id="top">
+<h1>Final task ISS-2021 Bologna: Automated Car-Parking</h1>
+</div>
+
+<div class="body">
+
+<!-- <h2>Introduction</h2> -->
+
+<h2>Requirements</h2>
+
+<div id="blank">
+
+<h3>Automated Car-Parking</h3>
+
+A company intends to build an <i>automating parking service</i> composed of a set of elements:
+
+<ul>
+<li>A software system, named <em>ParkManagerService</em>, that implements the required automation functions.</li>
+<li>A <tt>DDR</tt> robot working as a <em>transport trolley</em>, that is intially situated in its <em>home</em> location.
+The <tt>transport trolley</tt> has the form of a square of side length <em>RD</em>.
+</li>
+<li>A <em>parking-area</em> is an empty room that includes;
+	<ul>
+	<li>an <em>INDOOR</em> to enter the car in the area. Facing the <tt>INDOOR</tt>, there is
+	a <em>INDOOR-area</em> equipped with a <em>weigthsensor</em> that measures the <em>weigth</em> of the car;</li>
+	<li>an <em>OUTDOOR</em> to exit from the <tt>parking-area</tt>. Just after the <tt>OUTDOOR</tt>, there is
+	<em>OUTDOOR-area</em> equipped with a <em>outsonar</em>, used to detect the presence of a car.
+	The <tt>OUTDOOR-area</tt>, once engaded by a car, should be freed within a prefixed interval of time <em>DTFREE</em>; </li>
+	<li>a number <tt>N (N=6)</tt> of <em>parking-slots</em>;</li>
+	<li>a <em>thermometer</em> that measures the temperature <em>TA</em> of the area;</li>
+	<li>a <em>fan</em> that should be activated when <k>TA > TMAX</k>, where <em>TMAX</em> is a prefixed value (e.g. <tt>35</tt>)</li>
+	</ul>
+	A <em>map</em> of the parking area, represented as a grid of squares of side length <em>RD</em>,
+	is available in the file <a href="https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.issLabStart/userDocs/parkingMap.txt" target="code">parkingMap.txt</a>:
+	<pre>
+|r, 0, 0, 0, 0, 0, 0, X,
+|0, 0, <bc>X, X,</bc>  0, 0, 0, X,
+|0, 0, <bc>X, X,</bc>  0, 0, 0, X,
+|0, 0, <bc>X, X,</bc>  0, 0, 0, X,
+|0, 0, 0, 0, 0, 0, 0, X,
+|X, X, X, X, X, X, X, X, </pre>
+	The map includes the positions of the  <tt>parking-slots</tt> (marked above with the symbol <k>X</k>)
+	and of the <em>fixed obstacles</em> in the area (the walls marked with the symbol <b>X</b>).
+	<br/><br/>
+	The area marked with <k>X</k> is a sort of 'equipped area' upon which the <tt>transport trolley</tt> cannot walk.
+	Thus, to get the car in the <tt>parking-slot</tt> <ks>(2,2)</ks>, the <tt>transport trolley</tt> must
+	go in cell <ks>(1,2)</ks>.
+	<br/><br/>
+
+	The proper scene for the WEnv is reported in: <a href="https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.issLabStart/userDocs/parkingAreaConfig.js" target="code">parkingAreaConfig.js</a>
+
+	<center><img src="./img/parkingAreaZone.PNG" alt="parkingAreaZone.PNG" width="45%" height="32%"/></center>
+</li>
+<li>a <em>parking-manager</em> (an human being) which supervises the state of the <tt>parking-area</tt>
+and handles critical situations<!-- by using a software system named <em>ParkMonitoringService</em> -->. </li>
+</ul>
+
+<div class="remark">
+The job of our company is to design, build and deploy the  <em>ParkManagerService</em>.
+</div>
+<!-- and the <em>ParkMonitoringService</em>.-->
+<h3 id="requirements_user_stories">User stories</h3>
+As a <bc>client - parking phase</bc> :
+<ul>
+<li>I intend to use a <em>ParkServiceGUI</em> provided by the <tt>ParkManagerService</tt>  to notify my interest in <i>entering</i>
+my auto in the <tt>parking-area</tt> and to receive as answer the number <em>SLOTNUM</em> of a  free parking-slot  (<tt>1&lt;=SLOTNUM&lt;=6</tt>).
+<tt>SLOTNUM<k>==0</k></tt> means that no free slot is available.</em>
+
+</li>
+<li>If <tt>SLOTNUM <k>>0</k></tt>, I move my car in front to the <tt>INDOOR</tt>, get out of the car and afterwards press a <em>CARENTER</em> button on the
+<em>ParkServiceGUI</em>. Afterwards, the <tt>transport trolley</tt> takes over my car and moves it from the <tt>INDOOR</tt>
+to the selected <tt>parking-slot</tt>.
+The <tt>ParkServiceGUI</tt> will show to me a receipt that includes a (unique) <em>TOKENID</em>,
+to be used in the <i>car pick up</i> phase.</li>
+</ul>
+
+As a <bc>client - car pick up phase</bc> :
+<ul>
+<li>I intend to use the <tt>ParkServiceGUI</tt> to submit the request to pick up my car, by sending the <tt>TOKENID</tt> previously received. </li>
+<li>Afterwards, the <tt>transport trolley</tt>  takes over my car and moves it from its <tt>parking-slot</tt> to the <tt>OUTDOOR-area</tt>.</li>
+<li>I move the car, so to free the <tt>OUTDOOR-area</tt>.
+</li>
+ </ul>
+
+As a <bc>parking-manager</bc>:
+<ul>
+<li>I intend to use the <em>ParkServiceStatusGUI</em>  provided by the <tt>ParkManagerService</tt>
+to observe the <em>current state</em> of the <tt>parking area</tt>, including the value <tt>TA</tt> of the temperature,
+the state of the <tt>fan</tt> and the state of the <tt>transport trolley</tt> (<k>idle, working or stopped</k>).</li>
+<li>I intend to <em>stop</em> the <tt>transport trolley</tt> when <k>TA > TMAX</k>, activate the <tt>fan</tt> and
+wait until <k>TA &lt; TMAX</k>. At this time, I stop the <tt>fan</tt> and resume the behavior of the <tt>transport trolley</tt>.
+Hopefully, the <b>start/stop</b> <ks>of the fan</ks> could also be automated by the <tt>ParkManagerService</tt>,
+while the <b>start/stop</b> <ks>of the transport trolley</ks> is always up to me.
+</li>
+
+<li>I expect that the <tt>ParkManagerService</tt> sends to me an <em>alarm</em> if it detectes that the <tt>OUTDOOR-area</tt>
+has not been cleaned within the <tt>DTFREE</tt> interval of time.</li>
+</ul>
+
+<h3 id="requirements_requirements">Requirements </h3>
+
+The <tt>ParkManagerService</tt>  should create the <tt>ParkServiceGUI</tt> (for the client)
+and the <tt>ParkServiceStatusGUI</tt> (for the manager) and then perform the following tasks:
+
+<ul>
+
+<li><hr/>
+<em>acceptIN</em>: accept the request of a client to park the car if there is at least one <tt>parking-slot</tt> available,
+select a free slot identified with a unique <tt>SLOTNUM</tt>.<br/>
+A request of this type can be elaborated only when the <k><tt>INDOOR-area</tt> is free</k>,
+and  the <tt>transport trolley</tt> is at <tt>home</tt> or working (<k>not stopped</k> by the manager).
+If the <tt>INDOOR-area</tt> is already engaged by a car, the request is not immediately processed
+(the client could simply wait or could - optionally - receive a proper notice).
+<br/>
+  <li><em>informIN</em>: inform the client about the value of the <tt>SLOTNUM</tt>.</li>
+If  <k>SLOTNUM>0</k>:
+  <ol>
+   <li><em>moveToIn</em>: move the <tt>transport trolley</tt> from its current localtion to the <tt>INDOOR</tt> ;</li>
+  <li><em>receipt</em>: send to the client a receipt including the value of the <tt>TOKENID</tt> ;</li>
+  <li><em>moveToSlotIn</em>: move the <tt>transport trolley</tt> from the <tt>INDOOR</tt> to the selected <tt>parking-slot</tt>;</li>
+  <!-- <li>accept another request (<tt>acceptIN</tt> or <tt>acceptOUT</tt>). -->
+  <li><em>backToHome</em>: if no other request is present,  move the <tt>transport trolley</tt> to its <tt>home</tt> location,
+  else <em>acceptIN</em> or <em>acceptOUT</em>.</li>
+  </ol>
+ </li>
+If <k>SLOTNUM==0</k>:
+	<ul>
+	<li><em>moveToHome</em>: if not already at home, move the <tt>transport trolley</tt> to its <tt>home</tt> location.</li>
+	</ul>
+</li>
+
+<li><hr/>
+<em>acceptOUT</em>: accept the request of a client to get out the car with <tt>TOKENID</tt>.
+A request of this type can be elaborated only when the <k><tt>OUTDOOR-area</tt> is free</k>
+and  the <tt>transport trolley</tt> is at <tt>home</tt> or working (<k>not stopped</k> by the manager).
+If the <tt>OUTDOOR-area</tt> is still engaged by a car, the request is not immediately processed
+(the client could simply wait or could - optionally - receive a proper notice).
+
+	<ol>
+	<li><em>findSlot</em>: deduce the number of the parking slot (<em>CARSLOTNUM</em>) from the <tt>TOKENID</tt>;</li>
+	<li><em>moveToSlotOut</em>: move the <tt>transport trolley</tt> from its current localtion to the <tt>CARSLOTNUM/parking-slot</tt> ;</li>
+	<li><em>moveToOut</em>: move the <tt>transport trolley</tt> to the <tt>OUTDOOR</tt> ;</li>
+	<li><em>moveToHome</em>: if no other request is present  move the <tt>transport trolley</tt> to its <tt>home</tt> location; <br/>
+	else <em>acceptIN</em> or <em>acceptOUT</em></li>
+
+	</ol>
+</li>
+<li>
+<hr/>
+<em>monitor</em>: update the <tt>ParkServiceStatusGUI</tt> with the required information about the state of the system.
+</li>
+
+<li>
+<hr/>
+<em>manage</em>: accept the request of the manager to stop/resume the behavior of the  <tt>transport trolley</tt>.
+</li>
+
+</ul>
+<h4>About the devices</h4>
+All the sensors (<tt>weigthsensor</tt>, <tt>outsonar</tt>, <tt>thermometer</tt> ) and the <tt>fan</tt> should be properly simulated
+by mock-objects or mock-actors.
+
+<h4>When available a Raspberry and a sonar</h4>
+The <tt>outsonar</tt> could be a real device. We can simulate the presence/absence of a car.
+
+<h3>Non functional requirements</h3>
+<ol>
+<li>The ideal work team is composed of <bc>3 persons</bc>. Teams of 1 or 2 persons (<bc>NOT</bc> 4 or more) are also allowed. </li>
+<li>The team must present a <bc>workplan</bc> as the result of the requirement/problem analysis,
+including some significant <bc>TestPlan</bc>.</li>
+<li>The team must present the sequence of <bc>SPRINT</bc> performed, with appropriate motivations.</li>
+<li>Each <bc>SPRINT</bc> must be associated with its own 'chronicle' (see <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.issLabStart/userDocs/templateToFill.html" target="lab">templateToFill.html</a>)
+that presents, in concise way, the key-points related to each phases of development.<br/>
+Hopefully, the team could also deploy the system using docker.</li>
+<li>Each team must publish and maintain a GIT-repository (referred in the <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.issLabStart/userDocs/templateToFill.html" target="lab">templateToFill.html</a>)
+with the code and the related documents.</li>
+
+<li>The team must present (in synthetic, schematic way) the <bc>specific activity of each team-component</bc>.</li>
+
+</ol>
+</div>
+<h2>Requirements analysis</h2>
+
+<div class="remark">
+<h3>Glossary</h3>
+<ul>
+    <li><k>Transport trolley:</k></li>
+		<ul>
+			<li>a squared robot of side <ks>RD</ks> able to pick up a car and transport it from a point of the map to another;</li>
+			<li>the robot picks up and puts down cars from the square in front of it;</li>
+			<li>while the car is on the robot, they fill the same space on the map;</li>
+		</ul>
+    <li><k>Home:</k> the home location of the <kc>trolley</kc> is the north-western corner of the parking-area, facing south;</li>
+    <li><k>Parking-area:</k> rectangular empty room containing the <kc>parking-slots</kc>, the home location and some maneuvering space for the <kc>trolley</kc>;</li>
+    <li><k>INDOOR-area:</k> the area where cars wait for the <kc>trolley</kc> to pick them up; it is not part of the <kc>parking-area</kc>;</li>
+    <li><k>OUTDOOR-area:</k> the area where the <kc>trolley</kc> leaves the cars to be picked up by their owners; it is not part of the <kc>parking-area</kc>;</li>
+    <li><k>Parking-slot:</k> a squared portion of the <kc>parking-area</kc> of side <ks>RD</ks> where parked cars are stored by the <kc>trolley</kc>; there are six of them and they are identified by a <ks>SLOTNUM</ks>;</li>
+    <li><k>Fan:</k> device able to lower the temperature of the <kc>parking-area</kc>;</li>
+    <li><k>Fixed obstacles:</k> the parts of the <kc>parking-area</kc> where the <kc>trolley</kc> is not able to pass through;</li>
+	<li><k>Hopefully / Optionally:</k> the corresponding requirements should be implemented and employable as an alternative to the default behavior.</li>
+</ul>
+
+<h3>Provided software and hardware</h3>
+
+<h4>The transport trolley</h4>
+
+<p>The <k>trolley</k> is a direct-drive robot compatible in terms of interaction and behavior with the virtual environment <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.virtualRobot2020/userDocs/VirtualRobot2021.html">WEnv</a> provided by the customer.</p>
+
+<p>Since every position in the <kc>parking-area</kc> is expressed as a multiple of the side <ks>RD</ks> of the <k>trolley</k>, the communication with the virtual robot should follow the <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.boundaryWalk/userDocs/BoundaryWalk.html#aril">aril</a> convention.</p>
+
+<h4>The parking-area and its points of interest</h4>
+
+<p>The customer provided a <k>map</k> of the <kc>parking-area</kc> in a <ks>textual format</ks>. Said map is partially compatible with an available legacy tool called <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.planner20/userDocs/LabPlanner.html#plannerUtil">PlannerUtil</a>, which is able to plan the route to drive a robot to a specified spot avoiding obstacles. Said tool, however, requires the <k>map</k> to be in a <ks>binary format</ks>. It should be made available as soon as possible a utility function to convert the representation of the <k>map</k>.</p>
+
+<p>The customer provided also a second description of the parking-area as a <ks>JavaScript</ks> configuration file compatible with the <kc>WEnv</kc>. An installation of the <kc>WEnv</kc> with said configuration should be made available as soon as possible for testing purposes.</p>
+
+<p>All the sensible spots in the <kc>parking-area</kc> are representable as <ks>pairs</ks> of coordinates on the map. However, while being not walkable over, the vast majority of them require a specific position and orientation of the <k>trolley</k>. It is indeed convenient to represent them not by their position, but by a <ks>triple</ks> representing the required <ks>position</ks> (in terms of X and Y) and <ks>orientation</ks> (in terms of N, E, S or W) of the <k>trolley</k> to properly operate on them.</p>
+
+<pre>
+Home Location:  [0, 0, S]
+INDOOR-area:    [6, 0, N]
+OUTDOOR-area:   [6, 4, S]
+Parking-slot 1: [1, 1, E]
+Parking-slot 2: [1, 2, E]
+Parking-slot 3: [1, 3, E]
+Parking-slot 4: [4, 1, W]
+Parking-slot 5: [4, 2, W]
+Parking-slot 6: [4, 3, W]
+</pre>
+
+<p>The <kc>PlannerUtil</kc> should be extended by a new component to add the functionality to plan the desired orientation of the trolley alongside its desired position.</p>
+
+<h4>Weightsensor and outsonar</h4>
+
+<p>The customer clarified that the <k>weightsensor</k> measures the <ks>weight of the car</ks> in the <kc>INDOOR-area</kc> and the <k>outsonar</k> detects the <ks>presence of a car</ks> in the <kc>OUTDOOR-area</kc>, but he doesn't provide code or physical devices to use. However, he specified that both should be properly simulated by mock-objects or mock-actors.</p>
+
+<p id="requirements_taxonomy">While being two physically different components, the <k>weightsensor</k> and the <k>outsonar</k> serve the same logical function and thus they can be both modeled as <ks>presence sensors</ks> with appropriate <ks>adapters</ks>. We report hereunder a diagram to illustrate the conceptual taxonomy:</p>
+
+<center><img src="./img/presence_actor.png" width="450px"></center>
+
+<p>These sensors should be <ks>queryable entities</ks> as to know if they does or does not detect a presence. They should also be put behind some kind of interface.</p>
+
+<p>Concerning the additional requirement to use a real device for the <kc>outsonar</kc>, the customer clarified that he expects it to be a <k>HC-SR04</k> distance sensor mounted on a <k>Raspberry Pi</k> single-board computer. We have some legacy <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.raspIntro2020/userDocs/LabRaspiIntro.html#sonar">control software</a> available for this use case.</p>
+
+<h4>Thermometer and Fan</h4>
+
+<p>The customer clarified that the <k>thermometer</k> measures the <ks>temperature of the area</ks> and about the <k>fan</k> he doesn't specify its behavior. Furthermore, he doesn't provide code or physical devices to use. However, he specified that both should be properly simulated by mock-objects or mock-actors.</p>
+
+<p>Much like the sonar and the weight sensor, the <k>thermometer</k> should be a <ks>queryable component</ks> put behind some kind of interface. The <k>fan</k> should be a passive component able to start and stop the device when <ks>notified</ks> to do so and it should be put behind an interface, too.</p>
+
+<h4>ParkServiceGUI and ParkServiceStatusGUI</h4>
+
+<p>The <k>ParkServiceGUI</k> (used by clients) and the <k>ParkServiceStatusGUI</k> (used by the parking-manager) must be provided by our <kc>ParkManagerService</kc>.</p>
+
+<p>The customer has intended that the two GUIs must be very available entities able to function on many devices. They are likely best to be designed as <ks>Web GUIs</ks>.</p>
+
+<h3>User stories</h3>
+
+The <a href="#requirements_user_stories">user stories</a> provided by the customer are sufficiently precise and complete and they do not need immediate elaboration.
+
+<h3>Informal test plan</h3>
+
+The <a href="#requirements_requirements">requirement details</a> provided by the customer are accurate enough to act as an informal test plan on their own.
+
+</div>
+
+<h2>Problem analysis</h2>
+<div class="remark">
+<h3>Relevant aspects</h3>
+<ol>
+    <li>The system to be built will be a distributed system, consisting of several macro-components:</li>
+    <ul>
+        <li>the <k>transport trolley</k>;</li>
+        <li>the <k>weight sensor</k>;</li>
+        <li>the <k>thermometer</k>;</li>
+        <li>the <k>fan</k>;</li>
+        <li>the <k>outsonar</k>;</li>
+        <li>our <k>application</k> (ParkManagerService, complete with its two GUIs), which sends commands to the trolley in order to meet the requirements.</li>
+    </ul>
+	<li>This distributed system, made of several heterogeneous components, would benefit greatly from an <k>actor-based</k> framework with support for <k>message-passing</k> interaction; for this purpose, we should leverage the available <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.qakactor/userDocs/LabQakIntro2021.html#qakoverview">QAK meta-model</a> to build executable models;</li>
+	<li>There isn't any conceptual abstraction gap for this problem, however since we proposed to exploit the <k>QAK meta-model</k>, we are put in front of an <k>abstraction gap</k> regarding the use of languages because QAK relies on Java and Kotlin to work. However, QAK itself manages to fill a large part of this limitation, as it is supplied with its own domain specific language and because it was designed specifically for heterogeneous distributed systems;</li>
+	<li>The <k>QAK meta-model</k> provides compatibility with the communication protocols <ks>TCP</ks>, <ks>MQTT</ks> and <ks>CoAP</ks>, equally valid for the interaction between actors; regarding the communication with the <k>WEnv</k> (or other compatible trolleys), both supported interaction models (<ks>HTTP POST</ks> and <ks>WebSocket</ks>) are fit for the task.</li>
+	<li>We will use the following <k>legend</k> for all the diagrams in the document:</li>
+	<center><img src="./img/legenda.png" width="350px"></center>
+</ol>
+
+<h3>Logical architecture</h3>
+
+<p>Each logical component should be modeled as an actor or split in two or more actors as expressed by the following general architecture:</p>
+
+<center><img src="./img/actors.png" width="600px"></center>
+
+<p id="alarms_diagram">Moreover, here's the conceptual architecture of the alarms sub-system:</p>
+
+<center><img src="./img/alarms.png" width="600px"></center>
+
+<h4>The business logic</h4>
+
+<p id="fsm_diagram">The core business logic can be conveniently described as a finite-state machine to be enclosed into a proper actor. Such actor controls the main state of the application and presents a purely <k>reactive</k> behavior, since it just reacts to external stimuli.</p>
+
+<center><img src="./img/business_logic.png" width="600px"></center>
+
+<p>The <ks>goto</ks> outputs should be delivered to an entity able to perform the implied set of elementary actions on the <kc>trolley</kc>.</p>
+
+<p>The additional task <k>manage</k> must ensure that, regardless of the current state, the execution of the automaton gets <k>stopped</k> whenever the manager gives the relative signal. When the manager gives the resume signal, the automaton must resume its evolution from where it was interrupted. Moreover, the additional task <k>monitor</k> must update the <kc>ParkServiceStatusGUI</kc> with the current status of the system.</p>
+
+<p>In states <kc>acceptIN</kc> and <kc>acceptOut</kc>, if the conditions to process the relative requests are not met, their processing must be postponed. While the <kc>trolley</kc> is stopped, new enter and exit requests by clients are not postponed, they are instead refused (with proper notice).</p>
+
+<h4>Sensors and actuators</h4>
+
+<p>Each actor using a <k>presence sensor</k> entity should poll the presence within a fixed interval of time and fire an <k>event</k> each time the status changes from present to not-present (or the other way around). These actors thus present <k>proactive</k> behavior.</p>
+
+<p>Much like the presence sensors, the <k>thermometer</k> entity should be encapsulated into a <k>proactive</k> actor that polls the temperature and fires an <k>event</k> with the new temperature value each time it varies <k>significantly</k> according to the sensitivity of the device.
+
+<p>The <k>fan</k> actor is <k>reactive</k> in nature and should be able to receive <k>dispatches</k> and update the status of the fan entity according to them.</p>
+
+<center><img src="./img/sensors_actuators.png" width="550px"></center>
+
+<h4>The user interfaces</h4>
+
+<p>The <kc>ParkManagerService</kc> app is composed of two GUIs: the <kc>ParkServiceGUI</kc>, used by clients, and the <kc>ParkServiceStatusGUI</kc>, used by the parking-manager. The GUIs should be controlled by two different and independent actors because they may not be hosted on the business logic node. They will probably not even run on the same node, because the physical device used by the client will likely not be the same device used by the manager. If the designer chooses to build them with a Web framework, then the GUIs will act as websites and this constraint will probably not be required.</p>
+
+<center><img src="./img/gui_actor.png" width="500px"></center>
+
+<p>The <k>proactive</k> behavior (toward the system) is prevalent on both GUIs, since their main purpose is to take in user input. Especially the <kc>ParkServiceStatusGUI</kc> presents however also a <k>reactive</k> behavior in how it handles alarms.</p>
+
+<p>The <kc>ParkServiceGUI</kc> has three buttons:</p>
+<ol>
+	<li>The <k>PARKING SLOT</k> button is needed to notify the interest by a client in <k>entering</k> its car in the <kc>parking-area</kc> and to receive the number <ks>SLOTNUM</ks> of a free <kc>parking-slot</kc> (between 1 and 6). If <ks>SLOTNUM</ks> is equal to 0, it means that no free slot is available.</li>
+	<li>The <k>CARENTER</k> button can be pressed only if <ks>SLOTNUM</ks> is greater than 0, so that the <kc>transport trolley</kc> may take the car from the <kc>INDOOR</kc> to the assigned <kc>parking-slot</kc>. Then it would show the client a receipt that includes the unique <ks>TOKENID</ks> that will be needed later to pick up the car.</li>
+	<li>The <k>PICK UP THE CAR</k> button is needed to <k>pick up</k> the car with the <ks>TOKENID</ks> received before, which needs to be written in its specific section under the button. The client's car will then be moved to the <kc>OUTDOOR-area</kc>.</li>
+</ol>
+
+<center><img src="./img/parkservicegui.png" width="500px"></center>
+
+<p>The <kc>ParkServiceStatusGUI</kc> has a grid with the <kc>parking-area</kc> status (red rectangles are occupied <kc>parking-slots</kc>), a section with the <kc>transport trolley</kc> status (idle, working or stopped) and a dedicated section for the <k>temperature</k>, in which you can see and manage the <k>fan</k> status when it is necessary with the use of three buttons: <k>start</k>, <k>stop</k> and <k>auto</k> (to automate the behavior of the fan); here you can also suspend and resume the behavior of the <kc>trolley</kc></trolley> with the <k>start</k> and <k>stop</k> buttons. At last, there is also a rectangle in which <k>alarms</k> appear.</p>
+
+<center><img src="./img/ParkServiceStatusGUI.png" width="550px"></center>
+
+<h4>Driving the trolley</h4>
+
+<p>To access the <kc>WEnv</kc>, it should be considered the usage of a more sophisticated tool, already available, called <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.kotlinSupports/userDocs/ActorWithKotlinSupport.html#IssWsHttpKotlinSupport">BasicStepRobotActor</a>, which would be able to avoid interferences among overlapping commands and to natively receive movement orders expressed as steps. A new service, for now called <kc>RobotProxy</kc>, may be required to ensure compatibility between our system and the legacy tool <kc>BasicStepRobotActor</kc>.</p>
+
+<p>The diagram hereunder presents a possible architecture taking advantage of the suggested tools <kc>BasicStepRobotActor</kc> and <kc>DirectionalPlanner</kc> (extension of <kc>PlannerUtil</kc>):</p>
+
+<center><img src="./img/trolley_driving.png" width="525px"></center>
+
+<p>The <kc>WEnv</kc> requires a <k>request-reply</k> communication paradigm. Even if some intermediate steps will probably favor different approaches, the replies from the <kc>WEnv</kc> should nevertheless be always brought back to the actor that originated the relative requests.</p>
+
+<p>The <kc>WEnv</kc> itself presents both proactive and reactive behavior, however it is only required its <k>reactive</k> nature for this application, since there are no virtual sonars in the scene and since robot collisions are theoretically excluded thanks to the map.</p>
+
+<h4>The alarms</h4>
+
+<p>The system requires the presence of a timed alarm for when the <kc>OUTDOOR-area</kc> has not been cleared within <ks>DTFREE</ks> time from the beginning of its occupation. The system also suggests the presence of a second alarm for when <ks>TA</ks> exceeds <ks>TMAX</ks> and some kind of notification for when <ks>TA</ks> goes back into its normal low temperature range.</p>
+
+<p>We suggest the presence of two <k>proactive</k> actors, one for the <kc>OUTDOOR</kc> and one for the temperature, that fire an <k>event</k> each time they have an alarm or a notification to report. For the actor requiring temporization, it is available a legacy component called <a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.cautiousExplorer/userDocs/cautiousExplorerActors.html#project">TimerActor</a> that may be leveraged for this purpose (see the <a href="#alarms_diagram">alarms sub-system diagram</a>).</p>
+
+<h3>Refined test plan</h3>
+<h4>User story 1 - parking phase</h4>
+<ul>
+	<li>In case of occupied INDOOR-area, when the client presses the <ks>PARKING SLOT</ks> button he receives a notification that no request can be sent.</li>
+	<li>The INDOOR-area is free and the client uses the <ks>PARKING SLOT</ks> button, the business logic processes the request and the SLOTNUM is displayed in the GUI itself.</li>
+	<li>If SLOTNUM > 0, then the client presses the <ks>CARENTER</ks> button and the transport trolley positions itself in the INDOOR-area and then in the slot previously indicated by SLOTNUM. Then that specific parking slot changes status and is shown as occupied in the ParkServiceStatusGUI table. Finally, the transport trolley returns to its home. At that point, a receipt with a TOKENID is shown to the client on the screen.</li>
+	<li>If SLOTNUM = 0, a message is shown on the screen indicating that there is no space in the parking-area and, if the client decides to wait for its turn, as soon as SLOTNUM > 0 then his request is processed as in the previous case.</li>
+	<li>If the transport trolley status is stopped and the client presses the <ks>CARENTER</ks> button, the request is rejected and the client is notified.</li>
+</ul>
+
+<h4>User story 2 - car pick up phase</h4>
+<ul>
+	<li>When the client presses the <ks>PICK UP THE CAR</ks> button, the request to enter the TOKENID is shown on the screen. If the code entered exists and is correct and the OUTDOOR-area is free, the transport trolley goes to the parking-slot (associated to that TOKENID) and then to the OUTDOOR-area. Finally it returns to home. Then that specific parking-slot will change status and will be shown as free in the ParkServiceStatusGUI table.</li>
+	<li>If the OUTDOOR-area is occupied, when the client presses the <ks>PICK UP THE CAR</ks> button, he receives a notification that no request can be sent. As soon as the area is free, his request will be processed as in the previous case.</li>
+	<li>If the entered code does not exist or is not correct, then an error message will be shown on the screen and the client will have to re-enter the TOKENID.</li>
+	<li>If the transport trolley status is stopped and the client presses the <ks>PICK UP THE CAR</ks> button, the request is rejected and the client is notified.</li>
+</ul>
+
+<h4>User story 3 - parking-manager</h4>
+<ul>
+	<li>When the parking manager presses the <ks>START</ks> button in the fan area, the mock of the fan declares to have turned on and the fan status changes to START. When the <ks>STOP</ks> button is pressed and the fan declares that it has turned off, the fan status changes to STOP.</li>
+	<li>When the <ks>AUTO</ks> button has been pressed and the temperature rises above TMAX, the fan activates itself and the fan status changes to START. When the temperature value returns below TMAX, the fan turns off and the fan status changes to STOP.</li>
+	<li>When the parking manager presses the <ks>START</ks> button in the transport trolley area, the latter stops working and its status in the ParkServiceStatusGUI changes to START. When he then presses the <ks>STOP</ks> button, the transport trolley resumes its work and its status becomes STOP.</li>
+	<li>When the OUTDOOR-area remains occupied more than the DTFREE time interval, then an alarm message is shown on the screen. As soon as the OUTDOOR-area is free again, the error message is no longer shown.</li>
+	<li>When the temperature is higher than TMAX, an alarm message is shown on the screen. As soon as the temperature is again lower than the threshold value, the error message is no longer shown.</li>
+</ul>
+
+<h3>Executable model</h3>
+
+<p>A QAK executable model of the logical architecture can be retrieved from the following local link: <em><a href="../carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em> (copy on GitHub <a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Analysis%20model/carparking_workspace/CarParking/src/trolley.qak">here</a>). Every actor introduced in the main logical architecture and in the alarms sub-system has been implemented.</p>
+
+<p>The QActor <k>parkmanagerserviceactor</k> implements the business logic automaton described in the main section of the problem analysis.</p>
+
+<p>The QActor <k>trolleyactor</k> models the status of the trolley (idle or working) and, upon the reception of <ks>goto(PLACE)</ks> messages, drives the actual trolley to the specified location using a first implementation of the <kc>RobotProxy</kc> and of the <kc>DirectionalPlanner</kc>, which have already been discussed.</p>
+
+<p>The QActors <k>parkserviceguiactor</k> and <k>parkservicestatusguiactor</k> are, for now, merely reactive components that print on the standard output a user-friendly version of the messages they receive. The <k>parkservicestatusguiactor</k> also sets the status of the fan upon receiving a temperature-related alarm.</p>
+
+<p>The CodedQActors <k>weightactor</k>, <k>sonaractor</k> and <k>thermometeractor</k> are observable mock-objects that leverage the Java Swing components <kc>ButtonMock</kc> and <kc>LedMock</kc> (previously developed for another project) to receive user inputs and emit events based upon them. The QActor <k>fanactor</k> is based on the same concepts, but it is much simpler, because it does not need to handle user inputs. The implied taxonomy we discussed about the presence sensors is omitted at the moment.</p>
+
+<p>The QActors <k>outdoorsentinelactor</k> and <k>temperaturesentinelactor</k> emit their respective alarms as expected by the given requirements. The <kc>TimerActor</kc> is implicitly provided by the QAK meta-model with the <ks>whenTime</ks> keyword.</p>
+
+<p>Instead of converting the format of the map to obtain a binary file, as previously discussed, we found easier to program a new rudimentary tool, called <kc>MapUtils</kc>, which draws a new map (with the same features as the original) and saves it in the correct format.</p>
+
+<h4>Testing</h4>
+
+<p>The executable model is compliant with the following <k>test plan</k>:</p>
+
+<ol>
+<li>The transport trolley is in <ks>home</ks> position initially, with coordinates [0, 0, S].</li>
+<li>When the weightsensor button is pressed, an "indoorOccupied" event and an enter request are sent. So, the "SLOTNUM" dispatch is sent and the <ks>INDOOR-area</ks>, with coordinates [6, 0, N], results occupied.</li>
+<li>The transport trolley starts its path going in that cell and a "TOKENID" dispatch is sent. Then it goes on the only free <ks>parking-slot</ks> (the number 1, with coordinates [1, 1, E]) and comes back to <ks>home</ks>.</li>
+<li>Then an exit request is sent and transport trolley goes in front of the <ks>parking-slot</ks> in which the car was parked (simulating the pick up of the car). It positions itself in front of the <ks>OUTDOOR-area</ks>, with coordinates [6, 4, S]. At last it comes back in its <ks>home</ks>.</li>
+<li>If the weightsensor button is pressed while the parking-slot 1 is occupied, the transport trolley mustn't go to the INDOOR-area to take the car.</li>
+</ol>
+
+<center><img src="./img/sprint_1.PNG" width="400px"></center>
+
+<h3>Workplan</h3>
+<p>The advancement of the project can be followed on this GitHub repository: <em><a href="https://github.com/JackFantaz/BadalamentiFantazziniFinalTask2021.git">https://github.com/JackFantaz/BadalamentiFantazziniFinalTask2021.git</a></em></p>
+<p>Based on what was discussed in this initial phase, we concluded that there will be needed <k>3 sprints</k> for the design of this application.</p>
+<h4>Sprint 1</h4>
+<ul>
+	<li>Main business logic with just one parking-slot;</li>
+	<li>Communication with the virtual robot;</li>
+	<li>ParkServiceGUI for the clients;</li>
+</ul>
+<p>This sprint will start on <k>July the 19th</k> and we expect it to be completed within <k>2 working days</k>.</p>
+<h4>Sprint 2</h4>
+<ul>
+	<li>Weightsensor, outsonar and thermometer;</li>
+	<li>Fan with manual control only;</li>
+	<li>ParkServiceStatusGUI for the parking-manager with the buttons to start/stop the trolley disabled.</li>
+</ul>
+<p>We expect this sprint to be completed within <k>3 working days</k>.</p>
+<h4>Sprint 3</h4>
+<ul>
+	<li>Possibility to start and stop the behavior of the trolley;</li>
+	<li>Support for all the six parking-slots.</li>
+	<li>OUTDOOR-area alarm and temperature alarm;</li>
+	<li>Option to automate the control of the fan;</li>
+	<li>Support for the real sonar device.</li>
+</ul>
+<p>We expect this sprint to be completed within <k>3 working days</k> and the whole project to be finished by <k>July the 27th</k>.</p>
+
+<!--
+	<center><table width="350px" height= "300px" bgcolor= #dcdcdc border="1">
+	<tr>
+		<td>
+			<center><img src="./img/actors.png" width="450px"></center>
+		</td>
+		<td>
+			Executable model: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Sprint%202/carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em>
+		</td>
+		<td>
+			Testing model: <em><a href="https://raw.githubusercontent.com/JackFantaz/BadalamentiFantazziniFinalTask2021/main/Sprint%202/carparking_workspace/CarParking/support/carparking/etc/Tester.kt">Tester.kt</a></em></td>
+	</tr>
+</table></center>
+-->
+
+</div>
+
+<br/>
+</div>
+
+<div style="background-color: #b2c0ff; color: #242424; clear: left; font: 100% Tahoma, Helvetica, Arial, sans-serif; margin-bottom: 0.5em; padding-top: 0.5em; border-radius: 10px; padding: 5px; font-size: 15px;">
+	<span style="color:crimson;font-weight:bold;">
+		By: Giacomo Fantazzini and Claudia Badalamenti<br>
+		Email: giacomo.fantazzini2@studio.unibo.it - claudia.badalamenti@studio.unibo.it<br>
+		<center><img src="./img/foto_fantazzini.jpg" width="120px", height="160"> <img src="./img/foto_claudia.jpeg" width="120px", height="160"></center>
+	</span>
+</div>
+</body>
+</html>

@@ -81,8 +81,8 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 						if( checkMsgContent( Term.createTerm("fanAuto(STATUS)"), Term.createTerm("fanAuto(STATUS)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-												if (payloadArg(0) == "AUTO") auto = true
-												else if (payloadArg(0) == "MANUAL") auto = false
+												if (payloadArg(0) == "auto") auto = true
+												else if (payloadArg(0) == "manual") auto = false
 						}
 					}
 					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
