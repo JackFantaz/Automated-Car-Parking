@@ -33,12 +33,12 @@ class Sensorsbrokeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFs
 								answer("outdoorStatus", "outdoorStatus", "outdoorStatus($Outdoor)"   )  
 						}
 					}
-					 transition(edgeName="t13",targetState="register",cond=whenEvent("indoorOccupied"))
-					transition(edgeName="t14",targetState="register",cond=whenEvent("outdoorOccupied"))
-					transition(edgeName="t15",targetState="register",cond=whenEvent("indoorCleared"))
-					transition(edgeName="t16",targetState="register",cond=whenEvent("outdoorCleared"))
-					transition(edgeName="t17",targetState="waiting",cond=whenRequest("indoorStatus"))
-					transition(edgeName="t18",targetState="waiting",cond=whenRequest("outdoorStatus"))
+					 transition(edgeName="t17",targetState="register",cond=whenEvent("indoorOccupied"))
+					transition(edgeName="t18",targetState="register",cond=whenEvent("outdoorOccupied"))
+					transition(edgeName="t19",targetState="register",cond=whenEvent("indoorCleared"))
+					transition(edgeName="t20",targetState="register",cond=whenEvent("outdoorCleared"))
+					transition(edgeName="t21",targetState="waiting",cond=whenRequest("indoorStatus"))
+					transition(edgeName="t22",targetState="waiting",cond=whenRequest("outdoorStatus"))
 				}	 
 				state("register") { //this:State
 					action { //it:State

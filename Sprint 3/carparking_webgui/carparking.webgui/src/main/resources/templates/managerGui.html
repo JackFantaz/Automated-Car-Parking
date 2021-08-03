@@ -59,6 +59,7 @@
         }
 
 
+
     </style>
 
     <script>
@@ -144,6 +145,7 @@
 
 
 
+
     </script>
 
 </head>
@@ -187,86 +189,88 @@
         <button name="dispatch" value="">CHECK</button>
     </form>-->
     <br>
-<div style="position: absolute; top:100px; left:300px">
-    <table style="padding:10px; border: 2px solid black;" width="350px" height="300px" align=center bgcolor=#f5f5f5>
-        <tr>
-            <td>Temperature:</td>
-            <br>
-            <br>
-            <td>
-                <center>
-                    <br>
-                    <input id="temp_endpoint" type="text" th:value="${receivedTemp}"
-                           style="font-weight:bold; color:black; background-color: white;" readonly>
-                    <!--<form action="temperature" method="post">
-                        <button name="dispatch" value="">CHECK</button>
-                    </form>-->
-                    <br>
-                    <br>
-                </center>
-            </td>
-        </tr>
-        <td></td>
-        <tr>
-            <td>Fan status:</td>
-            <td>
-                <center>
-                    <br>
-                    <input id="fan_endpoint" type="text" th:value="${receivedFan}"
-                           style="font-weight:bold; color:black; background-color: white;" readonly>
-                </center>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            </td>
-            <td>
-                <center>
-                    <form action="fan" method="post">
-                        <button name="dispatch" value="start_fan">START</button>
-                        <button name="dispatch" value="stop_fan">STOP</button>
-                        <button name="dispatch" value="auto_fan">AUTO</button>
-                    </form>
-                    <br>
-                    <br>
-                </center>
-            </td>
-        </tr>
-        <tr>
-            <td>Transport trolley status:</td>
-            <td>
-                <center>
-                    <br>
-                    <input type="text" th:value="${receivedTrolley}"
-                           style="font-weight:bold; color:black; background-color: white;" readonly>
-                </center>
-            </td>
-        </tr>
-        <tr>
+    <div style="position: absolute; top:100px; left:300px">
+        <table style="padding:10px; border: 2px solid black;" width="350px" height="300px" align=center bgcolor=#f5f5f5>
+            <tr>
+                <td>Temperature:</td>
+                <br>
+                <br>
+                <td>
+                    <center>
+                        <br>
+                        <input id="temp_endpoint" type="text" th:value="${receivedTemp}"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                        <!--<form action="temperature" method="post">
+                            <button name="dispatch" value="">CHECK</button>
+                        </form>-->
+                        <br>
+                        <br>
+                    </center>
+                </td>
+            </tr>
             <td></td>
+            <tr>
+                <td>Fan status:</td>
+                <td>
+                    <center>
+                        <br>
+                        <input id="fan_endpoint" type="text" th:value="${receivedFan}"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <center>
+                        <form action="fan" method="post">
+                            <button name="dispatch" value="start_fan">START</button>
+                            <button name="dispatch" value="stop_fan">STOP</button>
+                            <button name="dispatch" value="auto_fan">AUTO</button>
+                        </form>
+                        <br>
+                        <br>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td>Transport trolley status:</td>
+                <td>
+                    <center>
+                        <br>
+                        <input type="text" th:value="${receivedTrolley}"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
 
-            <td>
-                <center>
-                    <button name="dispatch" value="start_trolley">START</button>
-                    <button name="dispatch" value="stop_trolley">STOP</button>
-                    <br>
-                </center>
-            </td>
-        </tr>
-    </table>
-</div>
+                <td>
+                    <center>
+                        <form action="trolley" method="post">
+                            <button name="dispatch" value="start_trolley">START</button>
+                            <button name="dispatch" value="stop_trolley">STOP</button>
+                        </form>
+                        <br>
+                    </center>
+                </td>
+            </tr>
+        </table>
+    </div>
     <br>
     <br>
     <br>
 
     <div style="position: absolute; top:350px; left:30px">
-            <div style="background-color: #fafad2; border:1px solid black; width: 200px; height: 20px; padding:7px">
-                Alarms:
-            </div>
-            <div style="color:red; background-color: #fafad2; border:1px solid black; font-family: Calibri; font-weight: 700; width: 200px; padding:7px; height: 60px;">
-                <span id="tempAlarm_endpoint" th:text="${tempAlarm}">TA<br></span>
-                <span id="outAlarm_endpoint" th:text="${outAlarm}">OA<br></span>
-            </div>
+        <div style="background-color: #fafad2; border:1px solid black; width: 200px; height: 20px; padding:7px">
+            Alarms:
+        </div>
+        <div style="color:red; background-color: #fafad2; border:1px solid black; font-family: Calibri; font-weight: 700; width: 200px; padding:7px; height: 60px;">
+            <span id="tempAlarm_endpoint" th:text="${tempAlarm}">TA<br></span>
+            <span id="outAlarm_endpoint" th:text="${outAlarm}">OA<br></span>
+        </div>
     </div>
 
 </div>

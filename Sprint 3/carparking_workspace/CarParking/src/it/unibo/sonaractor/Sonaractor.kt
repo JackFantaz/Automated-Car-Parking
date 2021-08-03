@@ -45,8 +45,8 @@ class Sonaractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 						stateTimer = TimerActor("timer_polling", 
 							scope, context!!, "local_tout_sonaractor_polling", 500.toLong() )
 					}
-					 transition(edgeName="t36",targetState="polling",cond=whenTimeout("local_tout_sonaractor_polling"))   
-					transition(edgeName="t37",targetState="response",cond=whenRequest("lastEvent"))
+					 transition(edgeName="t42",targetState="polling",cond=whenTimeout("local_tout_sonaractor_polling"))   
+					transition(edgeName="t43",targetState="response",cond=whenRequest("lastEvent"))
 				}	 
 				state("response") { //this:State
 					action { //it:State

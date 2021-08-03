@@ -44,12 +44,12 @@ class Parkserviceguiactor ( name: String, scope: CoroutineScope  ) : ActorBasicF
 								)
 						}
 					}
-					 transition(edgeName="t19",targetState="receive",cond=whenDispatch("slotnum"))
-					transition(edgeName="t20",targetState="receive",cond=whenDispatch("tokenid"))
-					transition(edgeName="t21",targetState="receive",cond=whenDispatch("notice"))
-					transition(edgeName="t22",targetState="businessLogicControl",cond=whenDispatch("enterRequest"))
-					transition(edgeName="t23",targetState="businessLogicControl",cond=whenDispatch("carEnter"))
-					transition(edgeName="t24",targetState="businessLogicControl",cond=whenDispatch("exitRequest"))
+					 transition(edgeName="t23",targetState="receive",cond=whenDispatch("slotnum"))
+					transition(edgeName="t24",targetState="receive",cond=whenDispatch("tokenid"))
+					transition(edgeName="t25",targetState="receive",cond=whenDispatch("notice"))
+					transition(edgeName="t26",targetState="businessLogicControl",cond=whenDispatch("enterRequest"))
+					transition(edgeName="t27",targetState="businessLogicControl",cond=whenDispatch("carEnter"))
+					transition(edgeName="t28",targetState="businessLogicControl",cond=whenDispatch("exitRequest"))
 				}	 
 				state("businessLogicControl") { //this:State
 					action { //it:State

@@ -38,7 +38,7 @@ class Temperaturesentinelactor ( name: String, scope: CoroutineScope  ) : ActorB
 								}
 						}
 					}
-					 transition(edgeName="t48",targetState="watching",cond=whenEvent("temperature"))
+					 transition(edgeName="t54",targetState="watching",cond=whenEvent("temperature"))
 				}	 
 			}
 		}

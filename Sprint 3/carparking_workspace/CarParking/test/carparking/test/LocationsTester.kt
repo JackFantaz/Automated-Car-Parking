@@ -71,7 +71,7 @@ class LocationsTester {
 	fun checkLocations() {
 		runBlocking {
 			
-			actor!!.forward("goto", "goto(indoor)", "trolleyactor")
+			/*actor!!.forward("goto", "goto(indoor)", "trolleyactor")
 			delay(10000)
 			actor!!.forward("goto", "goto(outdoor)", "trolleyactor")
 			delay(10000)
@@ -87,7 +87,34 @@ class LocationsTester {
 			delay(5000)
 			actor!!.forward("goto", "goto(parking6)", "trolleyactor")
 			delay(10000)
+			actor!!.forward("goto", "goto(home)", "trolleyactor")*/
+			
+			actor!!.forward("goto", "goto(parking6)", "trolleyactor")
+			delay(2000)
+			println("STOP")
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+			delay(5000)
+			println("START")
+			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+			delay(3000)
+			actor!!.forward("goto", "goto(indoor)", "trolleyactor")
+			delay(2000)
+			println("STOP")
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+			delay(5000)
+			println("START")
+			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+			delay(3000)
 			actor!!.forward("goto", "goto(home)", "trolleyactor")
+			delay(10000)
+			println("STOP")
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+			delay(5000)
+			actor!!.forward("goto", "goto(parking1)", "trolleyactor")
+			println("START")
+			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+			delay(10000)
+			
 		}
 	}
 

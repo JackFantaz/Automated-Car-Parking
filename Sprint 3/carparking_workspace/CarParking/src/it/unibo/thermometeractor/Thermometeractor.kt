@@ -41,8 +41,8 @@ class Thermometeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm(
 						stateTimer = TimerActor("timer_polling", 
 							scope, context!!, "local_tout_thermometeractor_polling", 500.toLong() )
 					}
-					 transition(edgeName="t38",targetState="polling",cond=whenTimeout("local_tout_thermometeractor_polling"))   
-					transition(edgeName="t39",targetState="response",cond=whenRequest("lastEvent"))
+					 transition(edgeName="t44",targetState="polling",cond=whenTimeout("local_tout_thermometeractor_polling"))   
+					transition(edgeName="t45",targetState="response",cond=whenRequest("lastEvent"))
 				}	 
 				state("response") { //this:State
 					action { //it:State

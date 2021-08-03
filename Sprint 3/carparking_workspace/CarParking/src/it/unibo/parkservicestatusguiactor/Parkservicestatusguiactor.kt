@@ -58,15 +58,17 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 								}
 						}
 					}
-					 transition(edgeName="t25",targetState="receive",cond=whenEvent("temperature"))
-					transition(edgeName="t26",targetState="receive",cond=whenDispatch("slot"))
-					transition(edgeName="t27",targetState="fanControl",cond=whenDispatch("fanStart"))
-					transition(edgeName="t28",targetState="fanControl",cond=whenDispatch("fanStop"))
-					transition(edgeName="t29",targetState="receive",cond=whenEvent("outdoorAlarm"))
-					transition(edgeName="t30",targetState="receive",cond=whenEvent("outdoorAlarmRevoked"))
-					transition(edgeName="t31",targetState="receive",cond=whenEvent("temperatureAlarm"))
-					transition(edgeName="t32",targetState="receive",cond=whenEvent("temperatureAlarmRevoked"))
-					transition(edgeName="t33",targetState="setAuto",cond=whenDispatch("fanAuto"))
+					 transition(edgeName="t29",targetState="receive",cond=whenEvent("temperature"))
+					transition(edgeName="t30",targetState="receive",cond=whenDispatch("slot"))
+					transition(edgeName="t31",targetState="fanControl",cond=whenDispatch("fanStart"))
+					transition(edgeName="t32",targetState="fanControl",cond=whenDispatch("fanStop"))
+					transition(edgeName="t33",targetState="receive",cond=whenEvent("outdoorAlarm"))
+					transition(edgeName="t34",targetState="receive",cond=whenEvent("outdoorAlarmRevoked"))
+					transition(edgeName="t35",targetState="receive",cond=whenEvent("temperatureAlarm"))
+					transition(edgeName="t36",targetState="receive",cond=whenEvent("temperatureAlarmRevoked"))
+					transition(edgeName="t37",targetState="setAuto",cond=whenDispatch("fanAuto"))
+					transition(edgeName="t38",targetState="trolleyControl",cond=whenDispatch("startTrolley"))
+					transition(edgeName="t39",targetState="trolleyControl",cond=whenDispatch("stopTrolley"))
 				}	 
 				state("fanControl") { //this:State
 					action { //it:State
@@ -79,6 +81,21 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("Manager's GUI feedback -> redirecting fanStop(0)")
 								forward("fanStop", "fanStop(0)" ,"fanactor" ) 
+						}
+					}
+					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
+				}	 
+				state("trolleyControl") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("startTrolley(N)"), Term.createTerm("startTrolley(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> redirecting startTrolley(0)")
+								forward("startTrolley", "startTrolley(0)" ,"trolleyactor" ) 
+						}
+						if( checkMsgContent( Term.createTerm("stopTrolley(N)"), Term.createTerm("stopTrolley(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("Manager's GUI feedback -> redirecting stopTrolley(0)")
+								forward("stopTrolley", "stopTrolley(0)" ,"trolleyactor" ) 
 						}
 					}
 					 transition( edgeName="goto",targetState="receive", cond=doswitch() )
