@@ -182,14 +182,23 @@ QActor trolleyactor context ctxcarparking {
 
 	[#
 		var home = arrayOf("-", "-", "-")
-		var parking = arrayOf("-", "-", "-")
+		// var parking = arrayOf("-", "-", "-")
 		var indoor = arrayOf("-", "-", "-")
 		var outdoor = arrayOf("-", "-", "-")
+		var parking1 = arrayOf("-", "-", "-")
+		var parking2 = arrayOf("-", "-", "-")
+		var parking3 = arrayOf("-", "-", "-")
+		var parking4 = arrayOf("-", "-", "-")
+		var parking5 = arrayOf("-", "-", "-")
+		var parking6 = arrayOf("-", "-", "-")
 		var goingHome = false
+		
+		fun parseLocation(): Array<String> { return arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) }
+
 	#]
 
 	State setup initial {
-		solve( consult("locationsKb.pl") )
+		/*solve( consult("locationsKb.pl") )
 		solve( home(X, Y, D) )
 		[# home = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
 		solve( parking(X, Y, D) )
@@ -197,7 +206,17 @@ QActor trolleyactor context ctxcarparking {
 		solve( indoor(X, Y, D) )
 		[# indoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
 		solve( outdoor(X, Y, D) )
-		[# outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
+		[# outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]*/
+		solve( consult("locationsKb.pl") )
+		solve( home(X, Y, D) ) [# home = parseLocation() #]
+		solve( indoor(X, Y, D) ) [# indoor = parseLocation() #]
+		solve( outdoor(X, Y, D) ) [# outdoor = parseLocation() #]
+		solve( parking1(X, Y, D) ) [# parking1 = parseLocation() #]
+		solve( parking2(X, Y, D) ) [# parking2 = parseLocation() #]
+		solve( parking3(X, Y, D) ) [# parking3 = parseLocation() #]
+		solve( parking4(X, Y, D) ) [# parking4 = parseLocation() #]
+		solve( parking5(X, Y, D) ) [# parking5 = parseLocation() #]
+		solve( parking6(X, Y, D) ) [# parking6 = parseLocation() #]
 	} Transition t whenMsg goto -> idle
 
 	State idle {
@@ -205,16 +224,36 @@ QActor trolleyactor context ctxcarparking {
 			run carparking.directionalPlanner.planFor(home)
 			[# goingHome = true #]
 		}
-		onMsg (goto : goto(parking)) {
-			run carparking.directionalPlanner.planFor(parking)
-			[# goingHome = false #]
-		}
 		onMsg (goto : goto(outdoor)) {
 			run carparking.directionalPlanner.planFor(outdoor)
 			[# goingHome = false #]
 		}
 		onMsg (goto : goto(indoor)) {
 			run carparking.directionalPlanner.planFor(indoor)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking1)) {
+			run carparking.directionalPlanner.planFor(parking1)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking2)) {
+			run carparking.directionalPlanner.planFor(parking2)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking3)) {
+			run carparking.directionalPlanner.planFor(parking3)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking4)) {
+			run carparking.directionalPlanner.planFor(parking4)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking5)) {
+			run carparking.directionalPlanner.planFor(parking5)
+			[# goingHome = false #]
+		}
+		onMsg (goto : goto(parking6)) {
+			run carparking.directionalPlanner.planFor(parking6)
 			[# goingHome = false #]
 		}
 	} Goto working

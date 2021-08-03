@@ -18,22 +18,41 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
 				var home = arrayOf("-", "-", "-")
-				var parking = arrayOf("-", "-", "-")
+				// var parking = arrayOf("-", "-", "-")
 				var indoor = arrayOf("-", "-", "-")
 				var outdoor = arrayOf("-", "-", "-")
+				var parking1 = arrayOf("-", "-", "-")
+				var parking2 = arrayOf("-", "-", "-")
+				var parking3 = arrayOf("-", "-", "-")
+				var parking4 = arrayOf("-", "-", "-")
+				var parking5 = arrayOf("-", "-", "-")
+				var parking6 = arrayOf("-", "-", "-")
 				var goingHome = false
+				
+				fun parseLocation(): Array<String> { return arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) }
+		
 		return { //this:ActionBasciFsm
 				state("setup") { //this:State
 					action { //it:State
 						solve("consult('locationsKb.pl')","") //set resVar	
 						solve("home(X,Y,D)","") //set resVar	
-						 home = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase())  
-						solve("parking(X,Y,D)","") //set resVar	
-						 parking = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase())  
+						 home = parseLocation()  
 						solve("indoor(X,Y,D)","") //set resVar	
-						 indoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase())  
+						 indoor = parseLocation()  
 						solve("outdoor(X,Y,D)","") //set resVar	
-						 outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase())  
+						 outdoor = parseLocation()  
+						solve("parking1(X,Y,D)","") //set resVar	
+						 parking1 = parseLocation()  
+						solve("parking2(X,Y,D)","") //set resVar	
+						 parking2 = parseLocation()  
+						solve("parking3(X,Y,D)","") //set resVar	
+						 parking3 = parseLocation()  
+						solve("parking4(X,Y,D)","") //set resVar	
+						 parking4 = parseLocation()  
+						solve("parking5(X,Y,D)","") //set resVar	
+						 parking5 = parseLocation()  
+						solve("parking6(X,Y,D)","") //set resVar	
+						 parking6 = parseLocation()  
 					}
 					 transition(edgeName="t9",targetState="idle",cond=whenDispatch("goto"))
 				}	 
@@ -44,11 +63,6 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 								carparking.directionalPlanner.planFor( home  )
 								 goingHome = true  
 						}
-						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								carparking.directionalPlanner.planFor( parking  )
-								 goingHome = false  
-						}
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(outdoor)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								carparking.directionalPlanner.planFor( outdoor  )
@@ -57,6 +71,36 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(indoor)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								carparking.directionalPlanner.planFor( indoor  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking1)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking1  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking2)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking2  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking3)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking3  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking4)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking4  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking5)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking5  )
+								 goingHome = false  
+						}
+						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(parking6)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								carparking.directionalPlanner.planFor( parking6  )
 								 goingHome = false  
 						}
 					}
