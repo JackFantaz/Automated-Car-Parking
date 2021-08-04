@@ -29,16 +29,13 @@ class Sprint3Test {
 		var actor: ActorBasic? = null
 		var syncChannel = Channel<String>()
 		var obsChannel = Channel<String>()
-
 		var observer: CoapObserverForTesting? = null
-		var observer2: CoapObserverForTesting? = null
 		var started = false
-		// var job: Job? = null
 
 		@JvmStatic
 		@BeforeClass
 		fun beforeAll() {
-			/*job =*/ GlobalScope.launch { it.unibo.ctxcarparking.main() }
+			GlobalScope.launch { it.unibo.ctxcarparking.main() }
 			GlobalScope.launch {
 				while (actor == null) {
 					println("waiting for system startup...")
@@ -71,12 +68,9 @@ class Sprint3Test {
 	@After
 	fun afterEach() {
 		runBlocking { delay(3000) }
-		/*job!!.cancel()
-		println("~~~ HERE ~~~")
-		runBlocking { delay(5000) }*/
 	}
 
-	@Test
+	/*@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
@@ -98,12 +92,10 @@ class Sprint3Test {
 			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
 
-			consume()
-
 		}
-	}
+	}*/
 
-	@Test
+	/*@Test
 	fun checkRobustSequence() {
 		runBlocking {
 
@@ -137,14 +129,12 @@ class Sprint3Test {
 				assertLocationInTime("0", "0", "S", 50000)
 				assertNotMovingInTime(3000)
 
-				consume()
-
 			}
 
 		}
-	}
+	}*/
 
-	@Test
+	/*@Test
 	fun checkDoors() {
 		runBlocking {
 
@@ -185,12 +175,10 @@ class Sprint3Test {
 			assertLocationInTime("6", "4", "S", 20000)
 			assertLocationInTime("0", "0", "S", 60000)
 
-			consume()
-
 		}
-	}
+	}*/
 
-	@Test
+	/*@Test
 	fun checkSensorsAndActuators() {
 		runBlocking {
 
@@ -221,12 +209,10 @@ class Sprint3Test {
 			print("> ")
 			readLine()
 
-			consume()
-
 		}
-	}
+	}*/
 
-	@Test
+	/*@Test
 	fun checkAlarms() {
 		runBlocking {
 
@@ -272,22 +258,90 @@ class Sprint3Test {
 			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
 			assertNoEventInTime(1000)
 
-			consume()
-
 		}
 	}
+	
+	@Test
+	fun checkLocations() {
+		runBlocking {
 
-	private suspend fun consume() {
-		while (obsChannel.poll() != null) {
-			println("~~~ CONSUMED DIRTY DATA ON CHANNEL")
-			print("~~~ > ")
-			readLine()
+			println("checkLocations -> forward goto(indoor)")
+			actor!!.forward("goto", "goto(indoor)", "trolleyactor")
+			assertLocationInTime("6", "0", "N", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(outdoor)")
+			actor!!.forward("goto", "goto(outdoor)", "trolleyactor")
+			assertLocationInTime("6", "4", "S", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking1)")
+			actor!!.forward("goto", "goto(parking1)", "trolleyactor")
+			assertLocationInTime("1", "1", "E", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking2)")
+			actor!!.forward("goto", "goto(parking2)", "trolleyactor")
+			assertLocationInTime("1", "2", "E", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking3)")
+			actor!!.forward("goto", "goto(parking3)", "trolleyactor")
+			assertLocationInTime("1", "3", "E", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking4)")
+			actor!!.forward("goto", "goto(parking4)", "trolleyactor")
+			assertLocationInTime("4", "1", "W", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking5)")
+			actor!!.forward("goto", "goto(parking5)", "trolleyactor")
+			assertLocationInTime("4", "2", "W", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(parking6)")
+			actor!!.forward("goto", "goto(parking6)", "trolleyactor")
+			assertLocationInTime("4", "3", "W", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkLocations -> forward goto(home)")
+			actor!!.forward("goto", "goto(home)", "trolleyactor")
+			assertLocationInTime("0", "0", "S", 10000)
+			assertNotMovingInTime(2000)
+
+		}
+	}*/
+	
+	@Test
+	fun checkTrolleyStop() {
+		runBlocking {
+
+			println("checkTrolleyStop -> forward stopTrolley(0)")
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+			println("checkTrolleyStop -> forward goto(parking6)")
+			actor!!.forward("goto", "goto(parking6)", "trolleyactor")
+			assertNotMovingInTime(2000)
+			println("checkTrolleyStop -> forward startTrolley(0)")
+			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+			assertLocationInTime("4", "3", "W", 10000)
+			assertNotMovingInTime(2000)
+			
+			println("checkTrolleyStop -> forward goto(home)")
+			actor!!.forward("goto", "goto(home)", "trolleyactor")
+			delay(2000)
+			println("checkTrolleyStop -> forward stopTrolley(0)")
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+			assertNotMovingInTime(2000)
+			println("checkTrolleyStop -> forward startTrolley(0)")
+			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+			assertLocationInTime("0", "0", "S", 10000)
+			assertNotMovingInTime(2000)
+			
 		}
 	}
 
 	private suspend fun observe(actor: String, messages: Array<String>) {
-		// if (observer != null ) (observer as CoapObserverForTesting).terminate()
-		// while (obsChannel.poll() != null) delay(100)
 		observer = CoapObserverForTesting(actor)
 		for (m in messages) observer!!.addObserver(obsChannel, m)
 	}
