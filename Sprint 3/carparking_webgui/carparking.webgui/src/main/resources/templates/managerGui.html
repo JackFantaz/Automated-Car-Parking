@@ -60,6 +60,7 @@
 
 
 
+
     </style>
 
     <script>
@@ -130,7 +131,14 @@
         }
 
         function slotsHandler(response) {
-            document.getElementById("slots_endpoint").innerText = response
+            endpoints = ["slots_ep1", "slots_ep2", "slots_ep3", "slots_ep4", "slots_ep5", "slots_ep6"]
+            cells = ["slots_td1", "slots_td2", "slots_td3", "slots_td4", "slots_td5", "slots_td6"]
+            values = response.split(" ")
+            for (i = 0; i < 6; i++) {
+                document.getElementById(endpoints[i]).innerText = (values[i] == "f") ? "full" : "vacant"
+                document.getElementById(cells[i]).style = (values[i] == "f") ? "background-color: #FF0000" : "background-color: #DCDCDC"
+            }
+            // document.getElementById("slots_endpoint").innerText = response
         }
 
         function fanHandler(response) {
@@ -149,11 +157,17 @@
             document.getElementById("trolley_endpoint").value = response
         }
 
+
     </script>
 
 </head>
 
 <body onload="initUpdate(1000)">
+<div style="position:absolute;float:left;padding:5px;">
+    <a href="/">open /</a>
+    <br>
+    <a href="/status"> open /status</a>
+</div>
 <div style="background-color: #48d1cc; border: 2px solid ">
     <center><h2>ParkServiceStatusGUI</h2></center>
 </div>
@@ -162,29 +176,29 @@
     <br>
     <form action="carparking2" method="post"></form>
     Parking-area status<br>
-    <table width="150px" height="150px" tex border="1" align="left" bgcolor=#dcdcdc>
+    <table width="150px" height="150px" border="1" align="left" bgcolor=#dcdcdc>
         <tr>
-            <td style="background-color: red">
-                <center><span id="slots_endpoint" th:text="${receivedSlot}">Not available</span></center>
+            <td id="slots_td1" width="70px" height="40px">
+                <center><span id="slots_ep1">n/a</span></center>
             </td>
-            <td>
-                <center>Not available</center>
+            <td id="slots_td4" width="70px" height="40px">
+                <center><span id="slots_ep4">n/a</span></center>
             </td>
         </tr>
         <tr>
-            <td>
-                <center>Not available</center>
+            <td id="slots_td2" width="70px" height="40px">
+                <center><span id="slots_ep2">n/a</span></center>
             </td>
-            <td>
-                <center>Not available</center>
+            <td id="slots_td5" width="70px" height="40px">
+                <center><span id="slots_ep5">n/a</span></center>
             </td>
         </tr>
         <tr>
-            <td>
-                <center>Not available</center>
+            <td id="slots_td3" width="70px" height="40px">
+                <center><span id="slots_ep3">n/a</span></center>
             </td>
-            <td>
-                <center>Not available</center>
+            <td id="slots_td6" width="70px" height="40px">
+                <center><span id="slots_ep6">n/a</span></center>
             </td>
         </tr>
     </table>
