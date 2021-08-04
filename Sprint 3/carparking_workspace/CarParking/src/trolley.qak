@@ -385,8 +385,8 @@ QActor parkservicestatusguiactor context ctxcarparking {
 		onMsg (temperature : temperature(VALUE)) {
 			println("Manager's GUI feedback -> The temperature is ${payloadArg(0)}")
 		}
-		onMsg (slot : slot(STATUS)) {
-			println("Manager's GUI feedback -> The slot is ${payloadArg(0)}")
+		onMsg (slot : slot(SLOTNUM, STATUS)) {
+			println("Manager's GUI feedback -> The slot ${payloadArg(0)} is now ${payloadArg(1)}")
 		}
 		onMsg (outdoorAlarm : outdoorAlarm(N)) {
 			println("Manager's GUI feedback -> OUTDOOR alarm!")
