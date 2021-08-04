@@ -346,7 +346,7 @@ class HIController {
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
         // println("/ajax about=$about ...")
         var answer = when (about) {
-            "temp" -> parseArg(thermometerSupport.readResource())
+            "temp" -> parseArg(thermometerSupport.readResource())+" °C"
             "slots" -> serviceSupport.readResource()
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
             "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""

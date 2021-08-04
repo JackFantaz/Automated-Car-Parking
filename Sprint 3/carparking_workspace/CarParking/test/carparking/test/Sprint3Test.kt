@@ -78,16 +78,16 @@ class Sprint3Test {
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 			assertNotMovingInTime(3000)
 
-			println("checkCleanSequence -> forward carEnter(1)")
-			actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+			println("checkCleanSequence -> forward carEnter(0)")
+			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000)
-			assertLocationInTime("1", "1", "E", 10000)
+			assertLocationInTime("4", "3", "W", 10000)
 			assertLocationInTime("0", "0", "S", 10000)
 			assertNotMovingInTime(3000)
 
 			println("checkCleanSequence -> forward exitRequest(1)")
 			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-			assertLocationInTime("1", "1", "E", 10000)
+			assertLocationInTime("4", "3", "W", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
@@ -313,7 +313,7 @@ class Sprint3Test {
 		}
 	}*/
 	
-	@Test
+	/*@Test
 	fun checkTrolleyStop() {
 		runBlocking {
 
@@ -339,7 +339,7 @@ class Sprint3Test {
 			assertNotMovingInTime(2000)
 			
 		}
-	}
+	}*/
 
 	private suspend fun observe(actor: String, messages: Array<String>) {
 		observer = CoapObserverForTesting(actor)
