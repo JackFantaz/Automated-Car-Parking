@@ -70,6 +70,9 @@ class MultiSlotTest {
 	@Test
 	fun checkSlots() {
 		runBlocking {
+			
+			//observe("parkserviceguiactor", arrayOf("tokenid","slotnum"))
+			
 			//SIX CARS + 1
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
@@ -77,6 +80,7 @@ class MultiSlotTest {
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			//var tokenid6 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("6", "0", "N", 10000) //indoor
 			assertLocationInTime("4", "3", "E", 10000) //parking6
 			assertLocationInTime("0", "0", "S", 10000) //home
@@ -89,6 +93,7 @@ class MultiSlotTest {
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000) //indoor
+			var tokenid5 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("4", "2", "E", 10000) //parking5
 			assertLocationInTime("0", "0", "S", 10000) //home
 			assertNotMovingInTime(3000)
@@ -100,6 +105,7 @@ class MultiSlotTest {
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000) //indoor
+			var tokenid4 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("4", "1", "E", 10000) //parking4
 			assertLocationInTime("0", "0", "S", 10000) //home
 			assertNotMovingInTime(3000)
@@ -111,6 +117,7 @@ class MultiSlotTest {
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000) //indoor
+			var tokenid3 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "3", "E", 10000) //parking3
 			assertLocationInTime("0", "0", "S", 10000) //home
 			assertNotMovingInTime(3000)
@@ -122,6 +129,7 @@ class MultiSlotTest {
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000) //indoor
+			var tokenid2 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "2", "E", 10000) //parking2
 			assertLocationInTime("0", "0", "S", 10000) //home
 			assertNotMovingInTime(3000)
@@ -133,31 +141,36 @@ class MultiSlotTest {
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000) //indoor
+			var tokenid1 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "1", "E", 10000) //parking1
 			assertLocationInTime("0", "0", "S", 10000) //home
 			assertNotMovingInTime(3000)
 			
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			//SLOTNUM = 0
+			var slotnum = obsChannel.receive().split("(", ")")[1]
+			slotnum.toInt()==0
 			
-			
+			println("checkSlots -> forward carEnter(0)")
+			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			assertNotMovingInTime(3000)
 			
 			//EXIT
-
-			println("checkSlots -> forward exitRequest(TOKENID)")
-			actor!!.forward("exitRequest", "exitRequest(TOKENID)", "parkmanagerserviceactor")
+/*
+			println("checkSlots -> forward exitRequest($tokenid4)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid4)", "parkmanagerserviceactor")
 			assertLocationInTime("4", "1", "E", 10000) //parking4
 			assertLocationInTime("6", "4", "S", 10000) //oudoor
 			assertLocationInTime("0", "0", "S", 50000) //home
 			assertNotMovingInTime(3000)
 			
-			println("checkSlots -> forward exitRequest(TOKENID)")
-			actor!!.forward("exitRequest", "exitRequest(TOKENID)", "parkmanagerserviceactor")
+			println("checkSlots -> forward exitRequest($tokenid2)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkmanagerserviceactor")
 			assertLocationInTime("1", "2", "E", 10000) //parking2
 			assertLocationInTime("6", "4", "S", 10000) //oudoor
 			assertLocationInTime("0", "0", "S", 50000) //home
 			assertNotMovingInTime(3000)
+ */
 }
 	}
 
