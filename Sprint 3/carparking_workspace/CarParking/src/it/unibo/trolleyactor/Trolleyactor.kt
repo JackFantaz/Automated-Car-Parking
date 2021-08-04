@@ -58,8 +58,6 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("idle") { //this:State
 					action { //it:State
-						updateResourceRep( "idle"  
-						)
 						if( checkMsgContent( Term.createTerm("goto(PLACE)"), Term.createTerm("goto(home)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								carparking.directionalPlanner.planFor( home  )
@@ -110,8 +108,14 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("working") { //this:State
 					action { //it:State
-						updateResourceRep( "working"  
+						if(  goingHome  
+						 ){updateResourceRep( "idle"  
 						)
+						}
+						else
+						 {updateResourceRep( "working"  
+						 )
+						 }
 						 val move = carparking.directionalPlanner.getNextPlannedMove()  
 						if(  move.isNotEmpty()  
 						 ){if(  move == "w"  

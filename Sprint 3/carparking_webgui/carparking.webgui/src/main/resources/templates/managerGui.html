@@ -116,11 +116,13 @@
             sendAjaxRequest("GET", "/ajax", "about=fan", fanHandler, "TEXT")
             sendAjaxRequest("GET", "/ajax", "about=tempAlarm", tempAlarmHandler, "TEXT")
             sendAjaxRequest("GET", "/ajax", "about=outAlarm", outAlarmHandler, "TEXT")
+            sendAjaxRequest("GET", "/ajax", "about=trolley", trolleyHandler, "TEXT")
             window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=temp", tempHandler, "TEXT"), millis)
             window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=slots", slotsHandler, "TEXT"), millis)
             window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=fan", fanHandler, "TEXT"), millis)
             window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=tempAlarm", tempAlarmHandler, "TEXT"), millis)
             window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=outAlarm", outAlarmHandler, "TEXT"), millis)
+            window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about=trolley", trolleyHandler, "TEXT"), millis)
         }
 
         function tempHandler(response) {
@@ -143,8 +145,9 @@
             document.getElementById("outAlarm_endpoint").innerHTML = response
         }
 
-
-
+        function trolleyHandler(response) {
+            document.getElementById("trolley_endpoint").value = response
+        }
 
     </script>
 
@@ -239,7 +242,7 @@
                 <td>
                     <center>
                         <br>
-                        <input type="text" th:value="${receivedTrolley}"
+                        <input id="trolley_endpoint" type="text" th:value="${receivedTrolley}"
                                style="font-weight:bold; color:black; background-color: white;" readonly>
                     </center>
                 </td>

@@ -226,7 +226,6 @@ QActor trolleyactor context ctxcarparking {
 	} Transition t whenMsg goto -> idle
 
 	State idle {
-		updateResource [# "idle" #]
 		onMsg (goto : goto(home)) {
 			run carparking.directionalPlanner.planFor(home)
 			[# goingHome = true #]
@@ -266,7 +265,8 @@ QActor trolleyactor context ctxcarparking {
 	} Goto working
 
 	State working {
-		updateResource [# "working" #]
+		if [# goingHome #] { updateResource [# "idle" #] }
+		else { updateResource [# "working" #] }
 		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
 		if [# move.isNotEmpty() #] {
 			if [# move == "w" #] { request basicrobot -m step : step(340) }
