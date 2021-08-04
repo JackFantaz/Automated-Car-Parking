@@ -209,7 +209,75 @@ div.imagedesc{
 
 <h4>Testing</h4>
 
-<p>...</p>
+<p>Tests from Sprint 1 and Sprint 2 must, of course, still hold. We report hereunder only the most significant fragments of each new test case:</p>
+
+<pre>
+...
+</pre>
+
+<pre>
+@Test
+fun checkAlarms() {
+
+  actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+  assertNoEventInTime(1000)
+  actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+  assertNoEventInTime(4000)
+  assertEvent("outdoorAlarm(0)")
+  actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+  assertEvent("outdoorAlarmRevoked(0)")
+
+  actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
+  actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
+  assertEvent("fanStart(0)")
+  actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
+  assertEvent("fanStop(0)")
+  actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
+  actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
+  assertNoEventInTime(1000)
+  actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
+  assertNoEventInTime(1000)
+
+}
+</pre>
+
+<pre>
+@Test
+fun checkTrolleyStop() {
+
+  actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+  actor!!.forward("goto", "goto(parking6)", "trolleyactor")
+  assertNotMovingInTime(2000)
+  actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+  assertLocationInTime("4", "3", "W", 10000)
+  assertNotMovingInTime(2000)
+
+  actor!!.forward("goto", "goto(home)", "trolleyactor")
+  delay(2000)
+  actor!!.forward("stopTrolley", "stopTrolley(0)", "trolleyactor")
+  assertNotMovingInTime(2000)
+  actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
+  assertLocationInTime("0", "0", "S", 10000)
+  assertNotMovingInTime(2000)
+
+}
+</pre>
+
+<h4>Summary final architecture of the system</h4>
+
+<center>
+	<table width="300px" bgcolor="#dcdcdc" border="1">
+		<tr>
+			<td style="padding:5px">
+				<center><img src="./img/actors_sprint3.png" height="350px"></center>
+			</td>
+			<td style="padding:5px">
+				Executable model: <em><a href="../carparking_workspace/CarParking/src/trolley.qak">trolley.qak</a></em>
+			</td>
+			<td style="padding:5px">Test plan: <em><a href="../carparking_workspace/CarParking/test/carparking/test/Sprint3Test.kt">Sprint3Test.kt</a></em></td>
+		</tr>
+	</table>
+</center>
 
 </div>
 
