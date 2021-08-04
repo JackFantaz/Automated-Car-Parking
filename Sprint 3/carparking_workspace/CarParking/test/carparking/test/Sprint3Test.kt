@@ -70,30 +70,34 @@ class Sprint3Test {
 		runBlocking { delay(3000) }
 	}
 
-	/*@Test
+	@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
+			observe("parkserviceguiactor", arrayOf("tokenid"))
+					
 			println("checkCleanSequence -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 			assertNotMovingInTime(3000)
 
 			println("checkCleanSequence -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			
 			assertLocationInTime("6", "0", "N", 10000)
+			var tokenid = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("4", "3", "W", 10000)
 			assertLocationInTime("0", "0", "S", 10000)
 			assertNotMovingInTime(3000)
-
-			println("checkCleanSequence -> forward exitRequest(1)")
-			actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
+			
+			println("checkCleanSequence -> forward exitRequest($tokenid)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
 			assertLocationInTime("4", "3", "W", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 50000)
 			assertNotMovingInTime(3000)
 
 		}
-	}*/
+	}
 
 	/*@Test
 	fun checkRobustSequence() {
@@ -259,9 +263,9 @@ class Sprint3Test {
 			assertNoEventInTime(1000)
 
 		}
-	}
+	}*/
 	
-	@Test
+	/*@Test
 	fun checkLocations() {
 		runBlocking {
 
