@@ -26,6 +26,13 @@ class CoapObserverForTesting(
 		client!!.observe(handler)
 	}
 
-	fun terminate() { }
+	fun terminate() {}
+
+	fun readResource(): String {
+		if (client == null) return "readResource client null"
+		val respGet = client!!.get() ?: return "readResource  respGet null"
+		println("CoapSupport | readResource RESPONSE CODE: " + respGet.getCode())
+		return respGet.getResponseText()
+	}
 
 }

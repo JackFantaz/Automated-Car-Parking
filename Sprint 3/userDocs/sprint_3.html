@@ -189,7 +189,7 @@ div.imagedesc{
 
 <p>The car park now has <k>six parking slots available</k> as requested by the client. At each entry or exit of a car from the car park, a variable is updated with the <ks>current status of the slots</ks>, which can be "<k>vacant</k>"" or  "<k>full</k>".
 At first we assume that the system has all six parking spaces empty and then, after each request, the trolley carries each car into a slot that will be colored red in the manager's gui.<br>
-Each parking slot is represented by a <kc>triple</kc> that indicates the position on the map and the direction that the trolley must take when it is in front of that specific parking slot. 
+Each parking slot is represented by a <kc>triple</kc> that indicates the position on the map and the direction that the trolley must take when it is in front of that specific parking slot.
 Furthermore, these coordinates are found in <em><a href="../carparking_workspace/CarParking/locationsKb.pl">locationsKb.pl</a></em> and correspond to the following:
 </p>
 
@@ -232,7 +232,7 @@ Furthermore, these coordinates are found in <em><a href="../carparking_workspace
 
 <h4>Testing</h4>
 
-<p>Tests from Sprint 1 and Sprint 2 must, of course, still hold. We report hereunder only the most significant fragments of each new test case:</p>
+<p>Tests from Sprint 1 and Sprint 2 must still hold, however they had to be adapted to deal with the multiple parking-slots. We report hereunder only the most significant fragments of each new test case:</p>
 
 <pre>
 ...

@@ -19,6 +19,7 @@ import org.junit.Assert.assertEquals
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import org.eclipse.californium.core.CoapClient
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -69,23 +70,23 @@ class Sprint3Test {
 	fun afterEach() {
 		runBlocking { delay(3000) }
 	}
-
+	
 	@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
-			observe("parkserviceguiactor", arrayOf("tokenid"))
+			var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = false, verbose = true)
 					
 			println("checkCleanSequence -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 			assertNotMovingInTime(3000)
+			var slotnum = cco.observePayload()
 
 			println("checkCleanSequence -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
-			
 			assertLocationInTime("6", "0", "N", 10000)
-			var tokenid = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("4", "3", "W", 10000)
+			var tokenid = cco.observePayload()
 			assertLocationInTime("0", "0", "S", 10000)
 			assertNotMovingInTime(3000)
 			
@@ -100,35 +101,75 @@ class Sprint3Test {
 	}
 
 	/*@Test
+	fun checkCleanSequence() {
+		runBlocking {
+
+			observe("parkserviceguiactor", arrayOf("tokenid"))
+					
+			println("checkCleanSequence -> forward enterRequest(0)")
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+			assertNotMovingInTime(3000)
+
+			println("checkCleanSequence -> forward carEnter(0)")
+			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			assertLocationInTime("6", "0", "N", 10000)
+			var tokenid = obsChannel.receive().split("(", ")")[1]
+			assertLocationInTime("4", "3", "W", 10000)
+			assertLocationInTime("0", "0", "S", 10000)
+			assertNotMovingInTime(3000)
+			
+			println("checkCleanSequence -> forward exitRequest($tokenid)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
+			assertLocationInTime("4", "3", "W", 10000)
+			assertLocationInTime("6", "4", "S", 10000)
+			assertLocationInTime("0", "0", "S", 50000)
+			assertNotMovingInTime(3000)
+
+		}
+	}*/
+
+	/*@Test
+	fun checkMyObserver() {
+		runBlocking {
+			val cpcObserver = CarparkingCoapObserver("thermometeractor")
+			
+			while(true) {
+				println("HERE: ${cpcObserver.observe()}")
+				delay(1000)
+			}
+		}
+	}*/
+
+	/*@Test
 	fun checkRobustSequence() {
 		runBlocking {
+
+			var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = false, verbose = true)
+			var tokenid = "12345"
 
 			assertNotMovingInTime(3000)
 
 			for (i in 1..2) {
 
-				println("checkRobustSequence -> forward exitRequest(1)")
-				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
+				println("checkRobustSequence -> forward exitRequest($tokenid)")
+				actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
 				assertNotMovingInTime(3000)
 
 				println("checkRobustSequence -> forward enterRequest(0)")
 				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 				assertNotMovingInTime(3000)
 
-				println("checkRobustSequence -> forward carEnter(1)")
-				actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
+				println("checkRobustSequence -> forward carEnter(0)")
+				actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 				assertLocationInTime("6", "0", "N", 10000)
-				assertLocationInTime("1", "1", "E", 10000)
+				assertLocationInTime("4", "3", "W", 10000)
+				tokenid = cco.observePayload()
 				assertLocationInTime("0", "0", "S", 10000)
 				assertNotMovingInTime(3000)
 
-				println("checkRobustSequence -> forward enterRequest(0)")
-				actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-				assertNotMovingInTime(3000)
-
-				println("checkRobustSequence -> forward exitRequest(1)")
-				actor!!.forward("exitRequest", "exitRequest(1)", "parkmanagerserviceactor")
-				assertLocationInTime("1", "1", "E", 10000)
+				println("checkRobustSequence -> forward exitRequest($tokenid)")
+				actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
+				assertLocationInTime("4", "3", "W", 10000)
 				assertLocationInTime("6", "4", "S", 10000)
 				assertLocationInTime("0", "0", "S", 50000)
 				assertNotMovingInTime(3000)
@@ -142,15 +183,15 @@ class Sprint3Test {
 	fun checkDoors() {
 		runBlocking {
 
+			observe("parkserviceguiactor", arrayOf("tokenid"))
+			
 			println("checkDoors -> emit indoorOccupied(0)")
 			actor!!.emit("indoorOccupied", "indoorOccupied(0)")
 
 			println("checkDoors -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-
-			println("checkDoors -> forward carEnter(1)")
-			actor!!.forward("carEnter", "carEnter(1)", "parkmanagerserviceactor")
-
+			println("checkDoors -> forward carEnter(0)")
+			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
 			assertNotMovingInTime(3000)
 
 			println("checkDoors -> emit indoorCleared(0)")
@@ -158,26 +199,24 @@ class Sprint3Test {
 
 			println("checkDoors -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-
 			assertLocationInTime("6", "0", "N", 10000)
+			var tokenid = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("0", "0", "S", 20000)
 
 			println("checkDoors -> emit outdoorOccupied(0)")
 			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
 
-			println("checkDoors -> forward exitRequest(0)")
-			actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
-
+			println("checkDoors -> forward exitRequest($tokenid)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
 			assertNotMovingInTime(3000)
 
 			println("checkDoors -> emit outdoorCleared(0)")
 			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
 
-			println("checkDoors -> forward exitRequest(0)")
-			actor!!.forward("exitRequest", "exitRequest(0)", "parkmanagerserviceactor")
-
+			println("checkDoors -> forward exitRequest($tokenid)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "4", "S", 20000)
-			assertLocationInTime("0", "0", "S", 60000)
+			assertLocationInTime("0", "0", "S", 50000)
 
 		}
 	}*/
@@ -264,7 +303,7 @@ class Sprint3Test {
 
 		}
 	}*/
-	
+
 	/*@Test
 	fun checkLocations() {
 		runBlocking {
@@ -316,7 +355,7 @@ class Sprint3Test {
 
 		}
 	}*/
-	
+
 	/*@Test
 	fun checkTrolleyStop() {
 		runBlocking {
