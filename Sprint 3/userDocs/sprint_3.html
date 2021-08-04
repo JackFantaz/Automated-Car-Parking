@@ -181,7 +181,11 @@ div.imagedesc{
 
 <h3>Sprint 3</h3>
 
-<h4>The alarms</h4>
+<h4>Six parking slots</h4>
+
+<p>...</p>
+
+<h4>Alarms and automatic fan</h4>
 
 <p>The <k>outdoorsentinelactor</k> and the <k>temperaturesentinelactor</k> have been implemented faithfully to their <a href="../../Analysis%20model/userDocs/analysis.html#analysis_alarms">previous description</a> and to the <a href="../../Analysis%20model/userDocs/analysis.html#alarms_diagram">alarms diagram</a>. The only difference with their implementation in the <a href="../../Analysis%20model/userDocs/analysis.html#executable_model">first executable model</a> is that they now also update their CoAP resource with the last issued alarm (or revocation of an alarm) to inform the external GUI and the test plan.</p>
 
@@ -189,10 +193,23 @@ div.imagedesc{
 
 <center><img src="./img/sp3_conn.png" width="700px"></center>
 
+<h4>Trolley start and stop</h4>
+
+<p>The <k>trolleyactor</k> required only minimal editing by introducing a new state called <ks>stopped</ks> in which it waits for a <ks>startTrolley</ks> message to resume its behavior. New requests received while stopped are queued and processed when the behavior is resumed. Moreover, the <k>trolleyactor</k> now specify its status by updating its CoAP resource and setting it to <ks>idle</ks> when it's in home or going home, to <ks>working</ks> when it's going elsewhere and to <ks>stopped</ks> when it's being stopped by the manager.</p>
+
+<p>The external <kc>ManagerGUI</kc> reads the status of the trolley from the <k>trolleyactor</k> via CoAP and sends start and stop messages through the <k>parkservicestatusguiactor</k>, much like it already worked for the control of the fan.</p>
+
+<center><img src="./img/trolley_stop.png" width="700px"></center>
+
 <h4>The real sonar device</h4>
-<p>
-	In addition to the use of a mock-object for the simulation of the presence / absence of the car in the outdoors, a <ks>real sensor</ks> (HCSR04) was used to perform the function of the <kc>outsonar</kc>. To do this we used a file obtained by the customer <em><a href="../Sprint%203/carparking_workspace/CarParking/sonar.c">Sonar.c</a></em> thanks to which the distance in centimeters of the object from the sensor is shown on the screen. The file was simply modified so that it did not report the values in cascade, but only the measurement at the moment in which it is requested. Experiments show that the minimum distance that the sonar is able to intercept is 3 cm, while the maximum is 42 cm. For this reason we established a <ks>threshold value of 25 cm</ks> that is the limit for which the sonar can find the presence of the car or not.
-</p>
+
+<p>In addition to the use of a mock-object for the simulation of the presence/absence of the car in the OUTDOOR, a <ks>real sensor device</ks> (HCSR04) was used to perform the function of the <kc>outsonar</kc>. To do this we used a piece of software obtained by the customer called <a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/anatali/issLab2021/main/it.unibo.raspIntro2020/userDocs/LabRaspiIntro.html#sonar">SonarAlone.c</a>, thanks to which the distance in centimeters of the object from the sensor is put on the standard output. The file was simply modified so that it did not report the values in cascade, but only the measurement at the moment in which it is requested.</p>
+
+<p>Experiments shown that the minimum distance that the sonar is able to intercept is 3 cm, while the maximum is 42 cm. For this reason we established a <ks>threshold value of 25 cm</ks>, below which the car is to be considered present. The <kc>SonarDriver</kc>, <a href="../../Analysis%20model/userDocs/analysis.html#requirements_taxonomy"> adaptable to be a presence sensor</a>, has been completed accordingly.</p>
+
+<h4>Testing</h4>
+
+<p>...</p>
 
 </div>
 

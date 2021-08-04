@@ -33,7 +33,7 @@ class Parkservicestatusguiactor ( name: String, scope: CoroutineScope  ) : Actor
 						}
 						if( checkMsgContent( Term.createTerm("slot(SLOTNUM,STATUS)"), Term.createTerm("slot(STATUS)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Manager's GUI feedback -> The slot is ${payloadArg(0)}")
+								println("Manager's GUI feedback -> The slot ${payloadArg(0)} is now ${payloadArg(1)}")
 						}
 						if( checkMsgContent( Term.createTerm("outdoorAlarm(N)"), Term.createTerm("outdoorAlarm(N)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
