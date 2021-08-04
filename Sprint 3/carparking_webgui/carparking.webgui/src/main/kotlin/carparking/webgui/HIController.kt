@@ -66,6 +66,10 @@ class HIController {
     val tempSentinelObserver = WebPageCoapHandler(this, null)
     val outSentinelObserver = WebPageCoapHandler(this, null)
 
+    val trolleyTopic = "trolleyactor"
+    lateinit var trolleySupport: CoapSupport
+    val trolleyObserver = WebPageCoapHandler(this, null)
+
     init {
 
         connQak.robothostAddr = carparkingAddress
@@ -105,6 +109,10 @@ class HIController {
         outSentinelSupport =
             CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
         outSentinelSupport.observeResource(outSentinelObserver)
+
+        trolleySupport =
+            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$trolleyTopic")
+        trolleySupport.observeResource(trolleyObserver)
 
     }
 
@@ -343,6 +351,7 @@ class HIController {
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
             "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
             "outAlarm" -> if (parseType(outSentinelSupport.readResource()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
+            "trolley" -> trolleySupport.readResource()
             else -> ""
         }
         if (about == "fan") answer = "$answer (${managerSupport.readResource()})"
