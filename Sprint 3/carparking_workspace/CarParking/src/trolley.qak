@@ -99,6 +99,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		} Goto informIN if [# payloadArg(0) == "free" #] else moveToHome
 
 	State informIN {
+		[# Slotnum = 0 #]
 		[# 
 			for((key, value) in ParkingMap){
 				if(value.equals("-",true)){

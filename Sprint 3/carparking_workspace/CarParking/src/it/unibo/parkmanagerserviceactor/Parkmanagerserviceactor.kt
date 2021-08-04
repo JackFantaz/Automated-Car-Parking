@@ -65,6 +65,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("informIN") { //this:State
 					action { //it:State
+						 Slotnum = 0  
 						 
 									for((key, value) in ParkingMap){
 										if(value.equals("-",true)){
