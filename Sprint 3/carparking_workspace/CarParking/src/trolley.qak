@@ -13,8 +13,8 @@ Dispatch notice : notice(NOTICE)
 Dispatch slotnum : slotnum(SLOTNUM)
 Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
-Dispatch slot : slot(STATUS)
-//Dispatch slot : slot(SLOTNUM, STATUS)
+//Dispatch slot : slot(STATUS)
+Dispatch slot : slot(SLOTNUM, STATUS)
 
 Dispatch enterRequest : enterRequest(N)
 Dispatch carEnter : carEnter(N)
@@ -63,6 +63,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	[#
 		var Slotnum = 0
 		var Tokenid = "0"
+		var vacant = "v"
+		var full = "f"
 		val ParkingMap = mutableMapOf(
 			1 to "-", 
 			2 to "-", 
@@ -71,16 +73,28 @@ QActor parkmanagerserviceactor context ctxcarparking {
 			5 to "-", 
 			6 to "-"
 		)
+		
+		fun slotStatus() : String { 
+			var slots = ""
+			for((key, value) in ParkingMap){
+				if(value.equals("-",true)){
+					slots = slots.plus(vacant).plus(" ")
+				}else{
+					slots = slots.plus(full).plus(" ")
+				}
+			}
+			return slots
+		}
 	#]
 
 	State setup initial {
-		forward parkservicestatusguiactor -m slot : slot(vacant)
-		//forward parkservicestatusguiactor -m slot : slot(2, vacant)
-		//forward parkservicestatusguiactor -m slot : slot(3, vacant)
-		//forward parkservicestatusguiactor -m slot : slot(4, vacant)
-		//forward parkservicestatusguiactor -m slot : slot(5, vacant)
-		//forward parkservicestatusguiactor -m slot : slot(6, vacant)
-		updateResource [# "slot(vacant)" #]
+		forward parkservicestatusguiactor -m slot : slot(1, vacant)
+		forward parkservicestatusguiactor -m slot : slot(2, vacant)
+		forward parkservicestatusguiactor -m slot : slot(3, vacant)
+		forward parkservicestatusguiactor -m slot : slot(4, vacant)
+		forward parkservicestatusguiactor -m slot : slot(5, vacant)
+		forward parkservicestatusguiactor -m slot : slot(6, vacant)
+		updateResource [# slotStatus() #]
 	} Goto moveToHome
 
 	State moveToHome {
@@ -105,7 +119,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 				if(value.equals("-",true)){
 					Slotnum = key
 				}
-			} 
+			}
 		#]
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
 	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
@@ -128,9 +142,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 	} Goto moveToSlotIn
 
 	State moveToSlotIn {
-		//[# Slotnum = 0 #]
-		forward parkservicestatusguiactor -m slot : slot(full)
-		updateResource [# "slot(full)" #]
+		forward parkservicestatusguiactor -m slot : slot($Slotnum, full)
+		updateResource [# slotStatus() #]
 		if [# Slotnum == 1 #] {	forward trolleyactor -m goto : goto(parking1)}
 		if [# Slotnum == 2 #] {	forward trolleyactor -m goto : goto(parking2)}
 		if [# Slotnum == 3 #] {	forward trolleyactor -m goto : goto(parking3)}
@@ -146,7 +159,6 @@ QActor parkmanagerserviceactor context ctxcarparking {
 			for((key, value) in ParkingMap){
 				if(value.equals(Tokenid,true)){
 					Slotnum = key
-					println("$key $value    $Slotnum $Tokenid")
 				}
 			} 
 		#]
@@ -163,9 +175,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		} Goto findSlot if [# payloadArg(0) == "free" #] else moveToHome
 
 	State findSlot {
-		//[# Slotnum = 1 #]
-		forward parkservicestatusguiactor -m slot : slot(vacant)
-		updateResource [# "slot(vacant)" #]
+		//forward parkservicestatusguiactor -m slot : slot(vacant)
+		//updateResource [# "slot(vacant)" #]
 		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
 	} Goto moveToSlotOut
 
@@ -180,6 +191,8 @@ QActor parkmanagerserviceactor context ctxcarparking {
 
 	State moveToOut {
 		[# ParkingMap[Slotnum] = "-" #]
+		forward parkservicestatusguiactor -m slot : slot($Slotnum, vacant)
+		updateResource [# slotStatus() #]
 		forward trolleyactor -m goto : goto(outdoor)
 	} Transition t whenMsg movementDone -> moveToHome
 

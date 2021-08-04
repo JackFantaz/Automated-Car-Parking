@@ -19,6 +19,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 		
 				var Slotnum = 0
 				var Tokenid = "0"
+				var vacant = "v"
+				var full = "f"
 				val ParkingMap = mutableMapOf(
 					1 to "-", 
 					2 to "-", 
@@ -27,11 +29,28 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 					5 to "-", 
 					6 to "-"
 				)
+				
+				fun slotStatus() : String { 
+					var slots = ""
+					for((key, value) in ParkingMap){
+						if(value.equals("-",true)){
+							slots = slots.plus(vacant).plus(" ")
+						}else{
+							slots = slots.plus(full).plus(" ")
+						}
+					}
+					return slots
+				}
 		return { //this:ActionBasciFsm
 				state("setup") { //this:State
 					action { //it:State
-						forward("slot", "slot(vacant)" ,"parkservicestatusguiactor" ) 
-						updateResourceRep( "slot(vacant)"  
+						forward("slot", "slot(1,vacant)" ,"parkservicestatusguiactor" ) 
+						forward("slot", "slot(2,vacant)" ,"parkservicestatusguiactor" ) 
+						forward("slot", "slot(3,vacant)" ,"parkservicestatusguiactor" ) 
+						forward("slot", "slot(4,vacant)" ,"parkservicestatusguiactor" ) 
+						forward("slot", "slot(5,vacant)" ,"parkservicestatusguiactor" ) 
+						forward("slot", "slot(6,vacant)" ,"parkservicestatusguiactor" ) 
+						updateResourceRep( slotStatus()  
 						)
 					}
 					 transition( edgeName="goto",targetState="moveToHome", cond=doswitch() )
@@ -71,7 +90,7 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 										if(value.equals("-",true)){
 											Slotnum = key
 										}
-									} 
+									}
 						forward("slotnum", "slotnum($Slotnum)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="do_informIN", cond=doswitchGuarded({ Slotnum > 0  
@@ -101,8 +120,8 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("moveToSlotIn") { //this:State
 					action { //it:State
-						forward("slot", "slot(full)" ,"parkservicestatusguiactor" ) 
-						updateResourceRep( "slot(full)"  
+						forward("slot", "slot($Slotnum,full)" ,"parkservicestatusguiactor" ) 
+						updateResourceRep( slotStatus()  
 						)
 						if(  Slotnum == 1  
 						 ){forward("goto", "goto(parking1)" ,"trolleyactor" ) 
@@ -136,7 +155,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 									for((key, value) in ParkingMap){
 										if(value.equals(Tokenid,true)){
 											Slotnum = key
-											println("$key $value    $Slotnum $Tokenid")
 										}
 									} 
 						if(  Slotnum > 0  
@@ -175,9 +193,6 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				}	 
 				state("findSlot") { //this:State
 					action { //it:State
-						forward("slot", "slot(vacant)" ,"parkservicestatusguiactor" ) 
-						updateResourceRep( "slot(vacant)"  
-						)
 					}
 					 transition( edgeName="goto",targetState="moveToSlotOut", cond=doswitch() )
 				}	 
@@ -207,6 +222,9 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("moveToOut") { //this:State
 					action { //it:State
 						 ParkingMap[Slotnum] = "-"  
+						forward("slot", "slot($Slotnum,vacant)" ,"parkservicestatusguiactor" ) 
+						updateResourceRep( slotStatus()  
+						)
 						forward("goto", "goto(outdoor)" ,"trolleyactor" ) 
 					}
 					 transition(edgeName="t8",targetState="moveToHome",cond=whenDispatch("movementDone"))

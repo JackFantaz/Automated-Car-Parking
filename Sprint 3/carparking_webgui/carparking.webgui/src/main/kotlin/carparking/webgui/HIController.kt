@@ -347,7 +347,7 @@ class HIController {
         // println("/ajax about=$about ...")
         var answer = when (about) {
             "temp" -> parseArg(thermometerSupport.readResource())
-            "slots" -> parseArg(serviceSupport.readResource())
+            "slots" -> serviceSupport.readResource()
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
             "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
             "outAlarm" -> if (parseType(outSentinelSupport.readResource()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
