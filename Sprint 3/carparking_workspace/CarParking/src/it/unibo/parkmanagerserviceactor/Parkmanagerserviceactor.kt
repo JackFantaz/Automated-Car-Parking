@@ -112,8 +112,12 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 				state("receipt") { //this:State
 					action { //it:State
 						
-									ParkingMap[Slotnum] = (10000..99999).random().toString()
-									Tokenid = ParkingMap[Slotnum]!!
+									var x = (11111..99999).random().toString()
+										while(x==ParkingMap[1] || x==ParkingMap[2] || x==ParkingMap[3] || x==ParkingMap[4] || x==ParkingMap[5] || x==ParkingMap[6]){
+											x = (11111..99999).random().toString()
+										}
+										ParkingMap[Slotnum] = x
+										Tokenid = ParkingMap[Slotnum]!!
 						forward("tokenid", "tokenid($Tokenid)" ,"parkserviceguiactor" ) 
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitch() )
