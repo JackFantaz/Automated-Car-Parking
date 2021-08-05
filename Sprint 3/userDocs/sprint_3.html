@@ -200,6 +200,8 @@ parking5(4, 2, w).
 parking6(4, 3, w).
 </pre>
 
+<p>The <a href="../../Analysis%20model/userDocs/analysis.html#fsm_diagram">finite-state machine describing the business logic</a> remains essentially the same. The only difference concerning its states is that the state <k>findSlot</k> has been removed and now the automaton moves directly from <k>acceptOUT</k> to <k>moveToSlotOut</k>. That's because checking the correctness of a TOKENID and finding its SLOTNUM are now the same thing since we used a <ks>map</ks> to store such pairs.</p>
+
 <h4>Alarms and automatic fan</h4>
 
 <p>The <k>outdoorsentinelactor</k> and the <k>temperaturesentinelactor</k> have been implemented faithfully to their <a href="../../Analysis%20model/userDocs/analysis.html#analysis_alarms">previous description</a> and to the <a href="../../Analysis%20model/userDocs/analysis.html#alarms_diagram">alarms diagram</a>. The only difference with their implementation in the <a href="../../Analysis%20model/userDocs/analysis.html#executable_model">first executable model</a> is that they now also update their CoAP resource with the last issued alarm (or revocation of an alarm) to inform the external GUI and the test plan.</p>
