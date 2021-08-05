@@ -169,13 +169,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 				if [# payloadArg(0) == "free" #] { forward parkserviceguiactor -m notice : notice(exitRequest(received)) }
 				else { forward parkserviceguiactor -m notice : notice(outdoorArea(occupied)) }
 			}
-		} Goto findSlot if [# payloadArg(0) == "free" #] else moveToHome
-
-	State findSlot {
-		//forward parkservicestatusguiactor -m slot : slot(vacant)
-		//updateResource [# "slot(vacant)" #]
-		// forward parkserviceguiactor -m notice : notice(carslotnum($Slotnum))
-	} Goto moveToSlotOut
+		} Goto moveToSlotOut if [# payloadArg(0) == "free" #] else moveToHome
 
 	State moveToSlotOut {
 		if [# Slotnum == 1 #] {	forward trolleyactor -m goto : goto(parking1)}
