@@ -224,7 +224,7 @@ parking6(4, 3, w).
 
 <h4>The complete Manager GUI and Client GUI</h4>
 
-<p>As a result of the enhancements previously described, the <kc>ManagerGUI</kc> is now able to show the full status of the parkin-area updated in near real-time. The functionalities of the <kc>ClientGUI</kc> are also complete.</p>
+<p>As a result of the enhancements previously described, the <kc>ManagerGUI</kc> is now able to show the full status of the parkin-area updated in near real-time. The functionalities of the <kc>ClientGUI</kc> are also complete. We also implemented a new component called <kc>CarparkingSenderObserver</kc> to make the code of the GUIs more readable.</p>
 
 <center><img src="./img/full_guis.png" width="700px"></center>
 
@@ -235,7 +235,29 @@ parking6(4, 3, w).
 <p>Tests from Sprint 1 and Sprint 2 must still hold, however they had to be adapted to deal with the multiple parking-slots. We report hereunder only the most significant fragments of each new test case:</p>
 
 <pre>
-...
+@Test
+fun checkSlots() {
+
+  var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = true, verbose = false)
+
+  actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+  var slotnum6 = cco.observePayload()
+  actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+  var tokenid6 = cco.observePayload()
+  assertLocationInTime("6", "0", "N", 10000)
+  assertLocationInTime("4", "3", "W", 10000)
+  // REPEAT FOR EVERY PARKING-SLOT
+
+  // ALL PARKING-SLOTS ARE NOW FULL
+  actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+  assertSlotnum(cco, "0")
+  actor!!.forward("exitRequest", "exitRequest($tokenid4)", "parkmanagerserviceactor")
+  assertLocationInTime("4", "1", "W", 10000)
+  assertLocationInTime("6", "4", "S", 10000)
+  actor!!.forward("exitRequest", "exitRequest($tokenid4)", "parkmanagerserviceactor")
+  assertNotice(cco, "tokenid(invalid)")
+
+}
 </pre>
 
 <pre>
