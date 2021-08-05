@@ -1,13 +1,5 @@
 package carparking.webgui
 
-import connQak.ConnectionType
-import connQak.connQakBase
-import it.unibo.kactor.ApplMessage
-import it.unibo.kactor.MsgUtil
-import it.unibo.webBasicrobotqak.CoapSupport
-import it.unibo.webBasicrobotqak.WebPageCoapHandler
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -22,99 +14,14 @@ class HIController {
     @Value("\${spring.application.name}")
     var appName: String? = null
 
-    val carparkingAddress = "127.0.0.1"
-    val carparkingContext = "ctxcarparking"
-
-    var fanStatus = ""
-    var tempStatus = ""
-    var slotStatus = ""
-
-    val clientTopic = "parkserviceguiactor"
-    val clientObserver = WebPageCoapHandler(this, null)
-    var clientChannel = Channel<String>()
-    lateinit var clientConnection: connQakBase
-    lateinit var clientSupport: CoapSupport
-
-    val fanTopic = "fanactor"
-    val fanObserver = WebPageCoapHandler(this, null)
-    var fanChannel = Channel<String>()
-    lateinit var fanConnection: connQakBase
-    lateinit var fanSupport: CoapSupport
-
-    val thermometerTopic = "thermometeractor"
-    val thermometerObserver = WebPageCoapHandler(this, null)
-    var thermometerChannel = Channel<String>()
-    lateinit var thermometerConnection: connQakBase
-    lateinit var thermometerSupport: CoapSupport
-
-    val serviceTopic = "parkmanagerserviceactor"
-    val serviceObserver = WebPageCoapHandler(this, null)
-    var serviceChannel = Channel<String>()
-    lateinit var serviceConnection: connQakBase
-    lateinit var serviceSupport: CoapSupport
-
-    val managerTopic = "parkservicestatusguiactor"
-    val managerObserver = WebPageCoapHandler(this, null)
-    var managerChannel = Channel<String>()
-    lateinit var managerConnection: connQakBase
-    lateinit var managerSupport: CoapSupport
-
-    val tempSentinelTopic = "temperaturesentinelactor"
-    val outSentinelTopic = "outdoorsentinelactor"
-    lateinit var tempSentinelSupport: CoapSupport
-    lateinit var outSentinelSupport: CoapSupport
-    val tempSentinelObserver = WebPageCoapHandler(this, null)
-    val outSentinelObserver = WebPageCoapHandler(this, null)
-
-    val trolleyTopic = "trolleyactor"
-    lateinit var trolleySupport: CoapSupport
-    val trolleyObserver = WebPageCoapHandler(this, null)
-
-    init {
-
-        connQak.robothostAddr = carparkingAddress
-
-        clientConnection = connQakBase.create(ConnectionType.TCP)
-        clientConnection.createConnection()
-        clientSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$clientTopic")
-        clientSupport.observeResource(clientObserver)
-
-        fanConnection = connQakBase.create(ConnectionType.TCP)
-        fanConnection.createConnection()
-        fanSupport = CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$fanTopic")
-        fanSupport.observeResource(fanObserver)
-
-        thermometerConnection = connQakBase.create(ConnectionType.TCP)
-        thermometerConnection.createConnection()
-        thermometerSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$thermometerTopic")
-        thermometerSupport.observeResource(thermometerObserver)
-
-        serviceConnection = connQakBase.create(ConnectionType.TCP)
-        serviceConnection.createConnection()
-        serviceSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$serviceTopic")
-        serviceSupport.observeResource(serviceObserver)
-
-        managerConnection = connQakBase.create(ConnectionType.TCP)
-        managerConnection.createConnection()
-        managerSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$managerTopic")
-        managerSupport.observeResource(managerObserver)
-
-        tempSentinelSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$tempSentinelTopic")
-        tempSentinelSupport.observeResource(tempSentinelObserver)
-        outSentinelSupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$outSentinelTopic")
-        outSentinelSupport.observeResource(outSentinelObserver)
-
-        trolleySupport =
-            CoapSupport("coap://${connQak.robothostAddr}:${connQak.robotPort}", "$carparkingContext/$trolleyTopic")
-        trolleySupport.observeResource(trolleyObserver)
-
-    }
+    val clientSo = CarparkingSenderObserver("parkserviceguiactor", blocking = true)
+    val fanSo = CarparkingSenderObserver("fanactor", blocking = false)
+    val thermometerSo = CarparkingSenderObserver("thermometeractor", blocking = false)
+    val serviceSo = CarparkingSenderObserver("parkmanagerserviceactor", blocking = false)
+    val managerSo = CarparkingSenderObserver("parkservicestatusguiactor", blocking = false)
+    val tempSentinelSo = CarparkingSenderObserver("temperaturesentinelactor", blocking = false)
+    val outSentinelSo = CarparkingSenderObserver("outdoorsentinelactor", blocking = false)
+    val trolleySo = CarparkingSenderObserver("trolleyactor", blocking = false)
 
     @GetMapping("/")
     fun homePage(model: Model): String {
@@ -134,38 +41,19 @@ class HIController {
             viewmodel.addAttribute("received", "Please enter your TOKENID")
         } else {
             println("/carparking viewmodel=$viewmodel button=$button token=$token ...")
-            val message = when (button) {
-                "enter_request" -> MsgUtil.buildDispatch(
-                    "clientsgui",
-                    "enterRequest",
-                    "enterRequest(0)",
-                    // connQak.qakdestination
-                    clientTopic
-                )
-                "car_enter" -> MsgUtil.buildDispatch(
-                    "clientsgui",
-                    "carEnter",
-                    "carEnter(0)",
-                    // connQak.qakdestination
-                    clientTopic
-                )
-                "exit_request" -> MsgUtil.buildDispatch(
-                    "clientsgui",
-                    "exitRequest",
-                    "exitRequest(${token.lowercase()})",
-                    // connQak.qakdestination
-                    clientTopic
-                )
-                else -> null
+            when (button) {
+                "enter_request" -> clientSo.forward("client_gui", "enterRequest", "enterRequest(0)")
+                "car_enter" -> clientSo.forward("client_gui", "carEnter", "carEnter(0)")
+                "exit_request" -> clientSo.forward("client_gui", "exitRequest", "exitRequest(${token.lowercase()})")
             }
-            val answer = sendDispatchCheckCoap(message, clientObserver, clientChannel, clientConnection)
+            val answer = clientSo.observe()
             var received = ""
             if (parseType(answer) == "slotnum") received = "The SLOTNUM is ${parseArg(answer)}"
             else if (parseType(answer) == "tokenid") received = "The TOKENID is ${parseArg(answer)}"
-            else if (parseType(answer) == "notice") received = answer.substring(7).reversed().substring(1).reversed()
+            else if (parseType(answer) == "notice") received = parseArg(answer)
             else received = answer
             viewmodel.addAttribute("received", received)
-            println("... answer=$answer receivedFan=$received")
+            println("... answer=$answer received=$received")
         }
         return "clientGui"
     }
@@ -173,10 +61,6 @@ class HIController {
     @GetMapping("/status")
     fun homePageStatus(model: Model): String {
         println("/status $model")
-        model.addAttribute("receivedTemp", "")
-        model.addAttribute("receivedFan", "")
-        model.addAttribute("receivedTrolley", "")
-        model.addAttribute("receivedSlot", "")
         return "managerGui"
     }
 
@@ -185,32 +69,18 @@ class HIController {
         viewmodel: Model,
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
     ): String {
-        // println("/fan viewmodel=$viewmodel button=$button ...")
-        println("/fan viewmodel=$viewmodel button=$button")
-        var message = when (button) {
-            "start_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "fanStart",
-                "fanStart(0)",
-                // fanTopic
-                managerTopic
-            )
-            "stop_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "fanStop",
-                "fanStop(0)",
-                // fanTopic
-                managerTopic
-            )
-            else -> null
-        }
-        if (message != null) managerConnection.forward(message)
         if (button == "auto_fan") {
-            val resource = managerSupport.readResource()
+            println("/fan viewmodel=$viewmodel button=$button ...")
+            val resource = managerSo.observe()
             val control = if (resource == "auto") "manual" else "auto"
             println("... resource=$resource control=$control")
-            message = MsgUtil.buildDispatch("managergui", "fanAuto", "fanAuto($control)", managerTopic)
-            managerConnection.forward(message)
+            managerSo.forward("manager_gui", "fanAuto", "fanAuto($control)")
+        } else {
+            println("/fan viewmodel=$viewmodel button=$button")
+            when (button) {
+                "start_fan" -> managerSo.forward("manager_gui", "fanStart", "fanStart(0)")
+                "stop_fan" -> managerSo.forward("manager_gui", "fanStop", "fanStop(0)")
+            }
         }
         return "managerGui"
     }
@@ -221,22 +91,10 @@ class HIController {
         @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
     ): String {
         println("/trolley viewmodel=$viewmodel button=$button")
-        var message = when (button) {
-            "start_trolley" -> MsgUtil.buildDispatch(
-                "managergui",
-                "startTrolley",
-                "startTrolley(0)",
-                managerTopic
-            )
-            "stop_trolley" -> MsgUtil.buildDispatch(
-                "managergui",
-                "stopTrolley",
-                "stopTrolley(0)",
-                managerTopic
-            )
-            else -> null
+        when (button) {
+            "start_trolley" -> managerSo.forward("manager_gui", "startTrolley", "startTrolley(0)")
+            "stop_trolley" -> managerSo.forward("manager_gui", "stopTrolley", "stopTrolley(0)")
         }
-        if (message != null) managerConnection.forward(message)
         return "managerGui"
     }
 
@@ -244,44 +102,29 @@ class HIController {
     @ResponseBody
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
         // println("/ajax about=$about ...")
-        var answer = when (about) {
-            "temp" -> parseArg(thermometerSupport.readResource()) + " °C"
-            "slots" -> serviceSupport.readResource()
-            "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
-            "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
-            "outAlarm" -> if (parseType(outSentinelSupport.readResource()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
-            "trolley" -> trolleySupport.readResource()
+        val answer = when (about) {
+            "temp" -> parseArg(thermometerSo.observe()) + " °C"
+            "slots" -> serviceSo.observe()
+            "fan" -> (if (parseType(fanSo.observe()) == "fanStart") "ON" else if (parseType(fanSo.observe()) == "fanStop") "OFF" else "").plus(
+                " ("
+            ).plus(
+                managerSo.observe().plus(")")
+            )
+            "tempAlarm" -> if (parseType(tempSentinelSo.observe()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
+            "outAlarm" -> if (parseType(outSentinelSo.observe()) == "outdoorAlarm") "OUTDOOR ALARM!<br>" else ""
+            "trolley" -> trolleySo.observe()
             else -> ""
         }
-        if (about == "fan") answer = "$answer (${managerSupport.readResource()})"
         // println("... answer=$answer")
         return answer
     }
 
-    private fun sendDispatchCheckCoap(
-        dispatch: ApplMessage?,
-        observer: WebPageCoapHandler,
-        channel: Channel<String>,
-        connection: connQakBase
-    ): String {
-        var answer = ""
-        if (dispatch != null) {
-            observer.channel = channel
-            connection.forward(dispatch)
-            runBlocking {
-                answer = channel.receive()
-                observer.channel = null
-            }
-        }
-        return answer
-    }
-
     private fun parseArg(message: String): String {
-        return message.split("(", ")")[1]
+        return message.substringAfter("(").reversed().substring(1).reversed()
     }
 
     private fun parseType(message: String): String {
-        return message.split("(", ")")[0]
+        return message.split("(")[0]
     }
 
     @ExceptionHandler

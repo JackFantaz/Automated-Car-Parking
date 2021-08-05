@@ -69,7 +69,7 @@ class Sprint3Test {
 		runBlocking { delay(2000) }
 	}
 
-	/*@Test
+	@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
@@ -100,7 +100,7 @@ class Sprint3Test {
 			assertNotMovingInTime(3000)
 
 		}
-	}*/
+	}
 
 	/*@Test
 	fun checkRobustSequence() {
@@ -344,7 +344,7 @@ class Sprint3Test {
 		}
 	}*/
 
-	@Test
+	/*@Test
 	fun checkSlots() {
 		runBlocking {
 
@@ -484,7 +484,7 @@ class Sprint3Test {
 			assertLocationInTime("0", "0", "S", 120000) //home
 
 		}
-	}
+	}*/
 
 	private suspend fun assertLocationInTime(x: String, y: String, d: String, millis: Int, verbose: Boolean = true) {
 		var counter = 0;
