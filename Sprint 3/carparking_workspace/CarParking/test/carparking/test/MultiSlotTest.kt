@@ -29,7 +29,6 @@ class MultiSlotTest {
 		var actor: ActorBasic? = null
 		var syncChannel = Channel<String>()
 		var obsChannel = Channel<String>()
-
 		var observer: CoapObserverForTesting? = null
 		var started = false
 
@@ -71,109 +70,145 @@ class MultiSlotTest {
 	fun checkSlots() {
 		runBlocking {
 			
-			//observe("parkserviceguiactor", arrayOf("tokenid","slotnum"))
+			var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = true, verbose = true)
 			
 			//SIX CARS + 1
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum6 = cco.observePayload()
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
-			//var tokenid6 = obsChannel.receive().split("(", ")")[1]
+			var tokenid6 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			assertLocationInTime("4", "3", "E", 10000) //parking6
-			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
-			
+			assertLocationInTime("4", "3", "W", 10000) //parking6
+		
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum5 = cco.observePayload()
 
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid5 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			var tokenid5 = obsChannel.receive().split("(", ")")[1]
-			assertLocationInTime("4", "2", "E", 10000) //parking5
-			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
+			assertLocationInTime("4", "2", "W", 10000) //parking5
 
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum4 = cco.observePayload()
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid4 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			var tokenid4 = obsChannel.receive().split("(", ")")[1]
-			assertLocationInTime("4", "1", "E", 10000) //parking4
-			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
+			assertLocationInTime("4", "1", "W", 10000) //parking4
 			
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum3 = cco.observePayload()
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid3 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			var tokenid3 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "3", "E", 10000) //parking3
-			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
 			
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum2 = cco.observePayload()
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid2 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			var tokenid2 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "2", "E", 10000) //parking2
-			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
 			
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
+			var slotnum1 = cco.observePayload()
 			
 			println("checkSlots -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid1 = cco.observePayload()
 			assertLocationInTime("6", "0", "N", 10000) //indoor
-			var tokenid1 = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("1", "1", "E", 10000) //parking1
 			assertLocationInTime("0", "0", "S", 10000) //home
-			assertNotMovingInTime(3000)
 			
 			println("checkSlots -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			var slotnum = obsChannel.receive().split("(", ")")[1]
-			slotnum.toInt()==0
+			var slotnum0 = cco.observePayload()
+			if ( slotnum0.toInt()==0 ) { println("Car parking full!") }
 			
-			println("checkSlots -> forward carEnter(0)")
-			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
-			
-			//EXIT
-/*
+			//EXIT 4
+
 			println("checkSlots -> forward exitRequest($tokenid4)")
 			actor!!.forward("exitRequest", "exitRequest($tokenid4)", "parkmanagerserviceactor")
-			assertLocationInTime("4", "1", "E", 10000) //parking4
+			assertNotice(cco, "exitRequest(received)")
+			assertLocationInTime("4", "1", "W", 10000) //parking4
 			assertLocationInTime("6", "4", "S", 10000) //oudoor
-			assertLocationInTime("0", "0", "S", 50000) //home
-			assertNotMovingInTime(3000)
+			
+			//EXIT 2
 			
 			println("checkSlots -> forward exitRequest($tokenid2)")
 			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
 			assertLocationInTime("1", "2", "E", 10000) //parking2
 			assertLocationInTime("6", "4", "S", 10000) //oudoor
-			assertLocationInTime("0", "0", "S", 50000) //home
-			assertNotMovingInTime(3000)
- */
-}
-	}
+			assertLocationInTime("0", "0", "S", 120000) //home
+	
+			//WRONG TOKENID
+			
+			println("checkSlots -> forward exitRequest($tokenid4)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid4)", "parkmanagerserviceactor")
+			assertNotice(cco, "tokenid(invalid)")
+			
 
+			//ENTER PARKING4
+			
+			println("checkSlots -> forward enterRequest(0)")
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+			var slotnum42 = cco.observePayload()
+			
+			println("checkSlots -> forward carEnter(0)")
+			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			var tokenid42 = cco.observePayload()
+			assertLocationInTime("6", "0", "N", 10000) //indoor
+			assertLocationInTime("4", "1", "W", 10000) //parking4
+			
+			//EXIT 6
+			
+			println("checkSlots -> forward exitRequest($tokenid6)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid6)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
+			
+			//EXIT 1
+			
+			println("checkSlots -> forward exitRequest($tokenid1)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid1)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
+			
+			//EXIT 3
+			
+			println("checkSlots -> forward exitRequest($tokenid3)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid3)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
+			
+			//EXIT 4
+			
+			println("checkSlots -> forward exitRequest($tokenid42)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid42)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
+			
+			//EXIT 5
+			
+			println("checkSlots -> forward exitRequest($tokenid5)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid5)", "parkmanagerserviceactor")
+			assertNotice(cco, "exitRequest(received)")
+			assertLocationInTime("0", "0", "S", 120000) //home
+
+		}
+	}
+/*
 	private suspend fun consume() {
 		while (obsChannel.poll() != null) {
 			println("~~~ CONSUMED DIRTY DATA ON CHANNEL")
@@ -183,18 +218,22 @@ class MultiSlotTest {
 	}
 
 	private suspend fun observe(actor: String, messages: Array<String>) {
-		// if (observer != null ) (observer as CoapObserverForTesting).terminate()
-		// while (obsChannel.poll() != null) delay(100)
 		observer = CoapObserverForTesting(actor)
 		for (m in messages) observer!!.addObserver(obsChannel, m)
 	}
-
-	private suspend fun assertTokenid(event: String, verbose: Boolean = true) {
-		
+*/
+	
+	private suspend fun assertNotice(observer: CarparkingCoapObserver, notice: String, verbose: Boolean = true) {
+		var result = observer.observePayload()
+		if (verbose) {
+			if (result == notice) println("assertNotice ->  correct notice $result detected")
+			else println("assertNotice -> wrong notice $result detected instead of $notice")
+		}
+		assertEquals(result, notice)		
 	}
 	
-	private suspend fun assertEvent(event: String, verbose: Boolean = true) {
-		var result = obsChannel.receive()
+	private suspend fun assertEvent(observer: CarparkingCoapObserver, event: String, verbose: Boolean = true) {
+		var result = observer.observe()
 		if (verbose) {
 			if (result == event) println("assertEvent -> correct event $result detected")
 			else println("assertEvent -> wrong event $result detected instead of $event")
@@ -202,11 +241,11 @@ class MultiSlotTest {
 		assertEquals(result, event)
 	}
 
-	private suspend fun assertNoEventInTime(millis: Int, verbose: Boolean = true) {
+	private suspend fun assertNoEventInTime(observer: CarparkingCoapObserver, millis: Int, verbose: Boolean = true) {
 		var counter = 0;
 		var result: String? = null;
 		do {
-			result = obsChannel.poll()
+			result = observer.pollNewValue()
 			delay(100)
 			counter++
 		} while (result == null && counter < millis / 100)
@@ -216,6 +255,7 @@ class MultiSlotTest {
 		}
 		assert(counter >= millis / 100)
 	}
+
 
 	private suspend fun assertLocationInTime(x: String, y: String, d: String, millis: Int, verbose: Boolean = true) {
 		var counter = 0;
