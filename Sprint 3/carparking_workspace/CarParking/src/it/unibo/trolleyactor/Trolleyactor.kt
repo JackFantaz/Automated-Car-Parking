@@ -18,7 +18,6 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
 				var home = arrayOf("-", "-", "-")
-				// var parking = arrayOf("-", "-", "-")
 				var indoor = arrayOf("-", "-", "-")
 				var outdoor = arrayOf("-", "-", "-")
 				var parking1 = arrayOf("-", "-", "-")
@@ -119,7 +118,7 @@ class Trolleyactor ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						 val move = carparking.directionalPlanner.getNextPlannedMove()  
 						if(  move.isNotEmpty()  
 						 ){if(  move == "w"  
-						 ){request("step", "step(340)" ,"basicrobot" )  
+						 ){request("step", "step(335)" ,"basicrobot" )  
 						}
 						if(  move == "l"  
 						 ){forward("cmd", "cmd(l)" ,"basicrobot" ) 

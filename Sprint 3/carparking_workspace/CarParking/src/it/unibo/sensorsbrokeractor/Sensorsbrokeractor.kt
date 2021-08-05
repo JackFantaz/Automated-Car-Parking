@@ -24,12 +24,10 @@ class Sensorsbrokeractor ( name: String, scope: CoroutineScope  ) : ActorBasicFs
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("indoorStatus(N)"), Term.createTerm("indoorStatus(N)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Broker feedback -> Replying with indoorStatus($Indoor)")
 								answer("indoorStatus", "indoorStatus", "indoorStatus($Indoor)"   )  
 						}
 						if( checkMsgContent( Term.createTerm("outdoorStatus(N)"), Term.createTerm("outdoorStatus(N)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Broker feedback -> Replying with outdoorStatus($Outdoor)")
 								answer("outdoorStatus", "outdoorStatus", "outdoorStatus($Outdoor)"   )  
 						}
 					}

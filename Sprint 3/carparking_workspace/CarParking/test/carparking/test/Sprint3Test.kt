@@ -29,8 +29,6 @@ class Sprint3Test {
 
 		var actor: ActorBasic? = null
 		var syncChannel = Channel<String>()
-		var obsChannel = Channel<String>()
-		var observer: CoapObserverForTesting? = null
 		var started = false
 
 		@JvmStatic
@@ -51,7 +49,7 @@ class Sprint3Test {
 		@JvmStatic
 		@AfterClass
 		fun afterAll() {
-			runBlocking { delay(3000) }
+			runBlocking { delay(2000) }
 		}
 
 	}
@@ -68,30 +66,34 @@ class Sprint3Test {
 
 	@After
 	fun afterEach() {
-		runBlocking { delay(3000) }
+		runBlocking { delay(2000) }
 	}
-	
+
 	@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
-			var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = false, verbose = true)
-					
+			val cco = CarparkingCoapObserver("parkserviceguiactor", blocking = true, verbose = false)
+
 			println("checkCleanSequence -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
+			val slotnum = cco.observePayload()
+			println("checkCleanSequence -> received SLOTNUM $slotnum")
 			assertNotMovingInTime(3000)
-			var slotnum = cco.observePayload()
 
 			println("checkCleanSequence -> forward carEnter(0)")
 			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
+			val tokenid = cco.observePayload()
+			println("checkCleanSequence -> received TOKENID $tokenid")
 			assertLocationInTime("6", "0", "N", 10000)
 			assertLocationInTime("4", "3", "W", 10000)
-			var tokenid = cco.observePayload()
 			assertLocationInTime("0", "0", "S", 10000)
 			assertNotMovingInTime(3000)
-			
+
 			println("checkCleanSequence -> forward exitRequest($tokenid)")
 			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
+			val notice = cco.observePayload()
+			println("checkCleanSequence -> received NOTICE $notice")
 			assertLocationInTime("4", "3", "W", 10000)
 			assertLocationInTime("6", "4", "S", 10000)
 			assertLocationInTime("0", "0", "S", 50000)
@@ -99,46 +101,6 @@ class Sprint3Test {
 
 		}
 	}
-
-	/*@Test
-	fun checkCleanSequence() {
-		runBlocking {
-
-			observe("parkserviceguiactor", arrayOf("tokenid"))
-					
-			println("checkCleanSequence -> forward enterRequest(0)")
-			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
-			assertNotMovingInTime(3000)
-
-			println("checkCleanSequence -> forward carEnter(0)")
-			actor!!.forward("carEnter", "carEnter(0)", "parkmanagerserviceactor")
-			assertLocationInTime("6", "0", "N", 10000)
-			var tokenid = obsChannel.receive().split("(", ")")[1]
-			assertLocationInTime("4", "3", "W", 10000)
-			assertLocationInTime("0", "0", "S", 10000)
-			assertNotMovingInTime(3000)
-			
-			println("checkCleanSequence -> forward exitRequest($tokenid)")
-			actor!!.forward("exitRequest", "exitRequest($tokenid)", "parkmanagerserviceactor")
-			assertLocationInTime("4", "3", "W", 10000)
-			assertLocationInTime("6", "4", "S", 10000)
-			assertLocationInTime("0", "0", "S", 50000)
-			assertNotMovingInTime(3000)
-
-		}
-	}*/
-
-	/*@Test
-	fun checkMyObserver() {
-		runBlocking {
-			val cpcObserver = CarparkingCoapObserver("thermometeractor")
-			
-			while(true) {
-				println("HERE: ${cpcObserver.observe()}")
-				delay(1000)
-			}
-		}
-	}*/
 
 	/*@Test
 	fun checkRobustSequence() {
@@ -183,8 +145,8 @@ class Sprint3Test {
 	fun checkDoors() {
 		runBlocking {
 
-			observe("parkserviceguiactor", arrayOf("tokenid"))
-			
+			var cco = CarparkingCoapObserver("parkserviceguiactor", blocking = false, verbose = true)
+
 			println("checkDoors -> emit indoorOccupied(0)")
 			actor!!.emit("indoorOccupied", "indoorOccupied(0)")
 
@@ -200,8 +162,8 @@ class Sprint3Test {
 			println("checkDoors -> forward enterRequest(0)")
 			actor!!.forward("enterRequest", "enterRequest(0)", "parkmanagerserviceactor")
 			assertLocationInTime("6", "0", "N", 10000)
-			var tokenid = obsChannel.receive().split("(", ")")[1]
 			assertLocationInTime("0", "0", "S", 20000)
+			var tokenid = cco.observePayload()
 
 			println("checkDoors -> emit outdoorOccupied(0)")
 			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
@@ -225,31 +187,28 @@ class Sprint3Test {
 	fun checkSensorsAndActuators() {
 		runBlocking {
 
-			observe("weightactor", arrayOf("indoorOccupied", "indoorCleared"))
+			val ccow = CarparkingCoapObserver("weightactor", blocking = true, verbose = false)
 			println("checkSensorsAndActuators -> please raise weight above threshold (default 60)")
-			assertEvent("indoorOccupied(0)")
+			assertEvent(ccow, "indoorOccupied(0)")
 			println("checkSensorsAndActuators -> please lower weight below threshold (default 60)")
-			assertEvent("indoorCleared(0)")
+			assertEvent(ccow, "indoorCleared(0)")
 
-			observe("sonaractor", arrayOf("outdoorOccupied", "outdoorCleared"))
+			var ccos = CarparkingCoapObserver("sonaractor", blocking = true, verbose = false)
 			println("checkSensorsAndActuators -> please bring sonar below threshold (default 40)")
-			assertEvent("outdoorOccupied(0)")
+			assertEvent(ccos, "outdoorOccupied(0)")
 			println("checkSensorsAndActuators -> please move sonar above threshold (default 40)")
-			assertEvent("outdoorCleared(0)")
+			assertEvent(ccos, "outdoorCleared(0)")
 
-			println("checkSensorsAndActuators -> please set temperature to 15.0 degrees and press ENTER on console")
-			print("> ")
+			var ccot = CarparkingCoapObserver("thermometeractor", blocking = false, verbose = false)
+			println("checkSensorsAndActuators -> please set temperature to 10.0 degrees and press ENTER on console")
 			readLine()
-			observe("thermometeractor", arrayOf("temperature"))
-			assertEvent("temperature(15.0)")
+			assertEvent(ccot, "temperature(10.0)")
 
 			actor!!.forward("fanStart", "fanStart(0)", "fanactor")
 			println("checkSensorsAndActuators -> please wait for fan to turn on and press ENTER on console")
-			print("> ")
 			readLine()
 			actor!!.forward("fanStop", "fanStop(0)", "fanactor")
 			println("checkSensorsAndActuators -> please wait for fan to turn off and press ENTER on console")
-			print("> ")
 			readLine()
 
 		}
@@ -259,47 +218,48 @@ class Sprint3Test {
 	fun checkAlarms() {
 		runBlocking {
 
-			observe("temperaturesentinelactor", arrayOf("temperatureAlarm(0)", "temperatureAlarmRevoked(0)"))
-			println("checkAlarms -> emit temperature(10.0)")
-			actor!!.emit("temperature", "temperature(10.0)")
-			assertNoEventInTime(1000)
-			println("checkAlarms -> emit temperature(40.0)")
-			actor!!.emit("temperature", "temperature(40.0)")
-			assertEvent("temperatureAlarm(0)")
-			println("checkAlarms -> emit temperature(10.0)")
-			actor!!.emit("temperature", "temperature(10.0)")
-			assertEvent("temperatureAlarmRevoked(0)")
+			val ccot = CarparkingCoapObserver("temperaturesentinelactor", blocking = true, verbose = false)
+			println("checkAlarms -> emit temperature(15.0)")
+			actor!!.emit("temperature", "temperature(15.0)")
+			assertNoEventInTime(ccot, 1000)
+			println("checkAlarms -> emit temperature(45.0)")
+			actor!!.emit("temperature", "temperature(45.0)")
+			assertEvent(ccot, "temperatureAlarm(0)")
+			println("checkAlarms -> emit temperature(15.0)")
+			actor!!.emit("temperature", "temperature(15.0)")
+			assertEvent(ccot, "temperatureAlarmRevoked(0)")
 
-			observe("outdoorsentinelactor", arrayOf("outdoorAlarm(0)", "outdoorAlarmRevoked(0)"))
+			val ccoo = CarparkingCoapObserver("outdoorsentinelactor", blocking = true, verbose = false)
 			println("checkAlarms -> emit outdoorCleared(0)")
 			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
-			assertNoEventInTime(1000)
+			assertNoEventInTime(ccoo, 1000)
 			println("checkAlarms -> emit outdoorOccupied(0)")
 			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
-			assertNoEventInTime(4000)
-			assertEvent("outdoorAlarm(0)")
+			assertNoEventInTime(ccoo, 4000)
+			assertEvent(ccoo, "outdoorAlarm(0)")
 			println("checkAlarms -> emit outdoorCleared(0)")
 			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
-			assertEvent("outdoorAlarmRevoked(0)")
+			assertEvent(ccoo, "outdoorAlarmRevoked(0)")
 
-			observe("fanactor", arrayOf("fanStop(0)", "fanStart(0)"))
-			assertEvent("fanStop(0)")
+			val ccof = CarparkingCoapObserver("fanactor", blocking = true, verbose = false)
 			println("checkAlarms -> forward fanAuto(auto)")
 			actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
 			println("checkAlarms -> emit temperatureAlarm(0)")
 			actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
-			assertEvent("fanStart(0)")
+			assertEvent(ccof, "fanStart(0)")
+			delay(1000)
 			println("checkAlarms -> emit temperatureAlarmRevoked(0)")
 			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
-			assertEvent("fanStop(0)")
+			assertEvent(ccof, "fanStop(0)")
+			delay(1000)
 			println("checkAlarms -> forward fanAuto(manual)")
 			actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
 			println("checkAlarms -> emit temperatureAlarm(0)")
 			actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
-			assertNoEventInTime(1000)
+			assertNoEventInTime(ccof, 1000)
 			println("checkAlarms -> emit temperatureAlarmRevoked(0)")
 			actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
-			assertNoEventInTime(1000)
+			assertNoEventInTime(ccof, 1000)
 
 		}
 	}*/
@@ -312,42 +272,42 @@ class Sprint3Test {
 			actor!!.forward("goto", "goto(indoor)", "trolleyactor")
 			assertLocationInTime("6", "0", "N", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(outdoor)")
 			actor!!.forward("goto", "goto(outdoor)", "trolleyactor")
 			assertLocationInTime("6", "4", "S", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking1)")
 			actor!!.forward("goto", "goto(parking1)", "trolleyactor")
 			assertLocationInTime("1", "1", "E", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking2)")
 			actor!!.forward("goto", "goto(parking2)", "trolleyactor")
 			assertLocationInTime("1", "2", "E", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking3)")
 			actor!!.forward("goto", "goto(parking3)", "trolleyactor")
 			assertLocationInTime("1", "3", "E", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking4)")
 			actor!!.forward("goto", "goto(parking4)", "trolleyactor")
 			assertLocationInTime("4", "1", "W", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking5)")
 			actor!!.forward("goto", "goto(parking5)", "trolleyactor")
 			assertLocationInTime("4", "2", "W", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(parking6)")
 			actor!!.forward("goto", "goto(parking6)", "trolleyactor")
 			assertLocationInTime("4", "3", "W", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkLocations -> forward goto(home)")
 			actor!!.forward("goto", "goto(home)", "trolleyactor")
 			assertLocationInTime("0", "0", "S", 10000)
@@ -369,7 +329,7 @@ class Sprint3Test {
 			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
 			assertLocationInTime("4", "3", "W", 10000)
 			assertNotMovingInTime(2000)
-			
+
 			println("checkTrolleyStop -> forward goto(home)")
 			actor!!.forward("goto", "goto(home)", "trolleyactor")
 			delay(2000)
@@ -380,38 +340,9 @@ class Sprint3Test {
 			actor!!.forward("startTrolley", "startTrolley(0)", "trolleyactor")
 			assertLocationInTime("0", "0", "S", 10000)
 			assertNotMovingInTime(2000)
-			
+
 		}
 	}*/
-
-	private suspend fun observe(actor: String, messages: Array<String>) {
-		observer = CoapObserverForTesting(actor)
-		for (m in messages) observer!!.addObserver(obsChannel, m)
-	}
-
-	private suspend fun assertEvent(event: String, verbose: Boolean = true) {
-		var result = obsChannel.receive()
-		if (verbose) {
-			if (result == event) println("assertEvent -> correct event $result detected")
-			else println("assertEvent -> wrong event $result detected instead of $event")
-		}
-		assertEquals(result, event)
-	}
-
-	private suspend fun assertNoEventInTime(millis: Int, verbose: Boolean = true) {
-		var counter = 0;
-		var result: String? = null;
-		do {
-			result = obsChannel.poll()
-			delay(100)
-			counter++
-		} while (result == null && counter < millis / 100)
-		if (verbose) {
-			if (counter >= millis / 100) println("assertNoEventInTime -> no events detected")
-			else println("assertNoEventInTime -> event $result detected within ${counter * 100} ms")
-		}
-		assert(counter >= millis / 100)
-	}
 
 	private suspend fun assertLocationInTime(x: String, y: String, d: String, millis: Int, verbose: Boolean = true) {
 		var counter = 0;
@@ -438,6 +369,30 @@ class Sprint3Test {
 		if (verbose) {
 			if (counter >= millis / 100) println("assertNotMovingInTime -> no movement detected")
 			else println("assertNotMovingInTime -> movement detected within ${counter * 100} ms")
+		}
+		assert(counter >= millis / 100)
+	}
+
+	private suspend fun assertEvent(observer: CarparkingCoapObserver, event: String, verbose: Boolean = true) {
+		var result = observer.observe()
+		if (verbose) {
+			if (result == event) println("assertEvent -> correct event $result detected")
+			else println("assertEvent -> wrong event $result detected instead of $event")
+		}
+		assertEquals(result, event)
+	}
+
+	private suspend fun assertNoEventInTime(observer: CarparkingCoapObserver, millis: Int, verbose: Boolean = true) {
+		var counter = 0;
+		var result: String? = null;
+		do {
+			result = observer.pollNewValue()
+			delay(100)
+			counter++
+		} while (result == null && counter < millis / 100)
+		if (verbose) {
+			if (counter >= millis / 100) println("assertNoEventInTime -> no events detected")
+			else println("assertNoEventInTime -> event $result detected within ${counter * 100} ms")
 		}
 		assert(counter >= millis / 100)
 	}

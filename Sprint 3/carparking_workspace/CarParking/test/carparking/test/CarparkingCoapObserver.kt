@@ -12,8 +12,13 @@ class CarparkingCoapObserver(val actor: String, val blocking: Boolean = true, va
 	private val client = CoapClient("coap://localhost:60000/ctxcarparking/$actor")
 	private val channel = Channel<String>()
 
+	private lateinit var previous: String
+
 	init {
-		if (blocking) client.observe(this)
+		if (blocking) {
+			client.observe(this)
+			runBlocking { previous = channel.receive() }
+		}
 	}
 
 	override fun onLoad(response: CoapResponse): Unit {
@@ -27,6 +32,7 @@ class CarparkingCoapObserver(val actor: String, val blocking: Boolean = true, va
 		var result: String
 		if (blocking) result = channel.receive()
 		else result = client.get().getResponseText() ?: ""
+		previous = result
 		if (verbose) println("observe($actor) ~> $result")
 		return result
 	}
@@ -35,8 +41,18 @@ class CarparkingCoapObserver(val actor: String, val blocking: Boolean = true, va
 		var result: String
 		if (blocking) result = channel.receive()
 		else result = client.get().getResponseText() ?: ""
-		result = result.split("(")[1].reversed().substring(1).reversed()
+		previous = result
+		result = result.substringAfter("(").reversed().substring(1).reversed()
 		if (verbose) println("observePayload($actor) ~> $result")
+		return result
+	}
+
+	suspend fun pollNewValue(): String? {
+		var value = client.get().getResponseText() ?: ""
+		var result: String?
+		if (value == previous) result = null
+		else result = value
+		if (verbose) println("observePayload($actor ) ~> ${result ?: "<null>"}")
 		return result
 	}
 

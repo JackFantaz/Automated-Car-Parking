@@ -3,7 +3,7 @@
  *    EXECUTABLE MODEL AS A RESULT OF SPRINT 3
  *    by Giacomo Fantazzini and Claudia Badalamenti
  *
- * */
+ */
 
 System carparking
 
@@ -13,7 +13,6 @@ Dispatch notice : notice(NOTICE)
 Dispatch slotnum : slotnum(SLOTNUM)
 Dispatch tokenid : tokenid(TOKENID)
 Dispatch cmd : cmd(MOVE)
-//Dispatch slot : slot(STATUS)
 Dispatch slot : slot(SLOTNUM, STATUS)
 
 Dispatch enterRequest : enterRequest(N)
@@ -124,12 +123,9 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		forward parkserviceguiactor -m slotnum : slotnum($Slotnum)
 	} Goto do_informIN if [# Slotnum > 0 #] else moveToHome
 	
-	State do_informIN { } Transition t whenMsg carEnter -> moveToIn
-	// Goto moveToIn if [# Slotnum > 0 #] else moveToHome
-	// Transition t whenMsg carEnter and [# Slotnum > 0 #] -> moveToIn else Goto moveToHome
+		State do_informIN { } Transition t whenMsg carEnter -> moveToIn
 
 	State moveToIn {
-		// forward parkserviceguiactor -m notice : notice(carEnter(received))
 		forward trolleyactor -m goto : goto(indoor)
 	} Transition t whenMsg movementDone -> receipt
 
@@ -165,6 +161,7 @@ QActor parkmanagerserviceactor context ctxcarparking {
 		 if [# Slotnum > 0 #] { request sensorsbrokeractor -m outdoorStatus : outdoorStatus(0) }
 		else { forward parkserviceguiactor -m notice : notice(tokenid(invalid)) }
 	} Goto do_acceptOUT if [# Slotnum > 0 #] else moveToHome
+		
 		State do_acceptOUT { } Transition t whenReply outdoorStatus -> redo_acceptOUT
 		
 		State redo_acceptOUT {
@@ -202,7 +199,6 @@ QActor trolleyactor context ctxcarparking {
 
 	[#
 		var home = arrayOf("-", "-", "-")
-		// var parking = arrayOf("-", "-", "-")
 		var indoor = arrayOf("-", "-", "-")
 		var outdoor = arrayOf("-", "-", "-")
 		var parking1 = arrayOf("-", "-", "-")
@@ -218,15 +214,6 @@ QActor trolleyactor context ctxcarparking {
 	#]
 
 	State setup initial {
-		/*solve( consult("locationsKb.pl") )
-		solve( home(X, Y, D) )
-		[# home = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
-		solve( parking(X, Y, D) )
-		[# parking = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
-		solve( indoor(X, Y, D) )
-		[# indoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]
-		solve( outdoor(X, Y, D) )
-		[# outdoor = arrayOf(getCurSol("X").toString(), getCurSol("Y").toString(), getCurSol("D").toString().toUpperCase()) #]*/
 		solve( consult("locationsKb.pl") )
 		solve( home(X, Y, D) ) [# home = parseLocation() #]
 		solve( indoor(X, Y, D) ) [# indoor = parseLocation() #]
@@ -283,7 +270,7 @@ QActor trolleyactor context ctxcarparking {
 		else { updateResource [# "working" #] }
 		[# val move = carparking.directionalPlanner.getNextPlannedMove() #]
 		if [# move.isNotEmpty() #] {
-			if [# move == "w" #] { request basicrobot -m step : step(340) }
+			if [# move == "w" #] { request basicrobot -m step : step(335) }
 			if [# move == "l" #] { forward basicrobot -m cmd : cmd(l) }
 			if [# move == "r" #] { forward basicrobot -m cmd : cmd(r) }
 			run carparking.directionalPlanner.updateMap(move)
@@ -317,11 +304,9 @@ QActor sensorsbrokeractor context ctxcarparking {
 
 	State waiting initial {
 		onMsg (indoorStatus : indoorStatus(N)) {
-			println("Broker feedback -> Replying with indoorStatus($Indoor)")
 			replyTo indoorStatus with indoorStatus : indoorStatus($Indoor)
 		}
 		onMsg (outdoorStatus : outdoorStatus(N)) {
-			println("Broker feedback -> Replying with outdoorStatus($Outdoor)")
 			replyTo outdoorStatus with outdoorStatus : outdoorStatus($Outdoor)
 		}
 	} Transition t

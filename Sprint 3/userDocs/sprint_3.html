@@ -187,11 +187,9 @@ div.imagedesc{
 
 <h4>Six parking slots</h4>
 
-<p>The car park now has <k>six parking slots available</k> as requested by the client. At each entry or exit of a car from the car park, a variable is updated with the <ks>current status of the slots</ks>, which can be "<k>vacant</k>"" or  "<k>full</k>".
-At first we assume that the system has all six parking spaces empty and then, after each request, the trolley carries each car into a slot that will be colored red in the manager's gui.<br>
-Each parking slot is represented by a <kc>triple</kc> that indicates the position on the map and the direction that the trolley must take when it is in front of that specific parking slot.
-Furthermore, these coordinates are found in <em><a href="../carparking_workspace/CarParking/locationsKb.pl">locationsKb.pl</a></em> and correspond to the following:
-</p>
+<p>The car park now has <ks>six parking slots</ks> available as requested by the customer. At each entry or exit of a car from the car park, a variable is updated with the <ks>current status of each slot</ks>, which can be <k>vacant</k> or  <k>full</k>. At first we assume that the system has all six parking spaces empty and then, after each request, the trolley carries each car into a slot that will be colored red in the <kc>ManagerGUI</kc>.</p>
+
+<p>Each parking slot is represented by a <ks>triple</ks> that indicates the position on the map and the direction that the trolley must take when it is in front of that specific parking slot. These coordinates are found in <em><a href="../carparking_workspace/CarParking/locationsKb.pl">locationsKb.pl</a></em> and correspond to the following:</p>
 
 <pre>
 parking1(1, 1, e).
@@ -224,11 +222,11 @@ parking6(4, 3, w).
 
 <p>Experiments shown that the minimum distance that the sonar is able to intercept is 3 cm, while the maximum is 42 cm. For this reason we established a <ks>threshold value of 25 cm</ks>, below which the car is to be considered present. The <kc>SonarDriver</kc>, <a href="../../Analysis%20model/userDocs/analysis.html#requirements_taxonomy"> adaptable to be a presence sensor</a>, has been completed accordingly.</p>
 
-<h4>The complete Manager GUI</h4>
+<h4>The complete Manager GUI and Client GUI</h4>
 
-<p>As a result of the enhancements previously described, the <kc>ManagerGUI</kc> is now able to show the full status of the parkin-area updated in near real-time.</p>
+<p>As a result of the enhancements previously described, the <kc>ManagerGUI</kc> is now able to show the full status of the parkin-area updated in near real-time. The functionalities of the <kc>ClientGUI</kc> are also complete.</p>
 
-<center><img src="./img/full_manager_gui.png" width="400px"></center>
+<center><img src="./img/full_guis.png" width="700px"></center>
 
 <h4>Testing</h4>
 
