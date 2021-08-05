@@ -186,15 +186,10 @@ class Parkmanagerserviceactor ( name: String, scope: CoroutineScope  ) : ActorBa
 								 }
 						}
 					}
-					 transition( edgeName="goto",targetState="findSlot", cond=doswitchGuarded({ payloadArg(0) == "free"  
+					 transition( edgeName="goto",targetState="moveToSlotOut", cond=doswitchGuarded({ payloadArg(0) == "free"  
 					}) )
 					transition( edgeName="goto",targetState="moveToHome", cond=doswitchGuarded({! ( payloadArg(0) == "free"  
 					) }) )
-				}	 
-				state("findSlot") { //this:State
-					action { //it:State
-					}
-					 transition( edgeName="goto",targetState="moveToSlotOut", cond=doswitch() )
 				}	 
 				state("moveToSlotOut") { //this:State
 					action { //it:State

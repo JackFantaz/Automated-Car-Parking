@@ -230,6 +230,8 @@ parking6(4, 3, w).
 
 <h4>Testing</h4>
 
+<p>To simplify the writing of test cases, we introduced a new class called <kc>CarparkingCoapObserver</kc> able to read a resource both in a non-blocking fashion and in a blocking fashion waiting for the value of the resource to change.</p>
+
 <p>Tests from Sprint 1 and Sprint 2 must still hold, however they had to be adapted to deal with the multiple parking-slots. We report hereunder only the most significant fragments of each new test case:</p>
 
 <pre>
@@ -240,24 +242,26 @@ parking6(4, 3, w).
 @Test
 fun checkAlarms() {
 
+  val ccoo = CarparkingCoapObserver("outdoorsentinelactor", blocking = true)
   actor!!.emit("outdoorCleared", "outdoorCleared(0)")
-  assertNoEventInTime(1000)
+  assertNoEventInTime(ccoo, 1000)
   actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
-  assertNoEventInTime(4000)
-  assertEvent("outdoorAlarm(0)")
+  assertNoEventInTime(ccoo, 4000)
+  assertEvent(ccoo, "outdoorAlarm(0)")
   actor!!.emit("outdoorCleared", "outdoorCleared(0)")
-  assertEvent("outdoorAlarmRevoked(0)")
+  assertEvent(ccoo, "outdoorAlarmRevoked(0)")
 
+  val ccof = CarparkingCoapObserver("fanactor", blocking = true)
   actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
   actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
-  assertEvent("fanStart(0)")
+  assertEvent(ccof, "fanStart(0)")
   actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
-  assertEvent("fanStop(0)")
+  assertEvent(ccof, "fanStop(0)")
   actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
   actor!!.emit("temperatureAlarm", "temperatureAlarm(0)")
-  assertNoEventInTime(1000)
+  assertNoEventInTime(ccof, 1000)
   actor!!.emit("temperatureAlarmRevoked", "temperatureAlarmRevoked(0)")
-  assertNoEventInTime(1000)
+  assertNoEventInTime(ccof, 1000)
 
 }
 </pre>
