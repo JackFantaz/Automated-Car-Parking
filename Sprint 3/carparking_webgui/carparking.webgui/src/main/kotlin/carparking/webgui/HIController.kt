@@ -180,71 +180,6 @@ class HIController {
         return "managerGui"
     }
 
-    /*@PostMapping("/carparking2")
-    fun carparking2(
-        viewmodel: Model,
-        @RequestParam(name = "dispatch", required = false, defaultValue = "") button: String
-    ): String {
-        println("/carparking viewmodel=$viewmodel button=$button ...")
-        val message = when (button) {
-            "start_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "fanStart",
-                "fanStart(0)",
-                fanTopic
-            )
-            "stop_fan" -> MsgUtil.buildDispatch(
-                "managergui",
-                "fanStop",
-                "fanStop(0)",
-                fanTopic
-            )
-            /*   "auto_fan" -> MsgUtil.buildDispatch(
-                   "managergui",
-                   "autoFan",
-                   "autoFan(0)",
-                   connQak.qakdestination
-               )
-               "start_trolley" -> MsgUtil.buildDispatch(
-                   "managergui",
-                   "startTrolley",
-                   "startTrolley(0)",
-                   connQak.qakdestination
-               )
-               "stop_trolley" -> MsgUtil.buildDispatch(
-                   "managergui",
-                   "stopTrolley",
-                   "stopTrolley(0)",
-                   connQak.qakdestination
-               )
-
-             */
-            else -> null
-        }
-        if (message != null) {
-            var answer = ""
-            fanObserver.channel = fanChannel
-            fanConnection.forward(message)
-            runBlocking {
-                answer = fanChannel.receive()
-                fanObserver.channel = null
-            }
-            println("... answer=$answer")
-            if (answer.contains("temperature")) answer = "${parseArg(answer)}   [TMAX=35°]"
-            else answer = ""
-            viewmodel.addAttribute("receivedTemp", answer)
-            if (answer.contains("fan")) answer = "${parseArg(answer)}"
-            else answer = ""
-            viewmodel.addAttribute("receivedFan", answer)
-            if (answer.contains("trolley")) answer = "${parseArg(answer)}"
-            else answer = ""
-            viewmodel.addAttribute("receivedTrolley", answer)
-        } else {
-            viewmodel.addAttribute("received2", "")
-        }
-        return "managerGui"
-    }*/
-
     @PostMapping("/fan")
     fun fan(
         viewmodel: Model,
@@ -269,13 +204,7 @@ class HIController {
             )
             else -> null
         }
-        // val answer = sendDispatchCheckCoap(message, fanObserver, fanChannel, fanConnection)
         if (message != null) managerConnection.forward(message)
-        /*val received = if (parseType(answer) == "fanStart") "ON" else if (parseType(answer) == "fanStop") "OFF" else ""
-        fanStatus = received
-        addStatusAttributes(viewmodel)
-        println("... answer=$answer receivedFan=$received")*/
-
         if (button == "auto_fan") {
             val resource = managerSupport.readResource()
             val control = if (resource == "auto") "manual" else "auto"
@@ -283,38 +212,8 @@ class HIController {
             message = MsgUtil.buildDispatch("managergui", "fanAuto", "fanAuto($control)", managerTopic)
             managerConnection.forward(message)
         }
-
-
         return "managerGui"
     }
-
-    /*@PostMapping("/temperature")
-    fun temperature(
-        viewmodel: Model,
-    ): String {
-        println("/temperature viewmodel=$viewmodel ...")
-        var answer = thermometerSupport.readResource()
-        val received = parseArg(answer)
-        // viewmodel.addAttribute("receivedTemp", received)
-        tempStatus = received
-        addStatusAttributes(viewmodel)
-        println("... answer=$answer receivedTemp=$received")
-        return "managerGui"
-    }*/
-
-    /*@PostMapping("/slots")
-    fun slots(
-        viewmodel: Model,
-    ): String {
-        println("/slots viewmodel=$viewmodel ...")
-        var answer = serviceSupport.readResource()
-        val received = parseArg(answer)
-        // viewmodel.addAttribute("receivedSlot", received)
-        slotStatus = received
-        addStatusAttributes(viewmodel)
-        println("... answer=$answer receivedSlot=$received")
-        return "managerGui"
-    }*/
 
     @PostMapping("/trolley")
     fun trolley(
@@ -346,7 +245,7 @@ class HIController {
     fun ajax(@RequestParam(name = "about", required = false, defaultValue = "") about: String): String {
         // println("/ajax about=$about ...")
         var answer = when (about) {
-            "temp" -> parseArg(thermometerSupport.readResource())+" °C"
+            "temp" -> parseArg(thermometerSupport.readResource()) + " °C"
             "slots" -> serviceSupport.readResource()
             "fan" -> if (parseType(fanSupport.readResource()) == "fanStart") "ON" else if (parseType(fanSupport.readResource()) == "fanStop") "OFF" else ""
             "tempAlarm" -> if (parseType(tempSentinelSupport.readResource()) == "temperatureAlarm") "TEMPERATURE ALARM!<br>" else ""
@@ -383,12 +282,6 @@ class HIController {
 
     private fun parseType(message: String): String {
         return message.split("(", ")")[0]
-    }
-
-    private fun addStatusAttributes(model: Model) {
-        model.addAttribute("receivedTemp", tempStatus)
-        model.addAttribute("receivedFan", fanStatus)
-        model.addAttribute("receivedSlot", slotStatus)
     }
 
     @ExceptionHandler
