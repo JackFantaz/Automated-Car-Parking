@@ -55,5 +55,7 @@ class CarparkingCoapObserver(val actor: String, val blocking: Boolean = true, va
 		if (verbose) println("observePayload($actor ) ~> ${result ?: "<null>"}")
 		return result
 	}
+	
+	fun isBlocking(): Boolean { return blocking }
 
 }

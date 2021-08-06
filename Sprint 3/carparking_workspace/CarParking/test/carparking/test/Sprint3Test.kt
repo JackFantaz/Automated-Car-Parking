@@ -68,8 +68,141 @@ class Sprint3Test {
 	fun afterEach() {
 		runBlocking { delay(2000) }
 	}
-
+	
 	@Test
+	fun showCase() {
+		runBlocking {
+		
+			val parkserviceObs = CarparkingCoapObserver("parkserviceguiactor", blocking=false)
+			val temperaturesentinelObs = CarparkingCoapObserver("temperaturesentinelactor", blocking=false)
+			val fanObs = CarparkingCoapObserver("fanactor", blocking=false)
+			
+			// TWO CARS IN
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkserviceguiactor")
+			actor!!.forward("carEnter", "carEnter(0)", "parkserviceguiactor")
+			assertLocationInTime("6", "0", "N", 60000)
+			assertLocationInTime("4", "3", "W", 60000)
+			val tokenid1 = parkserviceObs.observePayload()
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkserviceguiactor")
+			actor!!.forward("carEnter", "carEnter(0)", "parkserviceguiactor")
+			assertLocationInTime("6", "0", "N", 60000)
+			assertLocationInTime("4", "2", "W", 60000)
+			val tokenid2 = parkserviceObs.observePayload()
+			
+			// AUTO FAN CHECK
+			actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
+			delay(3000)
+			actor!!.emit("temperature", "temperature(60.0)")
+			assertEvent(temperaturesentinelObs, "temperatureAlarm(0)")
+			assertEvent(fanObs, "fanStart(0)")
+			delay(3000)
+			actor!!.emit("temperature", "temperature(20.0)")
+			assertEvent(temperaturesentinelObs, "temperatureAlarmRevoked(0)")
+			assertEvent(fanObs, "fanStop(0)")
+			delay(3000)
+			actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
+			
+			// EXIT WITH TROLLEY STOP-START
+			actor!!.forward("exitRequest", "exitRequest($tokenid1)", "parkserviceguiactor")
+			delay(3000)
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "parkservicestatusguiactor")
+			assertNotMovingInTime(3000)
+			actor!!.forward("startTrolley", "startTrolley(0)", "parkservicestatusguiactor")
+			assertLocationInTime("4", "3", "W", 60000)
+			assertLocationInTime("6", "4", "S", 60000)
+			assertLocationInTime("0", "0", "S", 60000)
+			
+			// EXPIRED TOKENID
+			actor!!.forward("exitRequest", "exitRequest($tokenid1)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "tokenid(invalid)")
+			delay(3000)
+			
+			// EXIT REQUEST WITH OUTDOOR-AREA OCCUPIED
+			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "outdoorArea(occupied)")
+			assertNotMovingInTime(3000)
+
+			// EXIT WITH OUTDOOR-AREA CLEARED
+			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "exitRequest(received)")
+			assertLocationInTime("4", "2", "W", 60000)
+			assertLocationInTime("6", "4", "S", 60000)
+			assertLocationInTime("0", "0", "S", 60000)
+
+		}
+	}
+	
+	/*@Test
+	fun showCaseAlternative() {
+		runBlocking {
+		
+			val parkserviceObs = CarparkingCoapObserver("parkserviceguiactor")
+			val temperaturesentinelObs = CarparkingCoapObserver("temperaturesentinelactor")
+			val fanObs = CarparkingCoapObserver("fanactor")
+			
+			// TWO CARS IN
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkserviceguiactor")
+			assertSlotnum(parkserviceObs, "6")
+			actor!!.forward("carEnter", "carEnter(0)", "parkserviceguiactor")
+			val tokenid1 = parkserviceObs.observePayload()
+			assertLocationInTime("6", "0", "N", 60000)
+			assertLocationInTime("4", "3", "W", 60000)
+			actor!!.forward("enterRequest", "enterRequest(0)", "parkserviceguiactor")
+			assertSlotnum(parkserviceObs, "5")
+			actor!!.forward("carEnter", "carEnter(0)", "parkserviceguiactor")
+			val tokenid2 = parkserviceObs.observePayload()
+			assertLocationInTime("6", "0", "N", 60000)
+			assertLocationInTime("4", "2", "W", 60000)
+			
+			// AUTO FAN CHECK
+			actor!!.forward("fanAuto", "fanAuto(auto)", "parkservicestatusguiactor")
+			delay(3000)
+			actor!!.emit("temperature", "temperature(60.0)")
+			assertEvent(temperaturesentinelObs, "temperatureAlarm(0)")
+			assertEvent(fanObs, "fanStart(0)")
+			delay(3000)
+			actor!!.emit("temperature", "temperature(20.0)")
+			assertEvent(temperaturesentinelObs, "temperatureAlarmRevoked(0)")
+			assertEvent(fanObs, "fanStop(0)")
+			delay(3000)
+			actor!!.forward("fanAuto", "fanAuto(manual)", "parkservicestatusguiactor")
+			
+			// EXIT WITH TROLLEY STOP-START
+			actor!!.forward("exitRequest", "exitRequest($tokenid1)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "exitRequest(received)")
+			delay(3000)
+			actor!!.forward("stopTrolley", "stopTrolley(0)", "parkservicestatusguiactor")
+			assertNotMovingInTime(3000)
+			actor!!.forward("startTrolley", "startTrolley(0)", "parkservicestatusguiactor")
+			assertLocationInTime("4", "3", "W", 60000)
+			assertLocationInTime("6", "4", "S", 60000)
+			assertLocationInTime("0", "0", "S", 60000)
+			
+			// EXPIRED TOKENID
+			actor!!.forward("exitRequest", "exitRequest($tokenid1)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "tokenid(invalid)")
+			delay(3000)
+			
+			// EXIT REQUEST WITH OUTDOOR-AREA OCCUPIED
+			actor!!.emit("outdoorOccupied", "outdoorOccupied(0)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "outdoorArea(occupied)")
+			assertNotMovingInTime(3000)
+
+			// EXIT WITH OUTDOOR-AREA CLEARED
+			actor!!.emit("outdoorCleared", "outdoorCleared(0)")
+			actor!!.forward("exitRequest", "exitRequest($tokenid2)", "parkserviceguiactor")
+			assertNotice(parkserviceObs, "exitRequest(received)")
+			assertLocationInTime("4", "2", "W", 60000)
+			assertLocationInTime("6", "4", "S", 60000)
+			assertLocationInTime("0", "0", "S", 60000)
+
+		}
+	}*/
+
+	/*@Test
 	fun checkCleanSequence() {
 		runBlocking {
 
@@ -100,7 +233,7 @@ class Sprint3Test {
 			assertNotMovingInTime(3000)
 
 		}
-	}
+	}*/
 
 	/*@Test
 	fun checkRobustSequence() {
@@ -516,6 +649,7 @@ class Sprint3Test {
 	}
 
 	private suspend fun assertEvent(observer: CarparkingCoapObserver, event: String, verbose: Boolean = true) {
+		if (!observer.isBlocking()) delay(500)
 		var result = observer.observe()
 		if (verbose) {
 			if (result == event) println("assertEvent -> correct event $result detected")
@@ -540,15 +674,17 @@ class Sprint3Test {
 	}
 
 	private suspend fun assertSlotnum(observer: CarparkingCoapObserver, slotnum: String, verbose: Boolean = true) {
+		if (!observer.isBlocking()) delay(500)
 		var result = observer.observePayload()
 		if (verbose) {
-			if (result == slotnum) println("assertNotice -> correct SLOTNUM $result detected")
-			else println("assertNotice -> wrong SLOTNUM $slotnum detected instead of $slotnum")
+			if (result == slotnum) println("assertSlotnum -> correct SLOTNUM $result detected")
+			else println("assertSlotnum -> wrong SLOTNUM $slotnum detected instead of $slotnum")
 		}
 		assertEquals(result, slotnum)
 	}
 
 	private suspend fun assertNotice(observer: CarparkingCoapObserver, notice: String, verbose: Boolean = true) {
+		if (!observer.isBlocking()) delay(500)
 		var result = observer.observePayload()
 		if (verbose) {
 			if (result == notice) println("assertNotice -> correct notice $result detected")
