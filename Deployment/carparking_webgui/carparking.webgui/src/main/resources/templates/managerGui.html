@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ParkServiceStatusGUI</title>
+
+    <style type="text/css">
+        div.remark{
+            background-color: #e0ffff;
+            border: 2px solid;
+            padding: 20px;
+
+        }
+        body {
+            font-family: Calibri;
+            font-weight: 700;
+            margin: 5px;
+        }
+
+        button {
+            position: relative;
+            display: inline-block;
+
+            width: 12em;
+            height: 2.5em;
+            line-height: 2.4em;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: 700;
+            color: #000;
+            border: 1px solid rgba(127, 131, 133, 0.644);
+            border-top-color: rgba(0, 0, 0, 0.692);
+            border-radius: 5px;
+            background: rgb(206, 220, 231) linear-gradient(rgb(206,220,231), rgb(89,106,114));
+            box-shadow:
+            0 -1px rgba(10,21,28,.9) inset,
+            0 1px rgba(255,255,255,.5) inset;
+        }
+        button:hover {
+            background: linear-gradient(#d2dfea, #71828c);
+        }
+        button:active {
+            line-height: 2.6em;
+            background: linear-gradient(#bac6cf, #c5d3de 20%, #71828c);
+            box-shadow: 0 -1px rgba(255,255,255,.4) inset;
+        }
+        button:before {
+            content: "";
+            position: absolute;
+            top: -10px; right: -10px; bottom: -10px; left: -10px;
+            z-index: -1;
+            border-radius: 8px;
+            background: linear-gradient(rgba(200,200,200,.5), rgba(240,240,240,.5));
+        }
+        td {
+            vertical-align: middle;
+            /*border: 3px solid black;*/
+        }
+
+
+
+
+
+
+    </style>
+
+    <script>
+
+        function sendAjaxRequest(method, destination, parameters, handler, format) {
+            var ajax;
+            var	list;
+            var created;
+            var i;
+            var getParameters;
+            var postParameters;
+            ajax = false;
+            list = new Array('Microsoft.XmlHttp', 'MSXML4.XmlHttp', 'MSXML3.XmlHttp', 'MSXML2.XmlHttp', 'MSXML.XmlHttp');
+            try {
+                ajax = new XMLHttpRequest();
+            } catch (e) {}
+            if (!ajax) {
+                created = false;
+                for (var i = 0 ; i < list.length && !created; i++) {
+                    try {
+                        ajax = new ActiveXObject(list[i]);
+                        created = true;
+                    } catch (e) {}
+                }
+            }
+            if (ajax) {
+                ajax.onreadystatechange = function() {
+                    if ((ajax.readyState === 4) && (ajax.status === 200)) {
+                        format = format.toUpperCase();
+                        if (format === 'TEXT') {
+                            handler(ajax.responseText);
+                        } else if (format === 'XML') {
+                            handler(ajax.responseXML);
+                        }
+                    }
+                };
+                method = method.toUpperCase();
+                if (method === 'GET') {
+                    getParameters = "?" + parameters;
+                    postParameters = null;
+                } else if (method === 'POST') {
+                    getParameters = "";
+                    postParameters = parameters;
+                }
+                ajax.open(method, destination + getParameters, true);
+                // ajax.setRequestHeader('connection', 'close');
+                ajax.send(postParameters);
+            }
+        }
+
+        function asyncAsk(about, millis, offset, handler) {
+            sendAjaxRequest("GET", "/ajax", "about="+about, handler, "TEXT")
+            window.setTimeout(()=>window.setInterval(()=>sendAjaxRequest("GET", "/ajax", "about="+about, handler, "TEXT"), millis), offset)
+        }
+
+        function initUpdate(millis, offset) {
+            asyncAsk("temp", millis, offset*1, valueHandler("temp_endpoint"))
+            asyncAsk("slots", millis, offset*2, slotsHandler)
+            asyncAsk("fan", millis, offset*3, valueHandler("fan_endpoint"))
+            asyncAsk("tempAlarm", millis, offset*4, textHandler("tempAlarm_endpoint"))
+            asyncAsk("outAlarm", millis, offset*5, textHandler("outAlarm_endpoint"))
+            asyncAsk("trolley", millis, offset*6, valueHandler("trolley_endpoint"))
+        }
+
+        function valueHandler(id) {
+            return function(response) {
+                document.getElementById(id).value = response
+            }
+        }
+
+        function textHandler(id) {
+            return function(response) {
+                document.getElementById(id).innerHTML = response
+            }
+        }
+
+        function slotsHandler(response) {
+            endpoints = ["slots_ep1", "slots_ep2", "slots_ep3", "slots_ep4", "slots_ep5", "slots_ep6"]
+            cells = ["slots_td1", "slots_td2", "slots_td3", "slots_td4", "slots_td5", "slots_td6"]
+            values = response.split(" ")
+            for (i = 0; i < 6; i++) {
+                document.getElementById(endpoints[i]).innerText = (values[i] == "f") ? "full" : "vacant"
+                document.getElementById(cells[i]).style = (values[i] == "f") ? "background-color: #FF0000" : "background-color: #DCDCDC"
+            }
+        }
+
+
+
+    </script>
+
+</head>
+
+<body onload="initUpdate(1500, 250)">
+<div style="position:absolute;float:left;padding:5px;">
+    <a href="/"> open / </a>
+    <br>
+    <a href="/status"> open /status </a>
+</div>
+<div style="background-color: #48d1cc; border: 2px solid ">
+    <center><h2>ParkServiceStatusGUI</h2></center>
+</div>
+
+<div class="remark" style="height: 450px">
+    <br>
+    <form action="carparking2" method="post"></form>
+    Parking-area status<br>
+    <table width="150px" height="150px" border="1" align="left" bgcolor=#dcdcdc>
+        <tr>
+            <td id="slots_td1" width="70px" height="40px">
+                <center><span id="slots_ep1">n/a</span></center>
+            </td>
+            <td id="slots_td4" width="70px" height="40px">
+                <center><span id="slots_ep4">n/a</span></center>
+            </td>
+        </tr>
+        <tr>
+            <td id="slots_td2" width="70px" height="40px">
+                <center><span id="slots_ep2">n/a</span></center>
+            </td>
+            <td id="slots_td5" width="70px" height="40px">
+                <center><span id="slots_ep5">n/a</span></center>
+            </td>
+        </tr>
+        <tr>
+            <td id="slots_td3" width="70px" height="40px">
+                <center><span id="slots_ep3">n/a</span></center>
+            </td>
+            <td id="slots_td6" width="70px" height="40px">
+                <center><span id="slots_ep6">n/a</span></center>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <div style="position: absolute; top:100px; left:300px">
+        <table style="padding:10px; border: 2px solid black;" width="350px" height="300px" align=center bgcolor=#f5f5f5>
+            <tr>
+                <td>Temperature:</td>
+                <br>
+                <br>
+                <td>
+                    <center>
+                        <br>
+                        <input id="temp_endpoint" type="text"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                        <br>
+                        <br>
+                    </center>
+                </td>
+            </tr>
+            <td></td>
+            <tr>
+                <td>Fan status:</td>
+                <td>
+                    <center>
+                        <br>
+                        <input id="fan_endpoint" type="text"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <center>
+                        <form action="fan" method="post">
+                            <button name="dispatch" value="start_fan">START</button>
+                            <button name="dispatch" value="stop_fan">STOP</button>
+                            <button name="dispatch" value="auto_fan">AUTO</button>
+                        </form>
+                        <br>
+                        <br>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td>Transport trolley status:</td>
+                <td>
+                    <center>
+                        <br>
+                        <input id="trolley_endpoint" type="text"
+                               style="font-weight:bold; color:black; background-color: white;" readonly>
+                    </center>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+
+                <td>
+                    <center>
+                        <form action="trolley" method="post">
+                            <button name="dispatch" value="start_trolley">START</button>
+                            <button name="dispatch" value="stop_trolley">STOP</button>
+                        </form>
+                        <br>
+                    </center>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <br>
+    <br>
+
+    <div style="position: absolute; top:350px; left:30px">
+        <div style="background-color: #fafad2; border:1px solid black; width: 200px; height: 20px; padding:7px">
+            Alarms:
+        </div>
+        <div style="color:red; background-color: #fafad2; border:1px solid black; font-family: Calibri; font-weight: 700; width: 200px; padding:7px; height: 60px;">
+            <span id="tempAlarm_endpoint">TA<br></span>
+            <span id="outAlarm_endpoint">OA<br></span>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
