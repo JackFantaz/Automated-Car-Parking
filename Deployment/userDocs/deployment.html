@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<style type="text/css">
+body {
+    margin-left:  30px;
+    margin-right: 30px;
+};
+P {
+    font-family: Tahoma;
+    font-size: 10pt;
+};
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+	font-size: 93%;
+}
+a:hover {
+    background-color: #cccccc;
+}
+hr {
+    clear: both;
+    height: 1px;
+    color: #242424;
+    background-color: transparent;
+}
+h1, h2, h3 {
+    color: #242424;
+    clear: left;
+    font: 100% Tahoma, Helvetica, Arial, sans-serif;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+	border-radius: 10px;
+	padding: 5px;
+}
+top {
+	width: 100%;
+}
+#i {
+    color: #ff1010;
+}
+tt{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	color: #006600;
+}
+em{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	border-style:solid;
+	border-color: #abe876;
+    color: #1632cc;
+}
+bc{
+	font-family: "Arial";
+	font-size: 90%;
+	font-weight: bold;
+    color: #990000;
+	background-color: #fcf8c7;
+}
+ks{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #0000CD	;
+	font-size: 90%;
+}
+kc{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #008000	;
+	font-size: 90%;
+}
+pre{
+	font-family: "Consolas";
+	font-size: 85%;
+	background-color: #f5f5f5;
+	border: 1.5px solid silver;
+	padding: 5px;
+}
+m{
+	font-family: "Helvetica";
+	line-height: 100%;
+ 	font-size: 75%;
+}
+div.body{
+
+    font-size: 18px;
+}
+k{
+    color: #990000;
+	font-weight: bold;
+	font-size: 90%;
+}
+h1 {
+    font-size: 150%;
+    background-color: #b2c0ff;
+	padding: 10px;
+}
+h2 {
+    background-color: #9ed8ff;
+    font-size: 130%;
+}
+h3 {
+	background-color: #e6ccff;
+    font-size: 100%;
+}
+h4 {
+    background-color: #ccffcc;
+    font-size: 100%;
+	width: 95%;
+	border-radius: 5px;
+	padding: 2px;
+}
+h5 {
+    background-color: #d5ffb0;
+    font-size: 100%;
+
+}
+div.req{
+	background-color: #d9ffb3;
+    font-size: 18px;
+	width: 700px;
+    border: 3px solid green;
+    padding: 15px;
+    margin: 10px;
+}
+div.remark{
+	background-color: #E3F2FD;
+    border: 1.5px solid #d5f2ed;
+    padding: 15px;
+    margin: 10px;
+	border-radius: 25px;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+ol, ul, li {
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+  padding-bottom: 5px;
+}
+table, th, td {
+	border: 1px solid black;
+}
+img {
+	border: 1.5px solid #d5f2ed
+
+}
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+}
+div.wrapdesc{
+	width: 90%;
+	margin: auto;
+}
+div.imagedesc{
+	width: 85%;
+	margin: auto;
+}
+</style>
+<title>Deployment | Final task ISS-2021 Bologna: Automated Car-Parking</title>
+</head>
+
+<body>
+
+<div id="top">
+<h1>Final task ISS-2021 Bologna: Automated Car-Parking</h1>
+</div>
+
+<div class="body">
+
+<a href="../../Analysis%20model/userDocs/analysis.html">Problem analysis</a><br>
+<a href="../../Sprint%201/userDocs/sprint_1.html">Sprint 1</a><br>
+<a href="../../Sprint%202/userDocs/sprint_2.html">Sprint 2</a><br>
+<a href="../../Sprint%203/userDocs/sprint_3.html">Sprint 3</a>
+
+<h2>Deployment</h2>
+
+<div class="remark">
+
+<h3>Conceptual architecture of the system</h3>
+<center><img src="./img/actors_sprint3.png" height="500px"></center>
+
+<h3>The computational nodes</h3>
+<p>For this deployment on a testing environment, we decided to split the actors into two contexts. The context with the business logic and the main components of the system is to be run on a <ks>PC</ks>. The other is to be run on a <ks>Raspberry Pi</ks> attached to a <k>real sonar device</k>. The two <kc>Web GUIs</kc> and the <kc>BasicRobot</kc> remain independent and may be arbitrarily split between the two <ks>PCs</ks>.</p>
+<center><img src="./img/deploy.png" height="500px"></center>
+
+<h3>The Web GUIs</h3>
+
+<p>The <kc>Web GUIs</kc> are put on two different <ks>Spring</ks> servers on <k>port 8100</k> and <k>port 8101</k> and are built into distributable <ks>tarballs</ks> via <ks>Gradle</ks>.</p>
+<pre>
+gradlew -b build.gradle.kts distTar
+</pre>
+
+<p>The <ks>Docker images</ks> of the <kc>Web GUIs</kc> are created by a simple <ks>Dockerfile</ks>.</p>
+<pre>
+FROM openjdk:12.0.2
+EXPOSE 8100
+ADD ./build/distributions/*.tar /
+WORKDIR /carparking.webgui-1.0/bin
+CMD ["bash", "carparking.webgui"]
+
+# docker build --rm -t client-carparking-webgui .
+# docker run --rm -p8100:8100  client-carparking-webgui
+</pre>
+
+<p>Since they are deployed on the same node, we can leverage a single <ks>YAML file</ks> to execute them.</p>
+<pre>
+services:
+  client:
+  image: client-carparking-webgui
+  ports:
+    - 8100:8100
+  manager:
+  image: manager-carparking-webgui
+  ports:
+    - 8101:8101
+
+# docker-compose -f carparking_webgui.yaml up
+</pre>
+<p>These images could be easily tagged and pushed to <ks>DockerHub</ks> to be made more easily accessible.</p>
+
+</div>
+
+<!--
+
+<h2>Maintenance</h2>
+
+<div class="remark">
+</div>-->
+
+<!-- USEFUL
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+</td>
+<td></td>
+</tr>
+</table>
+-->
+
+<br/>
+</div>
+
+<div style="background-color: #b2c0ff; color: #242424; clear: left; font: 100% Tahoma, Helvetica, Arial, sans-serif; margin-bottom: 0.5em; padding-top: 0.5em; border-radius: 10px; padding: 5px; font-size: 15px;">
+	<span style="color:crimson;font-weight:bold;">
+		By: Giacomo Fantazzini and Claudia Badalamenti<br>
+		Email: giacomo.fantazzini2@studio.unibo.it - claudia.badalamenti@studio.unibo.it<br>
+		<center><img src="./img/foto_fantazzini.jpg" width="120px", height="160"> <img src="./img/foto_claudia.jpeg" width="120px", height="160"></center>
+	</span>
+</div>
+</body>
+</html>

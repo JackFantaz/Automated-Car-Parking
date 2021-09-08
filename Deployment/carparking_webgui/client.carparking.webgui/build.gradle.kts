@@ -11,7 +11,7 @@ plugins {
 	distribution
 }
 
-group = "it.unibo"
+group = "carparking"
 version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8 //JavaVersion.VERSION_11
 
@@ -102,14 +102,14 @@ tasks.withType<Test> {
 
 application {
 	// Define the main class for the application.
-	mainClass.set("it.unibo.webBasicrobotqak.WebBasicrobotqakApplicationKt")
+	mainClass.set("carparking.webgui.ApplicationKt")
 }
 
 version = "1.0"
 
 tasks.jar {
 	manifest {
-		attributes["Main-Class"] = "it.unibo.webspring.demo.ApplicationKt"
+		attributes["Main-Class"] = "carparking.webgui.ApplicationKt"
 		attributes(mapOf("Implementation-Title" to project.name,
 			"Implementation-Version" to project.version))
 	}

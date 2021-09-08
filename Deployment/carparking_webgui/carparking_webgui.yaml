@@ -1,0 +1,11 @@
+services:
+    client:
+        image: client-carparking-webgui
+        ports:
+            - 8100:8100
+    manager:
+        image: manager-carparking-webgui
+        ports:
+            - 8101:8101
+
+# docker-compose -f carparking_webgui.yaml up
