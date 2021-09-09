@@ -117,4 +117,26 @@ jar {
         attributes 'Main-Class': "$mainClassName"
     }
 }
+distZip {
+	into(project.name+"-1.0/bin") {
+		from '.'
+		include 'sonar.c'
+		include 'sonar'
+		include '*.pl'
+		include 'parkingMap.bin'
+		include 'parkingMap.txt'
+		include 'Californium.properties'
+	}
+}
 
+distTar {
+	into(project.name+"-1.0/bin") {
+		from '.'
+		include 'sonar.c'
+		include 'sonar'
+		include '*.pl'
+		include 'parkingMap.bin'
+		include 'parkingMap.txt'
+		include 'Californium.properties'
+	}
+}
