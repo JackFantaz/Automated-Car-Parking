@@ -227,6 +227,23 @@ services:
 # docker-compose -f carparking_webgui.yaml up
 </pre>
 
+
+<h3>The sonar</h3>
+<p>A <kc>real sonar</kc> has been connected to the raspberry pi to carry out the function of the presence sensor in the outdoor.<br>
+At the hardware level, the connections are as follows:</p>
+<center><img src="./img/realsonar.png" height="400px"></center>
+<p>The sonar is built on a <ks>zip file</ks> created via <ks>Gradle</ks>.</p>
+
+<pre>gradlew -b build2021.gradle distZip</pre>
+
+<h3>The business logic</h3>
+<p>The business logic, like the sonar, is built on a <ks>zip file</ks> created via <ks>Gradle</ks></p>
+<pre>gradlew -b build2021.gradle distZip</pre>
+<p></p>
+
+
+
+
 </div>
 
 <!--

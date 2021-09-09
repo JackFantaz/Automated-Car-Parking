@@ -1,0 +1,115 @@
+/*
+ *    Automated Car-Parking
+ *    EXECUTABLE MODEL AS A RESULT OF SPRINT 3
+ *    by Giacomo Fantazzini and Claudia Badalamenti
+ *
+ */
+
+System carparking
+
+Dispatch goto : goto(PLACE)
+Dispatch movementDone : movementDone(N)
+Dispatch notice : notice(NOTICE)
+Dispatch slotnum : slotnum(SLOTNUM)
+Dispatch tokenid : tokenid(TOKENID)
+Dispatch cmd : cmd(MOVE)
+Dispatch slot : slot(SLOTNUM, STATUS)
+
+Dispatch enterRequest : enterRequest(N)
+Dispatch carEnter : carEnter(N)
+Dispatch exitRequest : exitRequest(TOKENID)
+
+Dispatch fanStart : fanStart(N)
+Dispatch fanStop : fanStop(N)
+Dispatch fanAuto : fanAuto(STATUS)
+
+Dispatch startTrolley : startTrolley(N)
+Dispatch stopTrolley : stopTrolley(N)
+
+Event indoorCleared : indoorCleared(N)
+Event indoorOccupied : indoorOccupied(N)
+Event outdoorCleared : outdoorCleared(N)
+Event outdoorOccupied : outdoorOccupied(N)
+Event temperature : temperature(VALUE)
+Event outdoorAlarm : outdoorAlarm(N)
+Event outdoorAlarmRevoked : outdoorAlarmRevoked(N)
+Event temperatureAlarm : temperatureAlarm(N)
+Event temperatureAlarmRevoked : temperatureAlarmRevoked(N)
+
+Request step : step(TIME)
+Reply stepdone : stepdone(V)
+
+Request indoorStatus : indoorStatus(N)
+Reply indoorStatus : indoorStatus(STATUS)
+
+Request outdoorStatus : outdoorStatus(N)
+Reply outdoorStatus : outdoorStatus(STATUS)
+ 
+Request lastEvent : lastEvent(N)
+Reply indoorCleared : indoorCleared(N)
+Reply indoorOccupied : indoorOccupied(N)
+Reply outdoorCleared : outdoorCleared(N)
+Reply outdoorOccupied : outdoorOccupied(N)
+Reply temperature : temperature(VALUE)
+
+Context ctxcarparking ip[host="192.168.1.191" port=60000]
+
+Context ctxsonar ip[host="localhost" port=60001]	//ip del proprio pc
+
+QActor sonaractor context ctxsonar {
+ 
+	[#
+		//val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+		val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
+		var previous = false
+		var present = false
+	#]
+
+	State setup initial {
+		emit outdoorCleared : outdoorCleared(0)
+	} Goto polling
+
+	State polling {
+		[# present = mock.isPresent() #]
+		if [# present && previous!=present #] {
+			emit outdoorOccupied : outdoorOccupied(0)
+			updateResource [# "outdoorOccupied(0)" #]
+		}
+		if [# !present && previous!=present #] {
+			emit outdoorCleared : outdoorCleared(0)
+			updateResource [# "outdoorCleared(0)" #]
+		}
+		[# previous = present #]
+	} Transition t
+		whenTime 500 -> polling
+		whenRequest lastEvent -> response
+
+	State response {
+		if [# present #] { replyTo lastEvent with outdoorOccupied : outdoorOccupied(0) }
+		else { replyTo lastEvent with outdoorCleared : outdoorCleared(0) }
+	} Goto polling
+
+}
+
+
+QActor outdoorsentinelactor context ctxsonar {
+
+	State watching initial { }
+	Transition t whenEvent outdoorOccupied -> timer
+
+	State timer { }
+	Transition t
+		whenTime 5000 -> alarm // DTFREE
+		whenEvent outdoorCleared -> watching
+
+	State alarm {
+		emit outdoorAlarm : outdoorAlarm(0)
+		updateResource [# "outdoorAlarm(0)" #]
+	} Transition t whenEvent outdoorCleared -> revoke
+
+	State revoke {
+		emit outdoorAlarmRevoked : outdoorAlarmRevoked(0)
+		updateResource [# "outdoorAlarmRevoked(0)" #]
+	} Goto watching
+
+}
