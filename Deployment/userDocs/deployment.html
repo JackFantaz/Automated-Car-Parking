@@ -201,14 +201,15 @@ gradlew -b build.gradle.kts distTar
 
 <p>The <ks>Docker images</ks> of the <kc>Web GUIs</kc> are created by a simple <ks>Dockerfile</ks>.</p>
 <pre>
-FROM openjdk:12.0.2
-EXPOSE 8100
+FROM openjdk:8-jre-alpine
+EXPOSE 8101
 ADD ./build/distributions/*.tar /
 WORKDIR /carparking.webgui-1.0/bin
-CMD ["bash", "carparking.webgui"]
+CMD ["sh", "carparking.webgui"]
 
 # docker build --rm -t client-carparking-webgui .
-# docker run --rm -p8100:8100  client-carparking-webgui
+# docker save -o client_carparking_webgui.tar client-carparking-webgui
+# docker load -i client_carparking_webgui.tar
 </pre>
 
 <p>Since they are deployed on the same node, we can leverage a single <ks>YAML file</ks> to execute them.</p>
@@ -225,7 +226,6 @@ services:
 
 # docker-compose -f carparking_webgui.yaml up
 </pre>
-<p>These images could be easily tagged and pushed to <ks>DockerHub</ks> to be made more easily accessible.</p>
 
 </div>
 

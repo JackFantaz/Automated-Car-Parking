@@ -2,6 +2,8 @@ package carparking.webgui
 
 import connQak.ConnectionType
 import connQak.connQakBase
+import connQak.robotPort
+import connQak.robothostAddr
 import it.unibo.kactor.MsgUtil
 import kotlinx.coroutines.GlobalScope
 import org.eclipse.californium.core.CoapHandler
@@ -22,7 +24,7 @@ class CarparkingSenderObserver(
     private var connection: connQakBase? = null
 
     private fun initObserver() {
-        client = CoapClient("coap://localhost:60000/ctxcarparking/$actor")
+        client = CoapClient("coap://$robothostAddr:$robotPort/ctxcarparking/$actor")
         client!!.timeout = 750
         if (blocking) {
             channel = Channel<String>()
