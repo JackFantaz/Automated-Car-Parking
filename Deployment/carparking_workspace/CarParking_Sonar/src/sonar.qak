@@ -59,8 +59,8 @@ Context ctxsonar ip[host="localhost" port=60001]
 QActor sonaractor context ctxsonar {
  
 	[#
-		//val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
-		val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
+		val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+		//val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
 		var previous = false
 		var present = false
 	#]

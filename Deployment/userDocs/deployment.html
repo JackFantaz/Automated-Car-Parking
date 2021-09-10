@@ -248,6 +248,85 @@ distZip {
 
 # gradle -b build2021.gradle distZip
 </pre>
+</div>
+
+
+<h2>Final testing</h2>
+
+<div class="remark">
+
+<p>
+    We created a <a href="../../Deployment/carparking_workspace/CarParking_BusinessLogic/test/carparking/test/FinalTest.kt">testing file</a> as requested by the client, assuming that the temperature is and remains ok, the fan is off, INDOOR and OUTDOOR are free and some parking slots are occupied since the beginning. We need to simulate on the system an <ks>enter request</ks>, a <ks>carenter</ks> and a <ks>pick up request</ks>, at a distance of 2 seconds from each other.
+</p>
+
+    <h4>a. Enter request</h4>
+    <ol>
+        <li>
+            The business logic automaton enters the <k>acceptIN</k> state and requests to known the INDOOR state from the sensorsbrokeractor.
+        </li>
+        <li>
+            The sensorsbrokeractor replies that the INDOOR is free, and the business logic switches to the <k>informIN</k> state.
+        </li>
+        <li>
+            The business logic checks the slotnum and sends it to the customer gui.
+        </li>
+    </ol>
+
+
+    <h4>b. Carenter</h4>
+    <ol>
+        <li>
+            When it receives the carenter request, the business logic goes to the <k>moveToIn</k> state and commands the trolley to go to INDOOR.
+        </li>
+        <li>
+            The trolley checks the position of the INDOOR and asks the directional planner to calculate the route.
+        </li>
+        <li>
+            The trolley then changes its state from <kc>idle</kc> to <kc>working</kc> and performs the moves given by the directional planner until it receives a null move.
+        </li>
+        <li>
+            The trolley communicates the termination of the movement to the business logic, which passes to the <k>receipt</k> state.
+        </li>
+        <li>
+            The business logic generates a tokenid, associates it with the previously calculated slotnum and communicates it to the client.
+        </li>
+        <li>
+            The business logic switches to the <k>moveToSlotIn</k> state, communicates the slot occupation to the manager's gui and requests the trolley (as already described) to go to the correct parking slot.
+        </li>
+        <li>
+            When the trolley finishes its movement, the business logic switches to the <k>moveToHome</k> state and requests the trolley (which enters the <kc>idle</kc> state) to go to the home position.
+        </li>
+    </ol>
+
+
+    <h4>c. Pick up request</h4>
+    <ol>
+        <li>
+            Before the trolley returns home, the business logic receives the exit request and goes into the <k>acceptOUT</k> state.
+        </li>
+        <li>
+            The business logic compares the received tokenid with the registered ones, determines the slotnum and requests the OUTDOOR status from the sensorsbrokeractor.
+        </li>
+        <li>
+            The sensorsbrokeractor replies that the OUTDOOR is free and the business logic notifies the client gui that the request has been accepted.
+        </li>
+        <li>
+            The business logic passes to the <k>moveToSlotOut</k> state and commands the trolley (as previously described) to go to the parking slot associated with the calculated slotnum, passing to status <kc>working</kc>.
+        </li>
+        <li>
+            When the trolley reaches the position, the business logic goes to the <k>moveToOut</k> state, records the release of the parking slot (communicating it to the manager's gui) and requests the trolley to go to the OUTDOOR.
+        </li>
+        <li>
+            Once the OUTDOOR is reached, the business logic switches to the <k>moveToHome</k> state and asks the trolley (now in <kc>idle</kc> state) to go to the home position.
+        </li>
+   </ol>
+
+
+
+
+
+
+
 
 </div>
 
