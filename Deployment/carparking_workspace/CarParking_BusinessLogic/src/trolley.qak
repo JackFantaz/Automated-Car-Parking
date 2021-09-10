@@ -54,11 +54,11 @@ Reply temperature : temperature(VALUE)
 
 Context ctxcarparking ip[host="localhost" port=60000]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
-Context ctxsonar ip[host="192.168.1.153" port=60001]	//ip del proprio pc
+// Context ctxsonar ip[host="192.168.1.153" port=60001]
+Context ctxsonar ip[host="172.16.0.2" port=60001]
+
 ExternalQActor basicrobot context ctxbasicrobot
- 
-//ExternalQActor sonaractor context ctxsonar
-//ExternalQActor outdoorsentinelactor context ctxsonar
+ExternalQActor sonaractor context ctxsonar
 
 QActor parkmanagerserviceactor context ctxcarparking {
 
@@ -556,4 +556,26 @@ QActor temperaturesentinelactor context ctxcarparking {
 			}
 		}
 	} Transition t whenEvent temperature -> watching
+}
+
+QActor outdoorsentinelactor context ctxcarparking {
+
+	State watching initial { }
+	Transition t whenEvent outdoorOccupied -> timer
+
+	State timer { }
+	Transition t
+		whenTime 5000 -> alarm // DTFREE
+		whenEvent outdoorCleared -> watching
+
+	State alarm {
+		emit outdoorAlarm : outdoorAlarm(0)
+		updateResource [# "outdoorAlarm(0)" #]
+	} Transition t whenEvent outdoorCleared -> revoke
+
+	State revoke {
+		emit outdoorAlarmRevoked : outdoorAlarmRevoked(0)
+		updateResource [# "outdoorAlarmRevoked(0)" #]
+	} Goto watching
+
 }

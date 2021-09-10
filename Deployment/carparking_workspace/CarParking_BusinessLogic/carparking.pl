@@ -3,8 +3,9 @@
 %====================================================================================
 context(ctxcarparking, "localhost",  "TCP", "60000").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
-context(ctxsonar, "192.168.1.153",  "TCP", "60001").
+context(ctxsonar, "172.16.0.2",  "TCP", "60001").
  qactor( basicrobot, ctxbasicrobot, "external").
+  qactor( sonaractor, ctxsonar, "external").
   qactor( parkmanagerserviceactor, ctxcarparking, "it.unibo.parkmanagerserviceactor.Parkmanagerserviceactor").
   qactor( trolleyactor, ctxcarparking, "it.unibo.trolleyactor.Trolleyactor").
   qactor( sensorsbrokeractor, ctxcarparking, "it.unibo.sensorsbrokeractor.Sensorsbrokeractor").
@@ -14,3 +15,4 @@ context(ctxsonar, "192.168.1.153",  "TCP", "60001").
   qactor( thermometeractor, ctxcarparking, "it.unibo.thermometeractor.Thermometeractor").
   qactor( fanactor, ctxcarparking, "it.unibo.fanactor.Fanactor").
   qactor( temperaturesentinelactor, ctxcarparking, "it.unibo.temperaturesentinelactor.Temperaturesentinelactor").
+  qactor( outdoorsentinelactor, ctxcarparking, "it.unibo.outdoorsentinelactor.Outdoorsentinelactor").
