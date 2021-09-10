@@ -52,19 +52,19 @@ Reply outdoorCleared : outdoorCleared(N)
 Reply outdoorOccupied : outdoorOccupied(N)
 Reply temperature : temperature(VALUE)
 
-// Context ctxcarparking ip[host="192.168.1.191" port=60000]
-Context ctxcarparking ip[host="172.16.0.2" port=60000]
+Context ctxcarparking ip[host="192.168.1.191" port=60000]
+//Context ctxcarparking ip[host="172.16.0.2" port=60000]
 Context ctxsonar ip[host="localhost" port=60001]
 
 QActor sonaractor context ctxsonar {
  
 	[#
-		val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
-		// val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
+		//val mock = carparking.presence.PresenceSonar(carparking.presence.MockSonar())
+		val mock = carparking.presence.PresenceSonar(carparking.presence.SonarDriver(), 25)
 		var previous = false
 		var present = false
 	#]
-
+ 
 	State setup initial {
 		emit outdoorCleared : outdoorCleared(0)
 	} Goto polling

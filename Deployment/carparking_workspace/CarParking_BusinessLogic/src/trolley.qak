@@ -54,8 +54,8 @@ Reply temperature : temperature(VALUE)
 
 Context ctxcarparking ip[host="localhost" port=60000]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
-// Context ctxsonar ip[host="192.168.1.153" port=60001]
-Context ctxsonar ip[host="172.16.0.2" port=60001]
+Context ctxsonar ip[host="192.168.1.153" port=60001]
+//Context ctxsonar ip[host="172.16.0.2" port=60001]
 
 ExternalQActor basicrobot context ctxbasicrobot
 ExternalQActor sonaractor context ctxsonar
@@ -486,7 +486,7 @@ QActor weightactor context ctxcarparking {
 	} Goto polling
 
 }
-
+ 
 QActor thermometeractor context ctxcarparking {
 
 	[#
